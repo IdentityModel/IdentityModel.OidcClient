@@ -9,6 +9,7 @@ using IdentityModel.Client;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
+using System.Collections.Generic;
 
 namespace IdentityModel.OidcClient.IdentityTokenValidation
 {
@@ -28,18 +29,23 @@ namespace IdentityModel.OidcClient.IdentityTokenValidation
                 Success = false
             };
 
-            // todo - load all keys
-            var e = Base64Url.Decode(disco.KeySet.Keys.First().E);
-            var n = Base64Url.Decode(disco.KeySet.Keys.First().N);
-            //var pubKey = PublicKey.New(e, n);
+            var keys = new List<SecurityKey>();
+            foreach (var webKey in disco.KeySet.Keys)
+            {
+                var e = Base64Url.Decode(webKey.E);
+                var n = Base64Url.Decode(webKey.N);
 
-            var rsa = new RsaSecurityKey(new RSAParameters { Exponent = e, Modulus = n });
+                var key = new RsaSecurityKey(new RSAParameters { Exponent = e, Modulus = n });
+                key.KeyId = webKey.Kid;
+
+                keys.Add(key);
+            }
 
             var parameters = new TokenValidationParameters
             {
                 ValidIssuer = disco.TryGetString(OidcConstants.Discovery.Issuer),
                 ValidAudience = clientId,
-                IssuerSigningKey = rsa,
+                IssuerSigningKeys = keys,
 
                 NameClaimType = JwtClaimTypes.Name,
                 RoleClaimType = JwtClaimTypes.Role
