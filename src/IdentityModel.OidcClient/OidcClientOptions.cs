@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace IdentityModel.OidcClient
 {
@@ -33,6 +34,8 @@ namespace IdentityModel.OidcClient
         public TimeSpan BackchannelTimeout { get; set; } = TimeSpan.FromSeconds(30);
         public HttpMessageHandler BackchannelHandler { get; set; }
 
+        public ILoggerFactory LoggerFactory { get; }
+
         public IList<string> FilteredClaims { get; set; } = new List<string>
         {
             JwtClaimTypes.Issuer,
@@ -52,7 +55,7 @@ namespace IdentityModel.OidcClient
             Hybrid
         }
 
-        private OidcClientOptions(string clientId, string clientSecret, string scope, string redirectUri, IWebView webView = null, IIdentityTokenValidator validator = null)
+        private OidcClientOptions(string scope, string redirectUri, string clientId, string clientSecret = null, IWebView webView = null, IIdentityTokenValidator validator = null, ILoggerFactory loggerFactory = null)
         {
             if (string.IsNullOrWhiteSpace(clientId)) throw new ArgumentNullException(nameof(clientId));
             if (string.IsNullOrWhiteSpace(scope)) throw new ArgumentNullException(nameof(scope));
@@ -64,10 +67,20 @@ namespace IdentityModel.OidcClient
             RedirectUri = redirectUri;
             IdentityTokenValidator = validator ?? new DefaultIdentityTokenValidator();
             WebView = webView;
+            LoggerFactory = loggerFactory ?? new LoggerFactory();
         }
 
-        public OidcClientOptions(string authority, string clientId, string clientSecret, string scope, string redirectUri, IWebView webView = null, IIdentityTokenValidator validator = null)
-            : this(clientId, clientSecret, scope, redirectUri, webView, validator)
+        public OidcClientOptions(
+            string authority, 
+            string scope, 
+            string redirectUri, 
+            string clientId, 
+            string clientSecret = null, 
+            IWebView webView = null, 
+            IIdentityTokenValidator validator = null,
+            ILoggerFactory loggerFactory = null
+        ) 
+            : this(scope, redirectUri, clientId, clientSecret, webView, validator, loggerFactory)
         {
             if (string.IsNullOrWhiteSpace(authority)) throw new ArgumentNullException(nameof(authority));
 

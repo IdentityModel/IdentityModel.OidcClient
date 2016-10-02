@@ -1,8 +1,10 @@
-﻿{
+{
   "version": "1.0.0-alpha1",
 
   "dependencies": {
     "IdentityModel": "2.0.0-rc4",
+    "Microsoft.Extensions.Logging": "1.0.0",
+    "Microsoft.Extensions.Logging.Abstractions": "1.0.0",
     "System.ComponentModel": "4.0.1",
     "System.IdentityModel.Tokens.Jwt": "5.0.0"
   },

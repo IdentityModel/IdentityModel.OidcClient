@@ -114,7 +114,7 @@ namespace IdentityModel.OidcClient
 
         private string CreateCodeChallenge(AuthorizeState state)
         {
-            state.CodeVerifier = CryptoRandom.CreateUniqueId();
+            state.CodeVerifier = CryptoRandom.CreateUniqueId(32);
 
             using (var sha256 = SHA256.Create())
             {

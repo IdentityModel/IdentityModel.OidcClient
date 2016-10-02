@@ -3,6 +3,7 @@
 
 
 using IdentityModel.Client;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace IdentityModel.OidcClient
 {
     public class OidcClient
     {
-        //private static readonly ILog Logger = LogProvider.For<OidcClient>();
+        private readonly ILogger<OidcClient> _logger;
 
         private readonly AuthorizeClient _authorizeClient;
         private readonly OidcClientOptions _options;
@@ -24,6 +25,7 @@ namespace IdentityModel.OidcClient
         {
             _authorizeClient = new AuthorizeClient(options);
             _options = options;
+            _logger = options.LoggerFactory.CreateLogger<OidcClient>();
         }
 
         public OidcClientOptions Options
@@ -33,7 +35,7 @@ namespace IdentityModel.OidcClient
 
         public async Task<LoginResult> LoginAsync(bool trySilent = false, object extraParameters = null)
         {
-            //Logger.Debug("LoginAsync");
+            _logger.LogDebug("LoginAsync");
 
             var authorizeResult = await _authorizeClient.AuthorizeAsync(trySilent, extraParameters);
 
@@ -51,7 +53,7 @@ namespace IdentityModel.OidcClient
 
         public async Task<AuthorizeState> PrepareLoginAsync(object extraParameters = null)
         {
-            //Logger.Debug("PrepareLoginAsync");
+            _logger.LogDebug("PrepareLoginAsync");
 
             return await _authorizeClient.PrepareAuthorizeAsync(extraParameters);
         }
@@ -63,7 +65,7 @@ namespace IdentityModel.OidcClient
 
         public async Task<LoginResult> ValidateResponseAsync(string data, AuthorizeState state)
         {
-            //Logger.Debug("ValidateResponseAsync");
+            _logger.LogDebug("ValidateResponseAsync");
 
             var result = new LoginResult { Success = false };
 
@@ -72,7 +74,7 @@ namespace IdentityModel.OidcClient
             if (response.IsError)
             {
                 result.Error = response.Error;
-                //Logger.Error(result.Error);
+                _logger.LogError(result.Error);
 
                 return result;
             }
@@ -80,7 +82,7 @@ namespace IdentityModel.OidcClient
             if (string.IsNullOrEmpty(response.Code))
             {
                 result.Error = "missing authorization code";
-                //Logger.Error(result.Error);
+                _logger.LogError(result.Error);
 
                 return result;
             }
@@ -88,7 +90,7 @@ namespace IdentityModel.OidcClient
             if (string.IsNullOrEmpty(response.State))
             {
                 result.Error = "missing state";
-                //Logger.Error(result.Error);
+                _logger.LogError(result.Error);
 
                 return result;
             }
@@ -96,7 +98,7 @@ namespace IdentityModel.OidcClient
             if (!string.Equals(state.State, response.State, StringComparison.Ordinal))
             {
                 result.Error = "invalid state";
-                //Logger.Error(result.Error);
+                _logger.LogError(result.Error);
 
                 return result;
             }
@@ -115,14 +117,14 @@ namespace IdentityModel.OidcClient
 
         private async Task<LoginResult> ValidateHybridFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state)
         {
-            //Logger.Debug("ValidateHybridFlowResponse");
+            _logger.LogDebug("ValidateHybridFlowResponse");
 
             var result = new LoginResult { Success = false };
 
             if (string.IsNullOrEmpty(authorizeResponse.IdentityToken))
             {
                 result.Error = "missing identity token";
-                //Logger.Error(result.Error);
+                _logger.LogError(result.Error);
 
                 return result;
             }
@@ -131,7 +133,7 @@ namespace IdentityModel.OidcClient
             if (!validationResult.Success)
             {
                 result.Error = validationResult.Error ?? "identity token validation error";
-                //Logger.Error(result.Error);
+                _logger.LogError(result.Error);
 
                 return result;
             }
@@ -139,7 +141,7 @@ namespace IdentityModel.OidcClient
             if (!ValidateNonce(state.Nonce, validationResult.User))
             {
                 result.Error = "invalid nonce";
-                //Logger.Error(result.Error);
+                _logger.LogError(result.Error);
 
                 return result;
             }
@@ -147,7 +149,7 @@ namespace IdentityModel.OidcClient
             if (!ValidateAuthorizationCodeHash(authorizeResponse.Code, validationResult.User))
             {
                 result.Error = "invalid c_hash";
-                //Logger.Error(result.Error);
+                _logger.LogError(result.Error);
 
                 return result;
             }
@@ -169,7 +171,7 @@ namespace IdentityModel.OidcClient
         
         private async Task<LoginResult> ValidateCodeFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state)
         {
-            //Logger.Debug("ValidateCodeFlowResponse");
+            _logger.LogDebug("ValidateCodeFlowResponse");
 
             var result = new LoginResult { Success = false };
             
@@ -184,7 +186,7 @@ namespace IdentityModel.OidcClient
             if (tokenResponse.IdentityToken.IsMissing())
             {
                 result.Error = "missing identity token";
-                //Logger.Error(result.Error);
+                _logger.LogError(result.Error);
 
                 return result;
             }
@@ -193,7 +195,7 @@ namespace IdentityModel.OidcClient
             if (!validationResult.Success)
             {
                 result.Error = validationResult.Error ?? "identity token validation error";
-                //Logger.Error(result.Error);
+                _logger.LogError(result.Error);
 
                 return result;
             }
@@ -201,7 +203,7 @@ namespace IdentityModel.OidcClient
             if (!ValidateAccessTokenHash(tokenResponse.AccessToken, validationResult.User))
             {
                 result.Error = "invalid access token hash";
-                //Logger.Error(result.Error);
+                _logger.LogError(result.Error);
 
                 return result;
             }
@@ -211,12 +213,12 @@ namespace IdentityModel.OidcClient
 
         private async Task<LoginResult> ProcessClaimsAsync(AuthorizeResponse response, TokenResponse tokenResult, ClaimsPrincipal user)
         {
-            //Logger.Debug("ProcessClaimsAsync");
+            _logger.LogDebug("ProcessClaimsAsync");
 
             // get profile if enabled
             if (_options.LoadProfile)
             {
-                //Logger.Debug("load profile");
+                _logger.LogDebug("load profile");
 
                 var userInfoResult = await GetUserInfoAsync(tokenResult.AccessToken);
 
@@ -229,8 +231,8 @@ namespace IdentityModel.OidcClient
                     };
                 }
 
-                //Logger.Debug("profile claims:");
-                //Logger.LogClaims(userInfoResult.Claims);
+                _logger.LogDebug("profile claims:");
+                _logger.LogClaims(userInfoResult.Claims);
 
                 var primaryClaimTypes = user.Claims.Select(c => c.Type).Distinct();
                 foreach (var claim in userInfoResult.Claims.Where(c => !primaryClaimTypes.Contains(c.Type)))
@@ -238,12 +240,12 @@ namespace IdentityModel.OidcClient
                     user.Identities.First().AddClaim(claim);
                 }
 
-                //Logger.LogClaims(claims);
+                _logger.LogClaims(user);
             }
             else
             {
-                //Logger.Debug("don't load profile");
-                //Logger.LogClaims(claims);
+                _logger.LogDebug("don't load profile");
+                _logger.LogClaims(user);
             }
 
             // success
@@ -278,7 +280,7 @@ namespace IdentityModel.OidcClient
         {
             var providerInfo = await _options.GetDiscoveryDocument();
 
-            //Logger.Debug("Calling identity token validator: " + _options.IdentityTokenValidator.GetType().FullName);
+            _logger.LogDebug("Calling identity token validator: " + _options.IdentityTokenValidator.GetType().FullName);
             var validationResult = await _options.IdentityTokenValidator.ValidateAsync(idToken, _options.ClientId, providerInfo);
 
             if (validationResult.Success == false)
@@ -288,14 +290,14 @@ namespace IdentityModel.OidcClient
 
             var user = validationResult.User;
 
-            //Logger.Debug("identity token validation claims:");
-            //Logger.LogClaims(claims);
+            _logger.LogDebug("identity token validation claims:");
+            _logger.LogClaims(user);
             
             // validate audience
             var audience = user.FindFirst(JwtClaimTypes.Audience)?.Value ?? "";
             if (!string.Equals(_options.ClientId, audience))
             {
-                //Logger.Error($"client id ({_options.ClientId}) does not match audience ({audience})");
+                _logger.LogError($"client id ({_options.ClientId}) does not match audience ({audience})");
 
                 return new IdentityTokenValidationResult
                 {
@@ -308,7 +310,7 @@ namespace IdentityModel.OidcClient
             var issuer = user.FindFirst(JwtClaimTypes.Issuer)?.Value ?? "";
             if (!string.Equals(providerInfo.TryGetString(OidcConstants.Discovery.Issuer), issuer))
             {
-                //Logger.Error($"configured issuer ({providerInfo.IssuerName}) does not match token issuer ({issuer}");
+                _logger.LogError($"configured issuer ({providerInfo.TryGetString(OidcConstants.Discovery.Issuer)}) does not match token issuer ({issuer}");
 
                 return new IdentityTokenValidationResult
                 {
@@ -322,14 +324,14 @@ namespace IdentityModel.OidcClient
 
         private bool ValidateNonce(string nonce, ClaimsPrincipal user)
         {
-            //Logger.Debug("validate nonce");
+            _logger.LogDebug("validate nonce");
 
             var tokenNonce = user.FindFirst(JwtClaimTypes.Nonce)?.Value ?? "";
             var match = string.Equals(nonce, tokenNonce, StringComparison.Ordinal);
 
             if (!match)
             {
-                //Logger.Error($"nonce ({nonce}) does not match nonce from token ({tokenNonce})");
+                _logger.LogError($"nonce ({nonce}) does not match nonce from token ({tokenNonce})");
             }
 
             return match;
@@ -337,7 +339,7 @@ namespace IdentityModel.OidcClient
 
         private bool ValidateAuthorizationCodeHash(string code, ClaimsPrincipal user)
         {
-            //Logger.Debug("validate authorization code hash");
+            _logger.LogDebug("validate authorization code hash");
 
             var cHash = user.FindFirst(JwtClaimTypes.AuthorizationCodeHash)?.Value ?? "";
             if (cHash.IsMissing())
@@ -357,7 +359,7 @@ namespace IdentityModel.OidcClient
 
                 if (!match)
                 {
-                    //Logger.Error($"code hash ({leftPartB64}) does not match c_hash from token ({cHash})");
+                    _logger.LogError($"code hash ({leftPartB64}) does not match c_hash from token ({cHash})");
                 }
 
                 return match;
@@ -366,7 +368,7 @@ namespace IdentityModel.OidcClient
 
         private bool ValidateAccessTokenHash(string accessToken, ClaimsPrincipal user)
         {
-            //Logger.Debug("validate authorization code hash");
+            _logger.LogDebug("validate authorization code hash");
 
             var atHash = user.FindFirst(JwtClaimTypes.AccessTokenHash)?.Value ?? "";
             if (atHash.IsMissing())
@@ -386,7 +388,7 @@ namespace IdentityModel.OidcClient
 
                 if (!match)
                 {
-                    //Logger.Error($"code hash ({leftPartB64}) does not match c_hash from token ({cHash})");
+                    _logger.LogError($"access token hash ({leftPartB64}) does not match at_hash from token ({atHash})");
                 }
 
                 return match;
@@ -437,7 +439,7 @@ namespace IdentityModel.OidcClient
 
         private ClaimsPrincipal FilterClaims(ClaimsPrincipal user)
         {
-            //Logger.Debug("filtering claims");
+            _logger.LogDebug("filtering claims");
 
             var claims = new List<Claim>();
             if (_options.FilterClaims)
@@ -445,8 +447,8 @@ namespace IdentityModel.OidcClient
                 claims = user.Claims.Where(c => !_options.FilteredClaims.Contains(c.Type)).ToList();
             }
 
-            //Logger.Debug("filtered claims:");
-            //Logger.LogClaims(claims);
+            _logger.LogDebug("filtered claims:");
+            _logger.LogClaims(claims);
 
             return new ClaimsPrincipal(new ClaimsIdentity(claims, user.Identity.AuthenticationType, user.Identities.First().NameClaimType, user.Identities.First().RoleClaimType));
         }
