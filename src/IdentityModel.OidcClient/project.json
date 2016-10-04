@@ -1,5 +1,17 @@
 {
-  "version": "1.0.0-alpha1",
+  "version": "2.0.0-alpha1-*",
+  "authors": [ "Dominick Baier", "Brock Allen" ],
+
+  "packOptions": {
+    "tags": [ "OAuth2", "OAuth 2.0", "OpenID Connect", "Security", "Identity", "IdentityServer" ],
+    "projectUrl": "https://github.com/IdentityModel/IdentityModel.OidcClient2",
+    "licenseUrl": "https://github.com/IdentityModel/IdentityModel.OidcClient2/blob/dev/LICENSE",
+    "iconUrl": "https://identityserver.github.io/Documentation/assets/images/icons/IDmodel_icon128.png",
+    "repository": {
+      "type": "git",
+      "url": "git://github.com/identitymodel/identitymodel.oidcclient2"
+    }
+  },
 
   "dependencies": {
     "IdentityModel": "2.0.0-rc4",
@@ -10,8 +22,6 @@
   },
 
   "frameworks": {
-    "netstandard1.4": {
-      "imports": "dnxcore50"
-    }
+    "netstandard1.4": {}
   }
 }
