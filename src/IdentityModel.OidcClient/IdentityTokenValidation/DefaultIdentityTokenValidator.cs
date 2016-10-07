@@ -43,7 +43,7 @@ namespace IdentityModel.OidcClient.IdentityTokenValidation
 
             var parameters = new TokenValidationParameters
             {
-                ValidIssuer = disco.TryGetString(OidcConstants.Discovery.Issuer),
+                ValidIssuer = disco.Issuer,
                 ValidAudience = clientId,
                 IssuerSigningKeys = keys,
 

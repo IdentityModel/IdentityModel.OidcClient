@@ -125,7 +125,7 @@ namespace IdentityModel.OidcClient
 
         private async Task<string> CreateUrlAsync(AuthorizeState state, string codeChallenge, object extraParameters)
         {
-            var request = new AuthorizeRequest((await _options.GetDiscoveryDocument()).AuthorizationEndpoint);
+            var request = new AuthorizeRequest((await _options.GetDiscoveryDocument()).AuthorizeEndpoint);
 
             string responseType = null;
             if (_options.Style == OidcClientOptions.AuthenticationStyle.AuthorizationCode)

@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0-alpha1-*",
+  "version": "2.0.0-alpha2-*",
   "authors": [ "Dominick Baier", "Brock Allen" ],
 
   "packOptions": {
@@ -14,14 +14,16 @@
   },
 
   "dependencies": {
-    "IdentityModel": "2.0.0-rc4",
+    "IdentityModel": "2.0.0",
     "Microsoft.Extensions.Logging": "1.0.0",
     "Microsoft.Extensions.Logging.Abstractions": "1.0.0",
     "System.ComponentModel": "4.0.1",
+    "System.Runtime": "4.1.0",
     "System.IdentityModel.Tokens.Jwt": "5.0.0"
   },
 
   "frameworks": {
-    "netstandard1.4": {}
+    "netstandard1.4": {},
+    "net452": {}
   }
 }

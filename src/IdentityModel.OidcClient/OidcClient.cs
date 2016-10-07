@@ -308,9 +308,9 @@ namespace IdentityModel.OidcClient
 
             // validate issuer
             var issuer = user.FindFirst(JwtClaimTypes.Issuer)?.Value ?? "";
-            if (!string.Equals(providerInfo.TryGetString(OidcConstants.Discovery.Issuer), issuer))
+            if (!string.Equals(providerInfo.Issuer, issuer))
             {
-                _logger.LogError($"configured issuer ({providerInfo.TryGetString(OidcConstants.Discovery.Issuer)}) does not match token issuer ({issuer}");
+                _logger.LogError($"configured issuer ({providerInfo.Issuer}) does not match token issuer ({issuer}");
 
                 return new IdentityTokenValidationResult
                 {
