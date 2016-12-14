@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0-bowmore-*",
+  "version": "2.0.0-bruichladdich-*",
   "authors": [ "Dominick Baier", "Brock Allen" ],
 
   "packOptions": {
@@ -17,16 +17,12 @@
     "IdentityModel": "2.1.1",
     "Microsoft.Extensions.Logging": "1.1.0",
     "Microsoft.Extensions.Logging.Abstractions": "1.1.0",
-    "System.IdentityModel.Tokens.Jwt": "5.1.0"
+    "System.IdentityModel.Tokens.Jwt": "5.1.0"    
   },
 
   "frameworks": {
-    "netstandard1.4": { },
+    "netstandard1.4": {},
 
-    "net452": {
-      "frameworkAssemblies": {
-        "System.Runtime": "4.0.10.0"
-      }
-    }
+    "net452": {}
   }
 }
