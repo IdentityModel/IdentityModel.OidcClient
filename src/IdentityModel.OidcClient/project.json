@@ -22,7 +22,6 @@
 
   "frameworks": {
     "netstandard1.4": {},
-
     "net452": {}
   }
 }
