@@ -60,7 +60,7 @@ Task("Pack")
     // add build suffix for CI builds
     if(!isLocalBuild)
     {
-        settings.VersionSuffix = "build" + AppVeyor.Environment.Build.Number.ToString().PadLeft(5,'0');
+        settings.VersionSuffix = AppVeyor.Environment.Build.Number.ToString().PadLeft(4,'0');
     }
 
     DotNetCorePack(packPath, settings);
