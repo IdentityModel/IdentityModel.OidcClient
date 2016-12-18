@@ -10,7 +10,5 @@ namespace IdentityModel.OidcClient.WebView
     public interface IWebView
     {
         Task<InvokeResult> InvokeAsync(InvokeOptions options);
-
-        //event EventHandler<HiddenModeFailedEventArgs> HiddenModeFailed;
     }
 }

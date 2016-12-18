@@ -6,10 +6,8 @@ using System.Security.Claims;
 
 namespace IdentityModel.OidcClient
 {
-    public class IdentityTokenValidationResult
+    public class IdentityTokenValidationResult : Result
     {
-        public bool Success { get; set; }
-        public string Error { get; set; }
         public ClaimsPrincipal User { get; set; }
         public string SignatureAlgorithm { get; set; }
     }

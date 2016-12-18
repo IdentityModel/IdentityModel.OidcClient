@@ -4,11 +4,8 @@
 
 namespace IdentityModel.OidcClient
 {
-    public class AuthorizeResult
+    public class AuthorizeResult : Result
     {
-        public bool Success { get; set; }
-        public string Error { get; set; }
-
         public string Data { get; set; }
         public AuthorizeState State { get; set; }
     }
