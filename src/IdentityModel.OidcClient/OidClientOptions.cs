@@ -1,4 +1,8 @@
-﻿using IdentityModel.OidcClient.WebView;
+﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
+
+using IdentityModel.OidcClient.WebView;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -6,7 +10,7 @@ using System.Net.Http;
 
 namespace IdentityModel.OidcClient
 {
-    public class Options
+    public class OidcClientOptions
     {
         public string Authority { get; set; }
         public ProviderInformation ProviderInformation { get; set; }
