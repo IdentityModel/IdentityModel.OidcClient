@@ -26,7 +26,7 @@ namespace IdentityModel.OidcClient.IdentityTokenValidation
 
             var fail = new IdentityTokenValidationResult
             {
-                Success = false
+                
             };
 
             var keys = new List<SecurityKey>();
@@ -60,7 +60,6 @@ namespace IdentityModel.OidcClient.IdentityTokenValidation
 
                 return Task.FromResult(new IdentityTokenValidationResult
                 {
-                    Success = true,
                     User = principal,
                     SignatureAlgorithm = "RS256"
                 });
@@ -69,7 +68,6 @@ namespace IdentityModel.OidcClient.IdentityTokenValidation
             {
                 return Task.FromResult(new IdentityTokenValidationResult
                 {
-                    Success = false,
                     Error = ex.Message
                 });
             }

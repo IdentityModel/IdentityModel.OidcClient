@@ -6,9 +6,9 @@ namespace IdentityModel.OidcClient.Infrastructure
 {
     internal class TokenClientFactory
     {
-        public static async Task<TokenClient> CreateAsync(OidcClientOptions options)
+        public static async Task<TokenClient> CreateAsync(Options options)
         {
-            var info = await options.GetProviderInformationAsync().ConfigureAwait(false);
+            var info = options.ProviderInformation;
             var handler = options.BackchannelHandler ?? new HttpClientHandler();
 
             TokenClient tokenClient;

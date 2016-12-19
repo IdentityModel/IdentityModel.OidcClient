@@ -9,6 +9,7 @@ namespace IdentityModel.OidcClient
     public class Options
     {
         public string Authority { get; set; }
+        public ProviderInformation ProviderInformation { get; set; }
 
         public string ClientId { get; set; }
         public string ClientSecret { get; set; }
@@ -25,6 +26,7 @@ namespace IdentityModel.OidcClient
 
         public HttpMessageHandler BackchannelHandler { get; set; }
         public TimeSpan BackchannelTimeout { get; set; } = TimeSpan.FromSeconds(30);
+        public Client.AuthenticationStyle TokenClientAuthenticationStyle { get; set; } = Client.AuthenticationStyle.PostValues;
 
         public Policy Policy { get; set; } = new Policy();
         public ILoggerFactory LoggerFactory { get; } = new LoggerFactory();
