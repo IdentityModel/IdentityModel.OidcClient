@@ -77,20 +77,11 @@ namespace IdentityModel.OidcClient
         /// </value>
         public IEnumerable<string> TokenEndPointAuthenticationMethods { get; set; } = new string[] { };
 
-        ///// <summary>
-        ///// Validates this instance.
-        ///// </summary>
-        ///// <exception cref="System.InvalidOperationException">
-        ///// Missing token endpoint.
-        ///// or
-        ///// Missing authorize endpoint.
-        ///// </exception>
-        //public void Validate()
-        //{
-        //    if (string.IsNullOrEmpty(TokenEndpoint)) throw new InvalidOperationException("Missing token endpoint.");
-        //    if (string.IsNullOrEmpty(AuthorizeEndpoint)) throw new InvalidOperationException("Missing authorize endpoint.");
-        //}
 
+        public bool SupportsUserInfo => UserInfoEndpoint.IsPresent();
+        public bool SupportsEndSession => EndSessionEndpoint.IsPresent();
+
+        
         ///// <summary>
         ///// Loads from metadata.
         ///// </summary>

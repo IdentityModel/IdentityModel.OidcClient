@@ -26,9 +26,9 @@ namespace IdentityModel.OidcClient
         public bool UseFormPost { get; set; } = false;
         public bool LoadProfile { get; set; } = true;
         public bool FilterClaims { get; set; } = true;
-        public AuthenticationStyle Style = AuthenticationStyle.Hybrid;
+        public AuthenticationFlow Flow = AuthenticationFlow.Hybrid;
 
-        public HttpMessageHandler BackchannelHandler { get; set; }
+        public HttpMessageHandler BackchannelHandler { get; set; } = new HttpClientHandler();
         public TimeSpan BackchannelTimeout { get; set; } = TimeSpan.FromSeconds(30);
         public Client.AuthenticationStyle TokenClientAuthenticationStyle { get; set; } = Client.AuthenticationStyle.PostValues;
 
@@ -48,7 +48,7 @@ namespace IdentityModel.OidcClient
             JwtClaimTypes.AccessTokenHash
         };
 
-        public enum AuthenticationStyle
+        public enum AuthenticationFlow
         {
             AuthorizationCode,
             Hybrid
