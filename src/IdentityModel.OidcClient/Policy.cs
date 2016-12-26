@@ -8,8 +8,10 @@ namespace IdentityModel.OidcClient
 {
     public class Policy
     {
+        // discovery document
         public bool ValidateIssuerName { get; set; } = true;
         public bool ValidateEndpoints { get; set; } = true;
+        public bool RequireHttps { get; set; } = true;
 
         public bool RequireCodeHash { get; set; } = true;
         public bool RequireAccessTokenHash { get; set; } = true;

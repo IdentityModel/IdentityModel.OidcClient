@@ -18,10 +18,9 @@ namespace IdentityModel.OidcClient
     /// </summary>
     public class OidcClient
     {
-        //private static readonly ILog Logger = LogProvider.For<OidcClient>();
+        private readonly OidcClientOptions _options;
 
         //private readonly AuthorizeClient _authorizeClient;
-        private readonly OidcClientOptions _options;
         //private readonly ResponseValidator _validator;
 
         public OidcClientOptions Options
@@ -40,6 +39,8 @@ namespace IdentityModel.OidcClient
 
             _options = options;
         }
+
+        
 
         /// <summary>
         /// Starts an authentication request.

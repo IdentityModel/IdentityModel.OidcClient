@@ -22,9 +22,14 @@ namespace IdentityModel.OidcClient
             client.Timeout = _options.BackchannelTimeout;
 
             var disco = await client.GetAsync();
-            var info = Convert(disco);
+            if (disco.IsError)
+            {
+                return new DiscoveryResult { Error = disco.Error };
+            }
 
+            var info = Convert(disco);
             var error = Validate(info, _options.Policy);
+
             if (error.IsMissing())
             {
                 return new DiscoveryResult { ProviderInformation = info };
@@ -37,6 +42,28 @@ namespace IdentityModel.OidcClient
 
         public string Validate(ProviderInformation info, Policy policy)
         {
+            if (info.IssuerName.IsMissing()) return "issuer name is missing";
+            if (info.AuthorizeEndpoint.IsMissing()) return "authorize endpoint is missing";
+            if (info.TokenEndpoint.IsMissing()) return "token endpoint is missing";
+
+            // validate issuer name matches authority
+            if (policy.ValidateIssuerName)
+            {
+                // todo
+            }
+
+            // make sure all endpoints are using HTTPS
+            if (policy.RequireHttps)
+            {
+                // todo
+            }
+
+            // make sure all endpoints are under the authority
+            if (policy.ValidateEndpoints)
+            {
+                // todo
+            }
+
             return null;
         }
 
