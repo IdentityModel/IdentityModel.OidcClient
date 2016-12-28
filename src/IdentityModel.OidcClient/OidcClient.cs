@@ -28,10 +28,7 @@ namespace IdentityModel.OidcClient
             _logger = options.LoggerFactory.CreateLogger<OidcClient>();
         }
 
-        public OidcClientOptions Options
-        {
-            get { return _options; }
-        }
+        public OidcClientOptions Options => _options;
 
         public async Task<LoginResult> LoginAsync(bool trySilent = false, object extraParameters = null)
         {
@@ -107,7 +104,7 @@ namespace IdentityModel.OidcClient
             {
                 return await ValidateCodeFlowResponseAsync(response, state);
             }
-            else if (_options.Style == OidcClientOptions.AuthenticationStyle.Hybrid)
+            if (_options.Style == OidcClientOptions.AuthenticationStyle.Hybrid)
             {
                 return await ValidateHybridFlowResponseAsync(response, state);
             }
@@ -165,7 +162,7 @@ namespace IdentityModel.OidcClient
                 };
             }
 
-            return await ProcessClaimsAsync(authorizeResponse, tokenResponse, validationResult.User);
+            return await ProcessClaimsAsync(tokenResponse, validationResult.User);
         }
 
         
@@ -208,13 +205,13 @@ namespace IdentityModel.OidcClient
                 return result;
             }
 
-            return await ProcessClaimsAsync(authorizeResponse, tokenResponse, validationResult.User);
+            return await ProcessClaimsAsync(tokenResponse, validationResult.User);
         }
 
-        private async Task<LoginResult> ProcessClaimsAsync(AuthorizeResponse response, TokenResponse tokenResult, ClaimsPrincipal user)
+        private async Task<LoginResult> ProcessClaimsAsync(TokenResponse tokenResult, ClaimsPrincipal user)
         {
             _logger.LogDebug("ProcessClaimsAsync");
-
+            
             // get profile if enabled
             if (_options.LoadProfile)
             {
@@ -402,7 +399,7 @@ namespace IdentityModel.OidcClient
             TokenClient tokenClient;
             if (_options.ClientSecret.IsMissing())
             {
-                tokenClient = new TokenClient(endpoint, _options.ClientId, AuthenticationStyle.PostValues);
+                tokenClient = new TokenClient(endpoint, _options.ClientId);
             }
             else
             {

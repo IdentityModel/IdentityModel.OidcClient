@@ -32,15 +32,16 @@ namespace IdentityModel.OidcClient
                 throw new InvalidOperationException("No web view configured.");
             }
 
-            InvokeResult wviResult;
             AuthorizeResult result = new AuthorizeResult
             {
                 Success = false,
                 State = await CreateAuthorizeStateAsync(extraParameters)
             };
 
-            var invokeOptions = new InvokeOptions(result.State.StartUrl, _options.RedirectUri);
-            invokeOptions.InvisibleModeTimeout = _options.WebViewTimeout;
+            var invokeOptions = new InvokeOptions(result.State.StartUrl, _options.RedirectUri)
+            {
+                InvisibleModeTimeout = _options.WebViewTimeout
+            };
 
             if (trySilent)
             {
@@ -51,7 +52,7 @@ namespace IdentityModel.OidcClient
                 invokeOptions.ResponseMode = ResponseMode.FormPost;
             }
 
-            wviResult = await _options.WebView.InvokeAsync(invokeOptions);
+            var wviResult = await _options.WebView.InvokeAsync(invokeOptions);
 
             if (wviResult.ResultType == InvokeResultType.Success)
             {
@@ -95,16 +96,18 @@ namespace IdentityModel.OidcClient
                 webViewOptions.InitialDisplayMode = DisplayMode.Hidden;
             }
 
-            var result = await _options.WebView.InvokeAsync(webViewOptions);
+            await _options.WebView.InvokeAsync(webViewOptions);
         }
 
         private async Task<AuthorizeState> CreateAuthorizeStateAsync(object extraParameters = null)
         {
-            var state = new AuthorizeState();
+            var state = new AuthorizeState
+            {
+                Nonce = CryptoRandom.CreateUniqueId(),
+                State = CryptoRandom.CreateUniqueId(),
+                RedirectUri = _options.RedirectUri
+            };
 
-            state.Nonce = CryptoRandom.CreateUniqueId();
-            state.State = CryptoRandom.CreateUniqueId();
-            state.RedirectUri = _options.RedirectUri;
 
             string codeChallenge = CreateCodeChallenge(state);
             state.StartUrl = await CreateUrlAsync(state, codeChallenge, extraParameters);
@@ -127,7 +130,7 @@ namespace IdentityModel.OidcClient
         {
             var request = new AuthorizeRequest((await _options.GetDiscoveryDocument()).AuthorizeEndpoint);
 
-            string responseType = null;
+            string responseType;
             if (_options.Style == OidcClientOptions.AuthenticationStyle.AuthorizationCode)
             {
                 responseType = OidcConstants.ResponseTypes.Code;
