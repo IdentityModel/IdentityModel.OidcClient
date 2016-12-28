@@ -4,7 +4,6 @@
 
 using System;
 using System.Threading.Tasks;
-using System.Linq;
 using IdentityModel.Client;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -24,19 +23,13 @@ namespace IdentityModel.OidcClient.IdentityTokenValidation
             //Logger.Debug("starting identity token validation");
             //Logger.Debug($"identity token: {identityToken}");
 
-            var fail = new IdentityTokenValidationResult
-            {
-                Success = false
-            };
-
             var keys = new List<SecurityKey>();
             foreach (var webKey in disco.KeySet.Keys)
             {
                 var e = Base64Url.Decode(webKey.E);
                 var n = Base64Url.Decode(webKey.N);
 
-                var key = new RsaSecurityKey(new RSAParameters { Exponent = e, Modulus = n });
-                key.KeyId = webKey.Kid;
+                var key = new RsaSecurityKey(new RSAParameters {Exponent = e, Modulus = n}) {KeyId = webKey.Kid};
 
                 keys.Add(key);
             }
