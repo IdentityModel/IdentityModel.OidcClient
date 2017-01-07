@@ -17,11 +17,11 @@ namespace IdentityModel.OidcClient
 
         public string ClientId { get; set; }
         public string ClientSecret { get; set; }
-        public string Scope { get; }
-        public string RedirectUri { get; }
+        public string Scope { get; set; }
+        public string RedirectUri { get; set; }
 
-        public IWebView WebView { get; }
-        public IIdentityTokenValidator IdentityTokenValidator { get; }
+        public IWebView WebView { get; set; }
+        public IIdentityTokenValidator IdentityTokenValidator { get; set; }
 
         public bool UseFormPost { get; set; } = false;
         public bool LoadProfile { get; set; } = true;

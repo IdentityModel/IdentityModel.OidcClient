@@ -34,8 +34,8 @@ namespace IdentityModel.OidcClient
 
             var state = new AuthorizeState();
 
-            state.Nonce = CryptoRandom.CreateUniqueId();
-            state.State = CryptoRandom.CreateUniqueId();
+            state.Nonce = CryptoRandom.CreateUniqueId(16);
+            state.State = CryptoRandom.CreateUniqueId(16);
             state.RedirectUri = _options.RedirectUri;
 
             string codeChallenge = CreateCodeChallenge(state);
@@ -48,7 +48,7 @@ namespace IdentityModel.OidcClient
         {
             _logger.LogTrace("CreateAuthorizeStateAsync");
 
-            state.CodeVerifier = CryptoRandom.CreateUniqueId(32);
+            state.CodeVerifier = CryptoRandom.CreateUniqueId(16);
 
             using (var sha256 = SHA256.Create())
             {
@@ -61,7 +61,7 @@ namespace IdentityModel.OidcClient
         {
             _logger.LogTrace("CreateAuthorizeStateAsync");
 
-            var request = new AuthorizeRequest("todo");
+            var request = new AuthorizeRequest(_options.ProviderInformation.AuthorizeEndpoint);
 
             string responseType = null;
             if (_options.Flow == OidcClientOptions.AuthenticationFlow.AuthorizationCode)

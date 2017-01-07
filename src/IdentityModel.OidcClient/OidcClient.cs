@@ -37,7 +37,7 @@ namespace IdentityModel.OidcClient
         public OidcClient(OidcClientOptions options)
         {
             if (options == null) throw new ArgumentNullException(nameof(options));
-            if (_options.ProviderInformation == null) useDiscovery = true;
+            if (options.ProviderInformation == null) useDiscovery = true;
 
             _options = options;
             _logger = options.LoggerFactory.CreateLogger<OidcClient>();
@@ -53,8 +53,31 @@ namespace IdentityModel.OidcClient
         {
             _logger.LogTrace("PrepareLoginAsync");
 
-            await EnsureProviderInformation();
+            await EnsureConfiguration();
             return await _authorizeClient.CreateAuthorizeStateAsync(extraParameters);
+        }
+
+        private async Task EnsureConfiguration()
+        {
+            if (_options.ClientId.IsMissing())
+            {
+                _logger.LogError("No client id configured");
+                throw new ArgumentNullException(_options.ClientId);
+            }
+
+            if (_options.Scope.IsMissing())
+            {
+                _logger.LogError("No scopes configured");
+                throw new ArgumentNullException(_options.Scope);
+            }
+
+            if (_options.RedirectUri.IsMissing())
+            {
+                _logger.LogError("No redirect URI configured");
+                throw new ArgumentNullException(_options.RedirectUri);
+            }
+
+            await EnsureProviderInformation();
         }
 
         private async Task EnsureProviderInformation()
