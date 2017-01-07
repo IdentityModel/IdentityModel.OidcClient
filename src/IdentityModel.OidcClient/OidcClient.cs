@@ -10,6 +10,7 @@ using System.Net.Http;
 using IdentityModel.OidcClient.Infrastructure;
 using System.Security.Claims;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace IdentityModel.OidcClient
 {
@@ -19,9 +20,10 @@ namespace IdentityModel.OidcClient
     public class OidcClient
     {
         private readonly OidcClientOptions _options;
+        private readonly ILogger _logger;
+        private readonly AuthorizeClient _authorizeClient;
 
-        //private readonly AuthorizeClient _authorizeClient;
-        //private readonly ResponseValidator _validator;
+        private readonly bool useDiscovery;
 
         public OidcClientOptions Options
         {
@@ -34,13 +36,113 @@ namespace IdentityModel.OidcClient
         /// <param name="options">The options.</param>
         public OidcClient(OidcClientOptions options)
         {
-            //_authorizeClient = new AuthorizeClient(options);
-            //_validator = new ResponseValidator(options);
+            if (options == null) throw new ArgumentNullException(nameof(options));
+            if (_options.ProviderInformation == null) useDiscovery = true;
 
             _options = options;
+            _logger = options.LoggerFactory.CreateLogger<OidcClient>();
+            _authorizeClient = new AuthorizeClient(options);
         }
 
-        
+        // <summary>
+        // Prepares an authentication request.
+        // </summary>
+        // <param name = "extraParameters" > extra parameters to send to the authorize endpoint.</param>
+        // <returns>An authorize state object that can be later used to validate the response</returns>
+        public async Task<AuthorizeState> PrepareLoginAsync(object extraParameters = null)
+        {
+            _logger.LogTrace("PrepareLoginAsync");
+
+            await EnsureProviderInformation();
+            return await _authorizeClient.CreateAuthorizeStateAsync(extraParameters);
+        }
+
+        private async Task EnsureProviderInformation()
+        {
+            _logger.LogTrace("EnsureProviderInformation");
+
+            if (useDiscovery)
+            {
+                var client = new DiscoveryClient(_options.Authority, _options.BackchannelHandler);
+                client.Policy = _options.Policy.Discovery;
+
+                var disco = await client.GetAsync();
+                if (disco.IsError)
+                {
+                    _logger.LogError("Error loading discovery document: {errorType} - {error}", disco.ErrorType.ToString(), disco.Error);
+
+                    throw new InvalidOperationException("Error loading discovery document: " + disco.Error);
+                }
+
+                if (disco.Issuer.IsMissing())
+                {
+                    var error = "Issuer name is missing in discovery document";
+
+                    _logger.LogError(error);
+                    throw new InvalidOperationException(error);
+                }
+
+                if (disco.AuthorizeEndpoint.IsMissing())
+                {
+                    var error = "Authorize endpoint is missing in discovery document";
+
+                    _logger.LogError(error);
+                    throw new InvalidOperationException(error);
+                }
+
+                if (disco.TokenEndpoint.IsMissing())
+                {
+                    var error = "Token endpoint is missing in discovery document";
+
+                    _logger.LogError(error);
+                    throw new InvalidOperationException(error);
+                }
+
+                if (disco.JwksUri.IsMissing() || disco.KeySet == null)
+                {
+                    var error = "Key set is missing in discovery document";
+
+                    _logger.LogError(error);
+                    throw new InvalidOperationException(error);
+                }
+
+                _options.ProviderInformation = new ProviderInformation
+                {
+                    IssuerName = disco.Issuer,
+                    KeySet = disco.KeySet,
+
+                    AuthorizeEndpoint = disco.AuthorizeEndpoint,
+                    TokenEndpoint = disco.TokenEndpoint,
+                    EndSessionEndpoint = disco.EndSessionEndpoint,
+                    UserInfoEndpoint = disco.UserInfoEndpoint,
+                    TokenEndPointAuthenticationMethods = disco.TokenEndpointAuthenticationMethodsSupported
+                };
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         /// <summary>
         /// Starts an authentication request.
@@ -62,17 +164,7 @@ namespace IdentityModel.OidcClient
         //    return await ValidateResponseAsync(authorizeResult.Data, authorizeResult.State);
         //}
 
-        /// <summary>
-        /// Prepares an authentication request.
-        /// </summary>
-        /// <param name="extraParameters">extra parameters to send to the authorize endpoint.</param>
-        /// <returns>An authorize state object that can be later used to validate the response</returns>
-        //public async Task<AuthorizeState> PrepareLoginAsync(object extraParameters = null)
-        //{
-        //    //Logger.Debug("PrepareLoginAsync");
 
-        //    return await _authorizeClient.PrepareAuthorizeAsync(extraParameters);
-        //}
 
         /// <summary>
         /// Starts and end session request.

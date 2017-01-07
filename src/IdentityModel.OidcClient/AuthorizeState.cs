@@ -10,6 +10,14 @@ namespace IdentityModel.OidcClient
     public class AuthorizeState
     {
         /// <summary>
+        /// Gets or sets the start URL.
+        /// </summary>
+        /// <value>
+        /// The start URL.
+        /// </value>
+        public string StartUrl { get; set; }
+
+        /// <summary>
         /// Gets or sets the nonce.
         /// </summary>
         /// <value>
@@ -32,15 +40,7 @@ namespace IdentityModel.OidcClient
         /// The code verifier.
         /// </value>
         public string CodeVerifier { get; set; }
-
-        /// <summary>
-        /// Gets or sets the start URL.
-        /// </summary>
-        /// <value>
-        /// The start URL.
-        /// </value>
-        public string StartUrl { get; set; }
-
+        
         /// <summary>
         /// Gets or sets the redirect URI.
         /// </summary>
