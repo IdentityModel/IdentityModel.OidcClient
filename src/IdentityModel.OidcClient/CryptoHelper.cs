@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -34,6 +35,36 @@ namespace IdentityModel.OidcClient
                     return SHA512.Create();
                 default:
                     return null;
+            }
+        }
+
+        private bool ValidateHash(string data, string hashedData, string signatureAlgorithm)
+        {
+            _logger.LogTrace("ValidateHash");
+
+            var hashAlgorithm = GetMatchingHashAlgorithm(signatureAlgorithm);
+            if (hashAlgorithm == null)
+            {
+                _logger.LogError("No appropriate hashing algorithm found.");
+                return false;
+            }
+
+            using (hashAlgorithm)
+            {
+                var hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(data));
+
+                byte[] leftPart = new byte[hashAlgorithm.HashSize / 16];
+                Array.Copy(hash, leftPart, hashAlgorithm.HashSize / 16);
+
+                var leftPartB64 = Base64Url.Encode(leftPart);
+                var match = leftPartB64.Equals(data);
+
+                if (!match)
+                {
+                    _logger.LogError($"hashed data ({leftPartB64}) does not match hash from token ({data})");
+                }
+
+                return match;
             }
         }
 

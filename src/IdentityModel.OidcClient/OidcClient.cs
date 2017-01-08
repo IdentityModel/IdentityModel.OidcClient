@@ -78,52 +78,11 @@ namespace IdentityModel.OidcClient
                 return new LoginResult(response.Error);
             }
 
-            if (string.IsNullOrEmpty(response.Code))
-            {
-                var error = "Missing authorization code";
-                _logger.LogError(error);
-
-                return new LoginResult(error);
-            }
-
-            if (string.IsNullOrEmpty(response.State))
-            {
-                var error = "Missing state";
-                _logger.LogError(error);
-
-                return new LoginResult(error);
-            }
-
-            if (!string.Equals(state.State, response.State, StringComparison.Ordinal))
-            {
-                var error = "Invalid state";
-                _logger.LogError(error);
-
-                return new LoginResult(error);
-            }
-
-            ResponseValidationResult validationResult = null;
-            if (_options.Flow == OidcClientOptions.AuthenticationFlow.AuthorizationCode)
-            {
-                validationResult = await _processor.ValidateCodeFlowResponseAsync(response, state);
-            }
-            else if (_options.Flow == OidcClientOptions.AuthenticationFlow.Hybrid)
-            {
-                validationResult = await _processor.ValidateHybridFlowResponseAsync(response, state);
-            }
-            else
-            {
-                throw new ArgumentOutOfRangeException(nameof(_options.Flow), "Invalid authentication style");
-            }
-
+            var validationResult = await _processor.ProcessResponseAsync(response, state);
             if (validationResult.IsError)
             {
                 _logger.LogError("Error validating response: " + validationResult.Error);
-
-                return new LoginResult
-                {
-                    Error = validationResult.Error
-                };
+                return new LoginResult(validationResult.Error);
             }
 
             return await ProcessClaimsAsync(validationResult);

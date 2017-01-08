@@ -26,7 +26,47 @@ namespace IdentityModel.OidcClient
             _crypto = new CryptoHelper(options);
         }
 
-        public async Task<ResponseValidationResult> ValidateHybridFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state)
+        public async Task<ResponseValidationResult> ProcessResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state)
+        {
+            if (string.IsNullOrEmpty(authorizeResponse.Code))
+            {
+                var error = "Missing authorization code";
+                _logger.LogError(error);
+
+                return new ResponseValidationResult { Error = error };
+            }
+
+            if (string.IsNullOrEmpty(authorizeResponse.State))
+            {
+                var error = "Missing state";
+                _logger.LogError(error);
+
+                return new ResponseValidationResult { Error = error };
+            }
+
+            if (!string.Equals(state.State, authorizeResponse.State, StringComparison.Ordinal))
+            {
+                var error = "Invalid state";
+                _logger.LogError(error);
+
+                return new ResponseValidationResult { Error = error };
+            }
+
+            if (_options.Flow == OidcClientOptions.AuthenticationFlow.AuthorizationCode)
+            {
+                return await ProcessCodeFlowResponseAsync(authorizeResponse, state);
+            }
+            else if (_options.Flow == OidcClientOptions.AuthenticationFlow.Hybrid)
+            {
+                return await ProcessHybridFlowResponseAsync(authorizeResponse, state);
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException(nameof(_options.Flow), "Invalid authentication style");
+            }
+        }
+
+        public async Task<ResponseValidationResult> ProcessHybridFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state)
         {
             _logger.LogTrace("ValidateHybridFlowResponseAsync");
 
@@ -104,7 +144,7 @@ namespace IdentityModel.OidcClient
             };
         }
 
-        public async Task<ResponseValidationResult> ValidateCodeFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state)
+        public async Task<ResponseValidationResult> ProcessCodeFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state)
         {
             _logger.LogTrace("ValidateCodeFlowResponseAsync");
 
@@ -318,27 +358,6 @@ namespace IdentityModel.OidcClient
 
             return tokenResult;
         }
-
-
-        //private HashAlgorithm GetHashAlgorithm(int signingAlgorithmBits)
-        //{
-        //    _logger.LogDebug($"determining hash algorithm for {signingAlgorithmBits} bits");
-
-        //    switch (signingAlgorithmBits)
-        //    {
-        //        case 256:
-        //            _logger.LogDebug("SHA256");
-        //            return SHA256.Create();
-        //        case 384:
-        //            _logger.LogDebug("SHA384");
-        //            return SHA384.Create();
-        //        case 512:
-        //            _logger.LogDebug("SHA512");
-        //            return SHA512.Create();
-        //        default:
-        //            return null;
-        //    }
-        //}
 
         private TokenClient GetTokenClient()
         {
