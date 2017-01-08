@@ -3,12 +3,13 @@
 
 
 using IdentityModel.Client;
+using IdentityModel.OidcClient.Results;
 using System.Threading.Tasks;
 
 namespace IdentityModel.OidcClient
 {
     public interface IIdentityTokenValidator
     {
-        Task<IdentityTokenValidationResult> ValidateAsync(string identityToken, string clientId, DiscoveryResponse providerInformation);
+        Task<IdentityTokenValidationResult> ValidateAsync(string identityToken, string clientId, ProviderInformation providerInformation);
     }
 }

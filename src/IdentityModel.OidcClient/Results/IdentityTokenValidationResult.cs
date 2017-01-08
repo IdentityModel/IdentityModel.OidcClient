@@ -4,7 +4,7 @@
 
 using System.Security.Claims;
 
-namespace IdentityModel.OidcClient
+namespace IdentityModel.OidcClient.Results
 {
     public class IdentityTokenValidationResult : Result
     {

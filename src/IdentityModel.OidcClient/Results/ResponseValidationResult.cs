@@ -3,7 +3,7 @@ using System.Security.Claims;
 
 namespace IdentityModel.OidcClient
 {
-    class ResponseValidationResult : Result
+    public class ResponseValidationResult : Result
     {
         public AuthorizeResponse AuthorizeResponse { get; set; }
         public TokenResponse TokenResponse { get; set; }

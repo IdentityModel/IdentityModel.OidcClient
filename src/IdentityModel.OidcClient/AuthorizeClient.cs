@@ -1,4 +1,5 @@
 ﻿using IdentityModel.Client;
+using IdentityModel.OidcClient.Infrastructure;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -28,7 +29,7 @@ namespace IdentityModel.OidcClient
             _logger = options.LoggerFactory.CreateLogger<AuthorizeClient>();
         }
 
-        public async Task<AuthorizeState> CreateAuthorizeStateAsync(object extraParameters = null)
+        public AuthorizeState CreateAuthorizeState(object extraParameters = null)
         {
             _logger.LogTrace("CreateAuthorizeStateAsync");
 
@@ -39,7 +40,10 @@ namespace IdentityModel.OidcClient
             state.RedirectUri = _options.RedirectUri;
 
             string codeChallenge = CreateCodeChallenge(state);
-            state.StartUrl = await CreateUrlAsync(state, codeChallenge, extraParameters);
+            state.StartUrl = CreateUrl(state, codeChallenge, extraParameters);
+
+            _logger.LogInformation("CreateAuthorizeStateAsync success.");
+            _logger.LogInformation(LogSerializer.Serialize(state));
 
             return state;
         }
@@ -57,7 +61,7 @@ namespace IdentityModel.OidcClient
             }
         }
 
-        private async Task<string> CreateUrlAsync(AuthorizeState state, string codeChallenge, object extraParameters)
+        private string CreateUrl(AuthorizeState state, string codeChallenge, object extraParameters)
         {
             _logger.LogTrace("CreateAuthorizeStateAsync");
 
@@ -74,7 +78,7 @@ namespace IdentityModel.OidcClient
             }
             else
             {
-                throw new InvalidOperationException("Unsupported authentication flow");
+                throw new ArgumentOutOfRangeException(nameof(_options.Flow), "Unsupported authentication flow");
             }
 
             var url = request.CreateAuthorizeUrl(
