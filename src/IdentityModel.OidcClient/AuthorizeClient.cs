@@ -2,19 +2,12 @@
 using IdentityModel.OidcClient.Infrastructure;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IdentityModel.OidcClient
 {
-    /// <summary>
-    /// Creates an authorize request and coordinates a web view
-    /// </summary>
-    public class AuthorizeClient
+     public class AuthorizeClient
     {
+        private readonly CryptoHelper _crypto;
         private readonly ILogger<AuthorizeClient> _logger;
         private readonly OidcClientOptions _options;
 
@@ -25,40 +18,30 @@ namespace IdentityModel.OidcClient
         public AuthorizeClient(OidcClientOptions options)
         {
             _options = options;
-
             _logger = options.LoggerFactory.CreateLogger<AuthorizeClient>();
+            _crypto = new CryptoHelper(options);
         }
 
         public AuthorizeState CreateAuthorizeState(object extraParameters = null)
         {
             _logger.LogTrace("CreateAuthorizeStateAsync");
+            
+            var pkce = _crypto.CreatePkceData();
 
-            var state = new AuthorizeState();
+            var state = new AuthorizeState
+            {
+                Nonce = CryptoRandom.CreateUniqueId(16),
+                State = CryptoRandom.CreateUniqueId(16),
+                RedirectUri = _options.RedirectUri,
+                CodeVerifier = pkce.CodeVerifier,
+            };
 
-            state.Nonce = CryptoRandom.CreateUniqueId(16);
-            state.State = CryptoRandom.CreateUniqueId(16);
-            state.RedirectUri = _options.RedirectUri;
-
-            string codeChallenge = CreateCodeChallenge(state);
-            state.StartUrl = CreateUrl(state, codeChallenge, extraParameters);
+            state.StartUrl = CreateUrl(state, pkce.CodeChallenge, extraParameters);
 
             _logger.LogInformation("CreateAuthorizeStateAsync success.");
             _logger.LogInformation(LogSerializer.Serialize(state));
 
             return state;
-        }
-
-        private string CreateCodeChallenge(AuthorizeState state)
-        {
-            _logger.LogTrace("CreateAuthorizeStateAsync");
-
-            state.CodeVerifier = CryptoRandom.CreateUniqueId(16);
-
-            using (var sha256 = SHA256.Create())
-            {
-                var challengeBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(state.CodeVerifier));
-                return Base64Url.Encode(challengeBytes);
-            }
         }
 
         private string CreateUrl(AuthorizeState state, string codeChallenge, object extraParameters)
@@ -95,102 +78,5 @@ namespace IdentityModel.OidcClient
 
             return url;
         }
-
-
-
-
-
-
-
-
-
-        /// <summary>
-        /// Starts an authorize request using a browser.
-        /// </summary>
-        /// <param name="trySilent">if set to <c>true</c> try a silent request.</param>
-        /// <param name="extraParameters">The extra parameters.</param>
-        /// <returns>The authorize result</returns>
-        /// <exception cref="System.InvalidOperationException">No web view configured.</exception>
-        //public async Task<AuthorizeResult> AuthorizeAsync(bool trySilent = false, object extraParameters = null)
-        //{
-        //    if (_options.WebView == null)
-        //    {
-        //        throw new InvalidOperationException("No web view configured.");
-        //    }
-
-        //    InvokeResult wviResult;
-        //    AuthorizeResult result = new AuthorizeResult
-        //    {
-        //        State = await CreateAuthorizeStateAsync(extraParameters)
-        //    };
-
-        //    var invokeOptions = new InvokeOptions(result.State.StartUrl, _options.RedirectUri);
-        //    invokeOptions.InvisibleModeTimeout = _options.WebViewTimeout;
-
-        //    if (trySilent)
-        //    {
-        //        invokeOptions.InitialDisplayMode = DisplayMode.Hidden;
-        //    }
-        //    if (_options.UseFormPost)
-        //    {
-        //        invokeOptions.ResponseMode = ResponseMode.FormPost;
-        //    }
-
-        //    wviResult = await _options.WebView.InvokeAsync(invokeOptions);
-
-        //    if (wviResult.ResultType == InvokeResultType.Success)
-        //    {
-        //        result.Data = wviResult.Response;
-        //        return result;
-        //    }
-
-        //    result.Error = wviResult.ResultType.ToString();
-        //    return result;
-        //}
-
-        /// <summary>
-        /// Starts an end_session request using a browser.
-        /// </summary>
-        /// <param name="identityToken">The identity token.</param>
-        /// <param name="trySilent">if set to <c>true</c> try a silent request.</param>
-        /// <returns></returns>
-        /// <exception cref="System.InvalidOperationException">
-        /// No web view defined.
-        /// or
-        /// no endsession_endpoint defined
-        /// </exception>
-        //public async Task EndSessionAsync(string identityToken = null, bool trySilent = true)
-        //{
-        //    if (_options.WebView == null)
-        //    {
-        //        throw new InvalidOperationException("No web view defined.");
-        //    }
-
-        //    string url = (await _options.GetProviderInformationAsync()).EndSessionEndpoint;
-        //    if (url.IsMissing())
-        //    {
-        //        throw new InvalidOperationException("no endsession_endpoint defined");
-        //    }
-
-        //    if (!string.IsNullOrWhiteSpace(identityToken))
-        //    {
-        //        url += $"?{OidcConstants.EndSessionRequest.IdTokenHint}={identityToken}" +
-        //               $"&{OidcConstants.EndSessionRequest.PostLogoutRedirectUri}={_options.RedirectUri}";
-        //    }
-
-        //    var webViewOptions = new InvokeOptions(url, _options.RedirectUri)
-        //    {
-        //        ResponseMode = ResponseMode.Redirect,
-        //        InvisibleModeTimeout = _options.WebViewTimeout
-        //    };
-
-        //    if (trySilent)
-        //    {
-        //        webViewOptions.InitialDisplayMode = DisplayMode.Hidden;
-        //    }
-
-        //    var result = await _options.WebView.InvokeAsync(webViewOptions);
-        //}
-
     }
 }

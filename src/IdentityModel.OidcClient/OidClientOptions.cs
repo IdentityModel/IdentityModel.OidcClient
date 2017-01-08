@@ -21,7 +21,7 @@ namespace IdentityModel.OidcClient
         public string RedirectUri { get; set; }
 
         public IWebView WebView { get; set; }
-        public IIdentityTokenValidator IdentityTokenValidator { get; set; }
+        public TimeSpan ClockSkew { get; set; } = TimeSpan.FromMinutes(5);
 
         public bool UseFormPost { get; set; } = false;
         public bool LoadProfile { get; set; } = true;

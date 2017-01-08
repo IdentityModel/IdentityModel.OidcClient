@@ -3,10 +3,7 @@ using IdentityModel.OidcClient.Infrastructure;
 using IdentityModel.OidcClient.Results;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,11 +14,16 @@ namespace IdentityModel.OidcClient
         private readonly OidcClientOptions _options;
         private TokenClient _tokenClient;
         private ILogger<ResponseProcessor> _logger;
+        private readonly IdentityTokenValidator _tokenValidator;
+        private readonly CryptoHelper _crypto;
 
         public ResponseProcessor(OidcClientOptions options)
         {
             _options = options;
             _logger = options.LoggerFactory.CreateLogger<ResponseProcessor>();
+
+            _tokenValidator = new IdentityTokenValidator(options);
+            _crypto = new CryptoHelper(options);
         }
 
         public async Task<ResponseValidationResult> ValidateHybridFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state)
@@ -44,7 +46,7 @@ namespace IdentityModel.OidcClient
             }
 
             // id_token must be valid
-            var validationResult = await ValidateIdentityTokenAsync(authorizeResponse.IdentityToken);
+            var validationResult = _tokenValidator.Validate(authorizeResponse.IdentityToken);
             if (validationResult.IsError)
             {
                 result.Error = validationResult.Error ?? "Identity token validation error";
@@ -64,8 +66,7 @@ namespace IdentityModel.OidcClient
 
             // todo: policy
             // if c_hash is present, it must be valid
-            var signingAlgorithmBits = int.Parse(validationResult.SignatureAlgorithm.Substring(2));
-            if (!ValidateAuthorizationCodeHash(authorizeResponse.Code, signingAlgorithmBits, validationResult.User))
+            if (!ValidateAuthorizationCodeHash(authorizeResponse.Code, validationResult.SignatureAlgorithm, validationResult.User))
             {
                 result.Error = "Invalid c_hash";
                 _logger.LogError(result.Error);
@@ -88,7 +89,7 @@ namespace IdentityModel.OidcClient
             }
 
             // validate token response
-            var tokenResponseValidationResult = await ValidateTokenResponse(tokenResponse);
+            var tokenResponseValidationResult = ValidateTokenResponse(tokenResponse);
             if (tokenResponseValidationResult.IsError)
             {
                 result.Error = tokenResponseValidationResult.Error;
@@ -99,9 +100,7 @@ namespace IdentityModel.OidcClient
             {
                 AuthorizeResponse = authorizeResponse,
                 TokenResponse = tokenResponse,
-                
-                //todo
-                //User = tokenResponseValidationResult
+                User = tokenResponseValidationResult.IdentityTokenValidationResult.User
             };
         }
 
@@ -146,7 +145,7 @@ namespace IdentityModel.OidcClient
             }
 
             // validate token response
-            var tokenResponseValidationResult = await ValidateTokenResponse(tokenResponse);
+            var tokenResponseValidationResult = ValidateTokenResponse(tokenResponse);
             if (tokenResponseValidationResult.IsError)
             {
                 result.Error = tokenResponseValidationResult.Error;
@@ -157,13 +156,11 @@ namespace IdentityModel.OidcClient
             {
                 AuthorizeResponse = authorizeResponse,
                 TokenResponse = tokenResponse,
-
-                //todo
-                //Claims = tokenResponseValidationResult.IdentityTokenValidationResult.Claims
+                User = tokenResponseValidationResult.IdentityTokenValidationResult.User
             };
         }
 
-        public async Task<TokenResponseValidationResult> ValidateTokenResponse(TokenResponse response, bool requireIdentityToken = true)
+        public TokenResponseValidationResult ValidateTokenResponse(TokenResponse response, bool requireIdentityToken = true)
         {
             _logger.LogTrace("ValidateTokenResponse");
 
@@ -193,7 +190,7 @@ namespace IdentityModel.OidcClient
             if (response.IdentityToken.IsPresent())
             {
                 // if identity token is present, it must be valid
-                var validationResult = await ValidateIdentityTokenAsync(response.IdentityToken);
+                var validationResult = _tokenValidator.Validate(response.IdentityToken);
                 if (validationResult.IsError)
                 {
                     result.Error = validationResult.Error ?? "Identity token validation error";
@@ -204,7 +201,7 @@ namespace IdentityModel.OidcClient
 
                 // if at_hash is present, it must be valid
                 var signingAlgorithmBits = int.Parse(validationResult.SignatureAlgorithm.Substring(2));
-                if (!ValidateAccessTokenHash(response.AccessToken, signingAlgorithmBits, validationResult.User))
+                if (!ValidateAccessTokenHash(response.AccessToken, validationResult.SignatureAlgorithm, validationResult.User))
                 {
                     result.Error = "Invalid access token hash";
                     _logger.LogError(result.Error);
@@ -219,49 +216,6 @@ namespace IdentityModel.OidcClient
             }
 
             return new TokenResponseValidationResult();
-        }
-
-        private async Task<IdentityTokenValidationResult> ValidateIdentityTokenAsync(string idToken)
-        {
-            _logger.LogDebug("Calling identity token validator: " + _options.IdentityTokenValidator.GetType().FullName);
-
-            var validationResult = await _options.IdentityTokenValidator.ValidateAsync(idToken, _options.ClientId, _options.ProviderInformation);
-
-            if (validationResult.IsError)
-            {
-                return validationResult;
-            }
-
-            var user = validationResult.User;
-
-            //Logger.Debug("identity token validation claims:");
-            //Logger.LogClaims(claims);
-
-            // validate audience
-            var audience = user.FindFirst(JwtClaimTypes.Audience)?.Value ?? "";
-            if (!string.Equals(_options.ClientId, audience, StringComparison.Ordinal))
-            {
-                _logger.LogError($"client id ({_options.ClientId}) does not match audience ({audience})");
-
-                return new IdentityTokenValidationResult
-                {
-                    Error = "invalid audience"
-                };
-            }
-
-            // validate issuer
-            var issuer = user.FindFirst(JwtClaimTypes.Issuer)?.Value ?? "";
-            if (!string.Equals(_options.ProviderInformation.IssuerName, issuer, StringComparison.Ordinal))
-            {
-                _logger.LogError($"configured issuer ({_options.ProviderInformation.IssuerName}) does not match token issuer ({issuer}");
-
-                return new IdentityTokenValidationResult
-                {
-                    Error = "invalid issuer"
-                };
-            }
-
-            return validationResult;
         }
 
         private bool ValidateNonce(string nonce, ClaimsPrincipal user)
@@ -279,17 +233,19 @@ namespace IdentityModel.OidcClient
             return match;
         }
 
-        private bool ValidateAuthorizationCodeHash(string code, int signingAlgorithmBits, ClaimsPrincipal claims)
+        private bool ValidateAuthorizationCodeHash(string code, string signatureAlgorithm, ClaimsPrincipal user)
         {
             _logger.LogTrace("ValidateAuthorizationCodeHash");
 
-            var cHash = claims.FindFirst(JwtClaimTypes.AuthorizationCodeHash)?.Value ?? "";
+            var cHash = user.FindFirst(JwtClaimTypes.AuthorizationCodeHash)?.Value ?? "";
+
+            // todo: policy
             if (cHash.IsMissing())
             {
                 return true;
             }
 
-            var hashAlgorithm = GetHashAlgorithm(signingAlgorithmBits);
+            var hashAlgorithm = _crypto.GetMatchingHashAlgorithm(signatureAlgorithm);
             if (hashAlgorithm == null)
             {
                 _logger.LogError("No appropriate hashing algorithm found.");
@@ -299,8 +255,8 @@ namespace IdentityModel.OidcClient
             {
                 var hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(code));
 
-                byte[] leftPart = new byte[signingAlgorithmBits / 16];
-                Array.Copy(hash, leftPart, signingAlgorithmBits / 16);
+                byte[] leftPart = new byte[hashAlgorithm.HashSize / 16];
+                Array.Copy(hash, leftPart, hashAlgorithm.HashSize / 16);
 
                 var leftPartB64 = Base64Url.Encode(leftPart);
                 var match = leftPartB64.Equals(cHash);
@@ -314,7 +270,7 @@ namespace IdentityModel.OidcClient
             }
         }
 
-        private bool ValidateAccessTokenHash(string accessToken, int signingAlgorithmBits, ClaimsPrincipal user)
+        private bool ValidateAccessTokenHash(string accessToken, string signatureAlgorithm, ClaimsPrincipal user)
         {
             _logger.LogTrace("ValidateAccessTokenHash");
 
@@ -324,7 +280,7 @@ namespace IdentityModel.OidcClient
                 return true;
             }
 
-            var hashAlgorithm = GetHashAlgorithm(signingAlgorithmBits);
+            var hashAlgorithm = _crypto.GetMatchingHashAlgorithm(signatureAlgorithm);
             if (hashAlgorithm == null)
             {
                 _logger.LogError("No appropriate hashing algorithm found.");
@@ -334,8 +290,8 @@ namespace IdentityModel.OidcClient
             {
                 var hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(atHash));
 
-                byte[] leftPart = new byte[signingAlgorithmBits / 16];
-                Array.Copy(hash, leftPart, signingAlgorithmBits / 16);
+                byte[] leftPart = new byte[hashAlgorithm.HashSize / 16];
+                Array.Copy(hash, leftPart, hashAlgorithm.HashSize / 16);
 
                 var leftPartB64 = Base64Url.Encode(leftPart);
                 var match = leftPartB64.Equals(atHash);
@@ -364,25 +320,25 @@ namespace IdentityModel.OidcClient
         }
 
 
-        private HashAlgorithm GetHashAlgorithm(int signingAlgorithmBits)
-        {
-            _logger.LogDebug($"determining hash algorithm for {signingAlgorithmBits} bits");
+        //private HashAlgorithm GetHashAlgorithm(int signingAlgorithmBits)
+        //{
+        //    _logger.LogDebug($"determining hash algorithm for {signingAlgorithmBits} bits");
 
-            switch (signingAlgorithmBits)
-            {
-                case 256:
-                    _logger.LogDebug("SHA256");
-                    return SHA256.Create();
-                case 384:
-                    _logger.LogDebug("SHA384");
-                    return SHA384.Create();
-                case 512:
-                    _logger.LogDebug("SHA512");
-                    return SHA512.Create();
-                default:
-                    return null;
-            }
-        }
+        //    switch (signingAlgorithmBits)
+        //    {
+        //        case 256:
+        //            _logger.LogDebug("SHA256");
+        //            return SHA256.Create();
+        //        case 384:
+        //            _logger.LogDebug("SHA384");
+        //            return SHA384.Create();
+        //        case 512:
+        //            _logger.LogDebug("SHA512");
+        //            return SHA512.Create();
+        //        default:
+        //            return null;
+        //    }
+        //}
 
         private TokenClient GetTokenClient()
         {
