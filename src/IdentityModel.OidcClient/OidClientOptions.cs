@@ -23,7 +23,7 @@ namespace IdentityModel.OidcClient
         public IWebView WebView { get; set; }
         public TimeSpan ClockSkew { get; set; } = TimeSpan.FromMinutes(5);
 
-        public bool UseFormPost { get; set; } = false;
+        public bool UseFormPost { get; set; } = true;
         public bool LoadProfile { get; set; } = true;
         public bool FilterClaims { get; set; } = true;
         public AuthenticationFlow Flow = AuthenticationFlow.Hybrid;

@@ -38,15 +38,12 @@ namespace IdentityModel.OidcClient
             }
         }
 
-        private bool ValidateHash(string data, string hashedData, string signatureAlgorithm)
+        public bool ValidateHash(string data, string hashedData, string signatureAlgorithm)
         {
-            _logger.LogTrace("ValidateHash");
-
             var hashAlgorithm = GetMatchingHashAlgorithm(signatureAlgorithm);
             if (hashAlgorithm == null)
             {
                 _logger.LogError("No appropriate hashing algorithm found.");
-                return false;
             }
 
             using (hashAlgorithm)
@@ -57,22 +54,23 @@ namespace IdentityModel.OidcClient
                 Array.Copy(hash, leftPart, hashAlgorithm.HashSize / 16);
 
                 var leftPartB64 = Base64Url.Encode(leftPart);
-                var match = leftPartB64.Equals(data);
+                var match = leftPartB64.Equals(hashedData);
 
                 if (!match)
                 {
-                    _logger.LogError($"hashed data ({leftPartB64}) does not match hash from token ({data})");
+                    _logger.LogError($"data ({leftPartB64}) does not match hash from token ({hashedData})");
                 }
 
                 return match;
             }
         }
 
+
         public Pkce CreatePkceData()
         {
             var pkce = new Pkce
             {
-                CodeVerifier = CryptoRandom.CreateUniqueId(16)
+                CodeVerifier = CryptoRandom.CreateUniqueId()
             };
 
             using (var sha256 = SHA256.Create())

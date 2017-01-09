@@ -70,22 +70,54 @@ namespace IdentityModel.OidcClient
         {
             _logger.LogTrace("ValidateResponseAsync");
 
-            var response = new AuthorizeResponse(data);
+            var authorizeResponse = new AuthorizeResponse(data);
 
-            if (response.IsError)
+            if (authorizeResponse.IsError)
             {
-                _logger.LogError(response.Error);
-                return new LoginResult(response.Error);
+                _logger.LogError(authorizeResponse.Error);
+                return new LoginResult(authorizeResponse.Error);
             }
 
-            var validationResult = await _processor.ProcessResponseAsync(response, state);
-            if (validationResult.IsError)
+            var result = await _processor.ProcessResponseAsync(authorizeResponse, state);
+            if (result.IsError)
             {
-                _logger.LogError("Error validating response: " + validationResult.Error);
-                return new LoginResult(validationResult.Error);
+                _logger.LogError("Error validating response: " + result.Error);
+                return new LoginResult(result.Error);
             }
 
-            return await ProcessClaimsAsync(validationResult);
+            var userInfoClaims = Enumerable.Empty<Claim>();
+            if (_options.LoadProfile)
+            {
+                var userInfoResult = await GetUserInfoAsync(result.TokenResponse.AccessToken);
+                if (userInfoResult.IsError)
+                {
+                    return new LoginResult($"Error contacting userinfo endpoint: {userInfoResult.Error}");
+                }
+
+                userInfoClaims = userInfoResult.Claims;
+            }
+
+            var user = Process(result.User, userInfoClaims);
+
+            var loginResult = new LoginResult
+            {
+                User = user,
+                AccessToken = result.TokenResponse.AccessToken,
+                RefreshToken = result.TokenResponse.RefreshToken,
+                AccessTokenExpiration = DateTime.Now.AddSeconds(result.TokenResponse.ExpiresIn),
+                IdentityToken = result.TokenResponse.IdentityToken,
+                AuthenticationTime = DateTime.Now
+            };
+
+            if (!string.IsNullOrWhiteSpace(loginResult.RefreshToken))
+            {
+                loginResult.RefreshTokenHandler = new RefreshTokenHandler(
+                    TokenClientFactory.Create(_options),
+                    loginResult.RefreshToken,
+                    loginResult.AccessToken);
+            }
+
+            return loginResult;
         }
 
         private async Task EnsureConfiguration()
@@ -202,72 +234,24 @@ namespace IdentityModel.OidcClient
             };
         }
 
-        private async Task<LoginResult> ProcessClaimsAsync(ResponseValidationResult result)
+        internal ClaimsPrincipal Process(ClaimsPrincipal user, IEnumerable<Claim> userInfoClaims)
         {
-            _logger.LogTrace("ProcessClaimsAsync");
+            var combinedClaims = new HashSet<Claim>(new ClaimComparer(compareValueAndTypeOnly: true));
 
-            // get profile if enabled
-            if (_options.LoadProfile)
+            user.Claims.ToList().ForEach(c => combinedClaims.Add(c));
+            userInfoClaims.ToList().ForEach(c => combinedClaims.Add(c));
+
+            var userClaims = new List<Claim>();
+            if (_options.FilterClaims)
             {
-                //Logger.Debug("load profile");
-
-                var userInfoResult = await GetUserInfoAsync(result.TokenResponse.AccessToken);
-
-                if (userInfoResult.IsError)
-                {
-                    return new LoginResult(userInfoResult.Error);
-                }
-
-                _logger.LogDebug("profile claims:");
-                _logger.LogClaims(userInfoResult.Claims);
-
-                var primaryClaimTypes = result.User.Claims.Select(c => c.Type).Distinct();
-                foreach (var claim in userInfoResult.Claims.Where(c => !primaryClaimTypes.Contains(c.Type)))
-                {
-                    result.User.Identities.First().AddClaim(claim);
-                }
+                userClaims = combinedClaims.Where(c => !_options.FilteredClaims.Contains(c.Type)).ToList();
             }
             else
             {
-                //Logger.Debug("don't load profile");
+                userClaims = combinedClaims.ToList();
             }
 
-            // success
-            var loginResult = new LoginResult
-            {
-                User = FilterClaims(result.User),
-                AccessToken = result.TokenResponse.AccessToken,
-                RefreshToken = result.TokenResponse.RefreshToken,
-                AccessTokenExpiration = DateTime.Now.AddSeconds(result.TokenResponse.ExpiresIn),
-                IdentityToken = result.TokenResponse.IdentityToken,
-                AuthenticationTime = DateTime.Now
-            };
-
-            if (!string.IsNullOrWhiteSpace(result.TokenResponse.RefreshToken))
-            {
-                loginResult.RefreshTokenHandler = new RefreshTokenHandler(
-                    TokenClientFactory.Create(_options),
-                    result.TokenResponse.RefreshToken,
-                    result.TokenResponse.AccessToken);
-            }
-
-            return loginResult;
-        }
-
-        private ClaimsPrincipal FilterClaims(ClaimsPrincipal user)
-        {
-            _logger.LogTrace("filtering claims");
-
-            var claims = new List<Claim>();
-            if (_options.FilterClaims)
-            {
-                claims = user.Claims.Where(c => !_options.FilteredClaims.Contains(c.Type)).ToList();
-            }
-
-            _logger.LogDebug("filtered claims:");
-            _logger.LogClaims(claims);
-
-            return new ClaimsPrincipal(new ClaimsIdentity(claims, user.Identity.AuthenticationType, user.Identities.First().NameClaimType, user.Identities.First().RoleClaimType));
+            return new ClaimsPrincipal(new ClaimsIdentity(userClaims, user.Identity.AuthenticationType, user.Identities.First().NameClaimType, user.Identities.First().RoleClaimType));
         }
     }
 }
