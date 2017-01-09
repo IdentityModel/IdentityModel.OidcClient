@@ -161,27 +161,6 @@ namespace IdentityModel.OidcClient
             var result = new ResponseValidationResult();
 
             //////////////////////////////////////////////////////
-            // validate front-channel response
-            //////////////////////////////////////////////////////
-
-            // code must be present
-            if (authorizeResponse.Code.IsMissing())
-            {
-                result.Error = "code is missing";
-                _logger.LogError(result.Error);
-
-                return result;
-            }
-
-            if (!string.Equals(authorizeResponse.State, state.State, StringComparison.Ordinal))
-            {
-                result.Error = "invalid state";
-                _logger.LogError(result.Error);
-
-                return result;
-            }
-
-            //////////////////////////////////////////////////////
             // process back-channel response
             //////////////////////////////////////////////////////
 

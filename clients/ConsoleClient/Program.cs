@@ -1,5 +1,6 @@
 ﻿using IdentityModel.OidcClient;
 using Microsoft.Net.Http.Server;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -42,9 +43,9 @@ namespace ConsoleClient
             settings.UrlPrefixes.Add(redirectUri);
             var http = new WebListener(settings);
 
-            Console.WriteLine("Listening..");
             http.Start();
-
+            Console.WriteLine("Listening..");
+            
             var options = new OidcClientOptions
             {
                 Authority = _authority,
@@ -52,8 +53,17 @@ namespace ConsoleClient
                 RedirectUri = redirectUri,
                 Scope = "openid profile api",
                 FilterClaims = true,
-                LoadProfile = true
+                LoadProfile = true,
+                Flow = OidcClientOptions.AuthenticationFlow.Hybrid
             };
+
+            var serilog = new LoggerConfiguration()
+                .MinimumLevel.Verbose()
+                .Enrich.FromLogContext()
+                .WriteTo.LiterateConsole(outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message}{NewLine}{Exception}{NewLine}")
+                .CreateLogger();
+
+            options.LoggerFactory.AddSerilog(serilog);
 
             var client = new OidcClient(options);
             var state = await client.PrepareLoginAsync();
@@ -73,6 +83,11 @@ namespace ConsoleClient
 
             var result = await client.ProcessResponseAsync(formData, state);
 
+            ShowResult(result);
+        }
+
+        private static void ShowResult(LoginResult result)
+        {
             if (result.IsError)
             {
                 Console.WriteLine("\n\nError:\n{0}", result.Error);
@@ -84,11 +99,15 @@ namespace ConsoleClient
             {
                 Console.WriteLine("{0}: {1}", claim.Type, claim.Value);
             }
+
+            Console.WriteLine($"\nidentity token: {result.IdentityToken}");
+            Console.WriteLine($"access token:   {result.AccessToken}");
+            Console.WriteLine($"refresh token:  {result?.RefreshToken ?? "none"}");
         }
 
         private static async Task SendResponseAsync(Response response)
         {
-            string responseString = $"<html><head><meta http-equiv='refresh' content='10;url='{_authority}'></head><body>Please return to the app.</body></html>";
+            string responseString = $"<html><head></head><body>Please return to the app.</body></html>";
             var buffer = Encoding.UTF8.GetBytes(responseString);
 
             response.ContentLength = buffer.Length;

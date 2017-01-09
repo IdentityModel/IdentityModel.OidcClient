@@ -120,6 +120,32 @@ namespace IdentityModel.OidcClient
             return loginResult;
         }
 
+        public async Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken)
+        {
+            var client = TokenClientFactory.Create(_options);
+            var response = await client.RequestRefreshTokenAsync(refreshToken);
+
+            if (response.IsError)
+            {
+                return new RefreshTokenResult { Error = response.Error };
+            }
+
+            // validate token response
+            var validationResult = _processor.ValidateTokenResponse(response, requireIdentityToken: _options.Policy.RequireIdentityTokenOnRefreshTokenResponse);
+            if (validationResult.IsError)
+            {
+                return new RefreshTokenResult { Error = validationResult.Error };
+            }
+
+            return new RefreshTokenResult
+            {
+                IdentityToken = response.IdentityToken,
+                AccessToken = response.AccessToken,
+                RefreshToken = response.RefreshToken,
+                ExpiresIn = (int)response.ExpiresIn
+            };
+        }
+
         private async Task EnsureConfiguration()
         {
             if (_options.ClientId.IsMissing())
