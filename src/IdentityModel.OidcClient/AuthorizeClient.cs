@@ -4,6 +4,8 @@ using IdentityModel.OidcClient.Infrastructure;
 using IdentityModel.OidcClient.Results;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace IdentityModel.OidcClient
@@ -25,7 +27,7 @@ namespace IdentityModel.OidcClient
             _crypto = new CryptoHelper(options);
         }
 
-        public async Task<AuthorizeResult> AuthorizeAsync(bool invisible = false, object extraParameters = null)
+        public async Task<AuthorizeResult> AuthorizeAsync(bool hidden = false, object extraParameters = null)
         {
             if (_options.Browser == null)
             {
@@ -37,19 +39,24 @@ namespace IdentityModel.OidcClient
                 State = CreateAuthorizeState(extraParameters)
             };
 
-            var invokeOptions = new BrowserOptions(result.State.StartUrl, _options.RedirectUri);
-            invokeOptions.InvisibleModeTimeout = _options.BrowserInvisibleTimeout;
+            var browserOptions = new BrowserOptions(result.State.StartUrl, _options.RedirectUri);
+            browserOptions.Timeout = _options.BrowserTimeout;
 
-            if (invisible)
+            if (hidden)
             {
-                invokeOptions.InitialDisplayMode = DisplayMode.Hidden;
-            }
-            if (_options.UseFormPost)
-            {
-                invokeOptions.ResponseMode = ResponseMode.FormPost;
+                browserOptions.DisplayMode = DisplayMode.Hidden;
             }
 
-            var browserResult = await _options.Browser.InvokeAsync(invokeOptions);
+            if (_options.ResponseMode == OidcClientOptions.AuthorizeResponseMode.FormPost)
+            {
+                browserOptions.ResponseMode = OidcClientOptions.AuthorizeResponseMode.FormPost;
+            }
+            else
+            {
+                browserOptions.ResponseMode = OidcClientOptions.AuthorizeResponseMode.Redirect;
+            }
+
+            var browserResult = await _options.Browser.InvokeAsync(browserOptions);
 
             if (browserResult.ResultType == BrowserResultType.Success)
             {
@@ -103,19 +110,73 @@ namespace IdentityModel.OidcClient
                     throw new ArgumentOutOfRangeException(nameof(_options.Flow), "Unsupported authentication flow");
             }
 
-            var url = request.CreateAuthorizeUrl(
-                clientId: _options.ClientId,
-                responseType: responseType,
-                scope: _options.Scope,
-                redirectUri: state.RedirectUri,
-                responseMode: _options.UseFormPost ? OidcConstants.ResponseModes.FormPost : null,
-                nonce: state.Nonce,
-                state: state.State,
-                codeChallenge: codeChallenge,
-                codeChallengeMethod: OidcConstants.CodeChallengeMethods.Sha256,
-                extra: extraParameters);
+            var parameters = new Dictionary<string, string>
+            {
+                { OidcConstants.AuthorizeRequest.ResponseType, responseType },   
+                { OidcConstants.AuthorizeRequest.Nonce, state.Nonce },
+                { OidcConstants.AuthorizeRequest.State, state.State },
+                { OidcConstants.AuthorizeRequest.CodeChallenge, codeChallenge },
+                { OidcConstants.AuthorizeRequest.CodeChallengeMethod, OidcConstants.CodeChallengeMethods.Sha256 },
+            };
 
-            return url;
+            if (_options.ClientId.IsPresent())
+            {
+                parameters.Add(OidcConstants.AuthorizeRequest.ClientId, _options.ClientId);
+            }
+            if (_options.Scope.IsPresent())
+            {
+                parameters.Add(OidcConstants.AuthorizeRequest.Scope, _options.Scope);
+            }
+            if (_options.RedirectUri.IsPresent())
+            {
+                parameters.Add(OidcConstants.AuthorizeRequest.RedirectUri, _options.RedirectUri);
+            }
+            if (_options.ResponseMode == OidcClientOptions.AuthorizeResponseMode.FormPost)
+            {
+                parameters.Add(OidcConstants.AuthorizeRequest.ResponseMode, OidcConstants.ResponseModes.FormPost);
+            }
+
+            var extraDictionary = ObjectToDictionary(extraParameters);
+            if (extraDictionary != null)
+            {
+                foreach (var entry in extraDictionary)
+                {
+                    if (parameters.ContainsKey(entry.Key))
+                    {
+                        parameters[entry.Key] = entry.Value;
+                    }
+                    else
+                    {
+                        parameters.Add(entry.Key, entry.Value);
+                    }
+                }
+            }
+
+            return request.Create(parameters);
+        }
+
+        private Dictionary<string, string> ObjectToDictionary(object values)
+        {
+            if (values == null)
+            {
+                return null;
+            }
+
+            var dictionary = values as Dictionary<string, string>;
+            if (dictionary != null) return dictionary;
+
+            dictionary = new Dictionary<string, string>();
+
+            foreach (var prop in values.GetType().GetRuntimeProperties())
+            {
+                var value = prop.GetValue(values) as string;
+                if (!string.IsNullOrEmpty(value))
+                {
+                    dictionary.Add(prop.Name, value);
+                }
+            }
+
+            return dictionary;
         }
     }
 }

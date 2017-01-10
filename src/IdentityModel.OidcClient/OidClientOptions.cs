@@ -77,7 +77,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The browser invisible timeout.
         /// </value>
-        public TimeSpan BrowserInvisibleTimeout { get; set; }
+        public TimeSpan BrowserTimeout { get; set; }
 
         /// <summary>
         /// Gets or sets the clock skew for validating identity tokens.
@@ -93,7 +93,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         ///   <c>true</c> for using form_post; otherwise, <c>false</c>.
         /// </value>
-        public bool UseFormPost { get; set; } = true;
+        public AuthorizeResponseMode ResponseMode { get; set; } = AuthorizeResponseMode.FormPost;
 
         /// <summary>
         /// Gets or sets a value indicating whether claims are loaded from the userinfo endpoint
@@ -185,6 +185,12 @@ namespace IdentityModel.OidcClient
         {
             AuthorizationCode,
             Hybrid
+        }
+
+        public enum AuthorizeResponseMode
+        {
+            FormPost,
+            Redirect
         }
     }
 }

@@ -11,9 +11,9 @@ namespace IdentityModel.OidcClient.Browser
         public string StartUrl { get; }
         public string EndUrl { get; }
 
-        public ResponseMode ResponseMode { get; set; } = ResponseMode.Redirect;
-        public DisplayMode InitialDisplayMode { get; set; } = DisplayMode.Visible;
-        public TimeSpan InvisibleModeTimeout { get; set; } = TimeSpan.FromSeconds(10);
+        public OidcClientOptions.AuthorizeResponseMode ResponseMode { get; set; } = OidcClientOptions.AuthorizeResponseMode.FormPost;
+        public DisplayMode DisplayMode { get; set; } = DisplayMode.Visible;
+        public TimeSpan Timeout { get; set; } = TimeSpan.FromMinutes(5);
 
         public BrowserOptions(string startUrl, string endUrl)
         {

@@ -27,6 +27,8 @@ namespace IdentityModel.OidcClient
 
         public async Task<ResponseValidationResult> ProcessResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state)
         {
+            _logger.LogTrace("ProcessResponseAsync");
+
             if (string.IsNullOrEmpty(authorizeResponse.Code))
             {
                 var error = "Missing authorization code";
@@ -64,7 +66,7 @@ namespace IdentityModel.OidcClient
 
         public async Task<ResponseValidationResult> ProcessHybridFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state)
         {
-            _logger.LogTrace("ValidateHybridFlowResponseAsync");
+            _logger.LogTrace("ProcessHybridFlowResponseAsync");
 
             var result = new ResponseValidationResult();
 
@@ -155,7 +157,7 @@ namespace IdentityModel.OidcClient
 
         public async Task<ResponseValidationResult> ProcessCodeFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state)
         {
-            _logger.LogTrace("ValidateCodeFlowResponseAsync");
+            _logger.LogTrace("ProcessCodeFlowResponseAsync");
 
             var result = new ResponseValidationResult();
 
@@ -273,78 +275,6 @@ namespace IdentityModel.OidcClient
 
             return match;
         }
-
-        //private bool ValidateAuthorizationCodeHash(string code, string signatureAlgorithm, ClaimsPrincipal user)
-        //{
-        //    _logger.LogTrace("ValidateAuthorizationCodeHash");
-
-        //    var cHash = user.FindFirst(JwtClaimTypes.AuthorizationCodeHash)?.Value ?? "";
-
-        //    // todo: policy
-        //    if (cHash.IsMissing())
-        //    {
-        //        return true;
-        //    }
-
-        //    var hashAlgorithm = _crypto.GetMatchingHashAlgorithm(signatureAlgorithm);
-        //    if (hashAlgorithm == null)
-        //    {
-        //        _logger.LogError("No appropriate hashing algorithm found.");
-        //    }
-
-        //    using (hashAlgorithm)
-        //    {
-        //        var hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(code));
-
-        //        byte[] leftPart = new byte[hashAlgorithm.HashSize / 16];
-        //        Array.Copy(hash, leftPart, hashAlgorithm.HashSize / 16);
-
-        //        var leftPartB64 = Base64Url.Encode(leftPart);
-        //        var match = leftPartB64.Equals(cHash);
-
-        //        if (!match)
-        //        {
-        //            _logger.LogError($"code hash ({leftPartB64}) does not match c_hash from token ({cHash})");
-        //        }
-
-        //        return match;
-        //    }
-        //}
-
-        //private bool ValidateAccessTokenHash(string accessToken, string signatureAlgorithm, ClaimsPrincipal user)
-        //{
-        //    _logger.LogTrace("ValidateAccessTokenHash");
-
-        //    var atHash = user.FindFirst(JwtClaimTypes.AccessTokenHash)?.Value ?? "";
-        //    if (atHash.IsMissing())
-        //    {
-        //        return true;
-        //    }
-
-        //    var hashAlgorithm = _crypto.GetMatchingHashAlgorithm(signatureAlgorithm);
-        //    if (hashAlgorithm == null)
-        //    {
-        //        _logger.LogError("No appropriate hashing algorithm found.");
-        //    }
-
-        //    using (hashAlgorithm)
-        //    {
-        //        var hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(atHash));
-
-        //        byte[] leftPart = new byte[hashAlgorithm.HashSize / 16];
-        //        Array.Copy(hash, leftPart, hashAlgorithm.HashSize / 16);
-
-        //        var leftPartB64 = Base64Url.Encode(leftPart);
-        //        var match = leftPartB64.Equals(atHash);
-
-        //        if (!match)
-        //        {
-        //            _logger.LogError($"code hash ({leftPartB64}) does not match c_hash from token ({atHash})");
-        //        }
-
-        //        return match;
-        //    }
-        //}
 
         private async Task<TokenResponse> RedeemCodeAsync(string code, AuthorizeState state)
         {

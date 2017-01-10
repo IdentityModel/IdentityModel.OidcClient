@@ -39,7 +39,12 @@ namespace IdentityModel.OidcClient
         public OidcClient(OidcClientOptions options)
         {
             if (options == null) throw new ArgumentNullException(nameof(options));
-            if (options.ProviderInformation == null) useDiscovery = true;
+
+            if (options.ProviderInformation == null)
+            {
+                if (options.Authority.IsMissing()) throw new ArgumentException("No authority set", nameof(_options.Authority));
+                useDiscovery = true;
+            }
 
             _options = options;
             _logger = options.LoggerFactory.CreateLogger<OidcClient>();
@@ -47,12 +52,12 @@ namespace IdentityModel.OidcClient
             _processor = new ResponseProcessor(options);
         }
 
-        public async Task<LoginResult> LoginAsync(bool invisible = false, object extraParameters = null)
+        public async Task<LoginResult> LoginAsync(bool hidden = false, object extraParameters = null)
         {
             _logger.LogTrace("LoginAsync");
 
-            await EnsureConfiguration();
-            var authorizeResult = await _authorizeClient.AuthorizeAsync(invisible, extraParameters);
+            await EnsureProviderInformation();
+            var authorizeResult = await _authorizeClient.AuthorizeAsync(hidden, extraParameters);
 
             if (authorizeResult.IsError)
             {
@@ -71,7 +76,7 @@ namespace IdentityModel.OidcClient
         {
             _logger.LogTrace("PrepareLoginAsync");
 
-            await EnsureConfiguration();
+            await EnsureProviderInformation();
             return _authorizeClient.CreateAuthorizeState(extraParameters);
         }
 
@@ -194,29 +199,6 @@ namespace IdentityModel.OidcClient
             };
         }
 
-        private async Task EnsureConfiguration()
-        {
-            if (_options.ClientId.IsMissing())
-            {
-                _logger.LogError("No client id configured");
-                throw new ArgumentNullException(_options.ClientId);
-            }
-
-            if (_options.Scope.IsMissing())
-            {
-                _logger.LogError("No scopes configured");
-                throw new ArgumentNullException(_options.Scope);
-            }
-
-            if (_options.RedirectUri.IsMissing())
-            {
-                _logger.LogError("No redirect URI configured");
-                throw new ArgumentNullException(_options.RedirectUri);
-            }
-
-            await EnsureProviderInformation();
-        }
-
         private async Task EnsureProviderInformation()
         {
             _logger.LogTrace("EnsureProviderInformation");
@@ -234,38 +216,6 @@ namespace IdentityModel.OidcClient
                     throw new InvalidOperationException("Error loading discovery document: " + disco.Error);
                 }
 
-                if (disco.Issuer.IsMissing())
-                {
-                    var error = "Issuer name is missing in discovery document";
-
-                    _logger.LogError(error);
-                    throw new InvalidOperationException(error);
-                }
-
-                if (disco.AuthorizeEndpoint.IsMissing())
-                {
-                    var error = "Authorize endpoint is missing in discovery document";
-
-                    _logger.LogError(error);
-                    throw new InvalidOperationException(error);
-                }
-
-                if (disco.TokenEndpoint.IsMissing())
-                {
-                    var error = "Token endpoint is missing in discovery document";
-
-                    _logger.LogError(error);
-                    throw new InvalidOperationException(error);
-                }
-
-                if (disco.JwksUri.IsMissing() || disco.KeySet == null)
-                {
-                    var error = "Key set is missing in discovery document";
-
-                    _logger.LogError(error);
-                    throw new InvalidOperationException(error);
-                }
-
                 _options.ProviderInformation = new ProviderInformation
                 {
                     IssuerName = disco.Issuer,
@@ -277,6 +227,38 @@ namespace IdentityModel.OidcClient
                     UserInfoEndpoint = disco.UserInfoEndpoint,
                     TokenEndPointAuthenticationMethods = disco.TokenEndpointAuthenticationMethodsSupported
                 };
+            }
+
+            if (_options.ProviderInformation.IssuerName.IsMissing())
+            {
+                var error = "Issuer name is missing in provider information";
+
+                _logger.LogError(error);
+                throw new InvalidOperationException(error);
+            }
+
+            if (_options.ProviderInformation.AuthorizeEndpoint.IsMissing())
+            {
+                var error = "Authorize endpoint is missing in provider information";
+
+                _logger.LogError(error);
+                throw new InvalidOperationException(error);
+            }
+
+            if (_options.ProviderInformation.TokenEndpoint.IsMissing())
+            {
+                var error = "Token endpoint is missing in provider information";
+
+                _logger.LogError(error);
+                throw new InvalidOperationException(error);
+            }
+
+            if (_options.ProviderInformation.KeySet == null)
+            {
+                var error = "Key set is missing in provider information";
+
+                _logger.LogError(error);
+                throw new InvalidOperationException(error);
             }
         }
 

@@ -4,10 +4,9 @@
 
 namespace IdentityModel.OidcClient.Browser
 {
-    public class BrowserResult
+    public class BrowserResult : Result
     {
         public BrowserResultType ResultType { get; set; }
         public string Response { get; set; }
-        public string Error { get; set; }
     }
 }
