@@ -47,6 +47,21 @@ namespace IdentityModel.OidcClient
             _processor = new ResponseProcessor(options);
         }
 
+        public async Task<LoginResult> LoginAsync(bool invisible = false, object extraParameters = null)
+        {
+            _logger.LogTrace("LoginAsync");
+
+            await EnsureConfiguration();
+            var authorizeResult = await _authorizeClient.AuthorizeAsync(invisible, extraParameters);
+
+            if (authorizeResult.IsError)
+            {
+                return new LoginResult(authorizeResult.Error);
+            }
+
+            return await ProcessResponseAsync(authorizeResult.Data, authorizeResult.State);
+        }
+
         /// <summary>
         /// Prepares the login request.
         /// </summary>

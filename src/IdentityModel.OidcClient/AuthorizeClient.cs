@@ -1,7 +1,10 @@
 ﻿using IdentityModel.Client;
+using IdentityModel.OidcClient.Browser;
 using IdentityModel.OidcClient.Infrastructure;
+using IdentityModel.OidcClient.Results;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Threading.Tasks;
 
 namespace IdentityModel.OidcClient
 {
@@ -22,6 +25,43 @@ namespace IdentityModel.OidcClient
             _crypto = new CryptoHelper(options);
         }
 
+        public async Task<AuthorizeResult> AuthorizeAsync(bool invisible = false, object extraParameters = null)
+        {
+            if (_options.Browser == null)
+            {
+                throw new InvalidOperationException("No browser configured.");
+            }
+
+            AuthorizeResult result = new AuthorizeResult
+            {
+                State = CreateAuthorizeState(extraParameters)
+            };
+
+            var invokeOptions = new BrowserOptions(result.State.StartUrl, _options.RedirectUri);
+            invokeOptions.InvisibleModeTimeout = _options.BrowserInvisibleTimeout;
+
+            if (invisible)
+            {
+                invokeOptions.InitialDisplayMode = DisplayMode.Hidden;
+            }
+            if (_options.UseFormPost)
+            {
+                invokeOptions.ResponseMode = ResponseMode.FormPost;
+            }
+
+            var browserResult = await _options.Browser.InvokeAsync(invokeOptions);
+
+            if (browserResult.ResultType == BrowserResultType.Success)
+            {
+                result.Data = browserResult.Response;
+                return result;
+            }
+
+            result.Error = browserResult.ResultType.ToString();
+            return result;
+        }
+
+
         public AuthorizeState CreateAuthorizeState(object extraParameters = null)
         {
             _logger.LogTrace("CreateAuthorizeStateAsync");
@@ -30,8 +70,8 @@ namespace IdentityModel.OidcClient
 
             var state = new AuthorizeState
             {
-                Nonce = CryptoRandom.CreateUniqueId(16),
-                State = CryptoRandom.CreateUniqueId(16),
+                Nonce = _crypto.CreateNonce(),
+                State = _crypto.CreateState(),
                 RedirectUri = _options.RedirectUri,
                 CodeVerifier = pkce.CodeVerifier,
             };

@@ -4,9 +4,9 @@
 
 using System;
 
-namespace IdentityModel.OidcClient.WebView
+namespace IdentityModel.OidcClient.Browser
 {
-    public class InvokeOptions
+    public class BrowserOptions
     {
         public string StartUrl { get; }
         public string EndUrl { get; }
@@ -15,7 +15,7 @@ namespace IdentityModel.OidcClient.WebView
         public DisplayMode InitialDisplayMode { get; set; } = DisplayMode.Visible;
         public TimeSpan InvisibleModeTimeout { get; set; } = TimeSpan.FromSeconds(10);
 
-        public InvokeOptions(string startUrl, string endUrl)
+        public BrowserOptions(string startUrl, string endUrl)
         {
             StartUrl = startUrl;
             EndUrl = endUrl;

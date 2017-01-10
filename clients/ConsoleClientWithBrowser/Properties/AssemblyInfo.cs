@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ConsoleClient")]
+[assembly: AssemblyProduct("ConsoleClientWithBrowser")]
 [assembly: AssemblyTrademark("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible
@@ -15,4 +15,4 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("a17ce98f-4f71-4aa6-ab0a-eb6a04a2c8c4")]
+[assembly: Guid("d8307a14-403e-48a4-870f-88cf9fe8caca")]

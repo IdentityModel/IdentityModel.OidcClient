@@ -4,10 +4,10 @@
 
 using System.Threading.Tasks;
 
-namespace IdentityModel.OidcClient.WebView
+namespace IdentityModel.OidcClient.Browser
 {
-    public interface IWebView
+    public interface IBrowser
     {
-        Task<InvokeResult> InvokeAsync(InvokeOptions options);
+        Task<BrowserResult> InvokeAsync(BrowserOptions options);
     }
 }

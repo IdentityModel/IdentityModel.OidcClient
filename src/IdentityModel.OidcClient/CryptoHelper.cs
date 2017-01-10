@@ -65,6 +65,15 @@ namespace IdentityModel.OidcClient
             }
         }
 
+        public string CreateState()
+        {
+            return CryptoRandom.CreateUniqueId(16);
+        }
+
+        public string CreateNonce()
+        {
+            return CryptoRandom.CreateUniqueId(16);
+        }
 
         public Pkce CreatePkceData()
         {

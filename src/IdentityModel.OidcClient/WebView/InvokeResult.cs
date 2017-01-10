@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-namespace IdentityModel.OidcClient.WebView
+namespace IdentityModel.OidcClient.Browser
 {
-    public class InvokeResult
+    public class BrowserResult
     {
-        public InvokeResultType ResultType { get; set; }
+        public BrowserResultType ResultType { get; set; }
         public string Response { get; set; }
         public string Error { get; set; }
     }

@@ -4,7 +4,6 @@ using IdentityModel.OidcClient.Results;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace IdentityModel.OidcClient

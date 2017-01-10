@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using IdentityModel.OidcClient.WebView;
+using IdentityModel.OidcClient.Browser;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -63,7 +63,21 @@ namespace IdentityModel.OidcClient
         /// </value>
         public string RedirectUri { get; set; }
 
-        public IWebView WebView { get; set; }
+        /// <summary>
+        /// Gets or sets the browser implementation.
+        /// </summary>
+        /// <value>
+        /// The browser.
+        /// </value>
+        public IBrowser Browser { get; set; }
+
+        /// <summary>
+        /// Gets or sets the timeout for browser invisible mode.
+        /// </summary>
+        /// <value>
+        /// The browser invisible timeout.
+        /// </value>
+        public TimeSpan BrowserInvisibleTimeout { get; set; }
 
         /// <summary>
         /// Gets or sets the clock skew for validating identity tokens.
