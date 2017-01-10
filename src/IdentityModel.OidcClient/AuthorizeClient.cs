@@ -5,7 +5,7 @@ using System;
 
 namespace IdentityModel.OidcClient
 {
-     public class AuthorizeClient
+    internal class AuthorizeClient
     {
         private readonly CryptoHelper _crypto;
         private readonly ILogger<AuthorizeClient> _logger;
@@ -25,7 +25,7 @@ namespace IdentityModel.OidcClient
         public AuthorizeState CreateAuthorizeState(object extraParameters = null)
         {
             _logger.LogTrace("CreateAuthorizeStateAsync");
-            
+
             var pkce = _crypto.CreatePkceData();
 
             var state = new AuthorizeState
@@ -51,17 +51,16 @@ namespace IdentityModel.OidcClient
             var request = new AuthorizeRequest(_options.ProviderInformation.AuthorizeEndpoint);
 
             string responseType = null;
-            if (_options.Flow == OidcClientOptions.AuthenticationFlow.AuthorizationCode)
+            switch (_options.Flow)
             {
-                responseType = OidcConstants.ResponseTypes.Code;
-            }
-            else if (_options.Flow == OidcClientOptions.AuthenticationFlow.Hybrid)
-            {
-                responseType = OidcConstants.ResponseTypes.CodeIdToken;
-            }
-            else
-            {
-                throw new ArgumentOutOfRangeException(nameof(_options.Flow), "Unsupported authentication flow");
+                case OidcClientOptions.AuthenticationFlow.AuthorizationCode:
+                    responseType = OidcConstants.ResponseTypes.Code;
+                    break;
+                case OidcClientOptions.AuthenticationFlow.Hybrid:
+                    responseType = OidcConstants.ResponseTypes.CodeIdToken;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(_options.Flow), "Unsupported authentication flow");
             }
 
             var url = request.CreateAuthorizeUrl(

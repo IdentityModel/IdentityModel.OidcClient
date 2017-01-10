@@ -105,7 +105,7 @@ namespace IdentityModel.OidcClient
             var cHash = validationResult.User.FindFirst(JwtClaimTypes.AuthorizationCodeHash);
             if (cHash == null)
             {
-                if (_options.Policy.RequireCodeHash)
+                if (_options.Policy.RequireAuthorizationCodeHash)
                 {
                     return new ResponseValidationResult
                     {

@@ -35,6 +35,7 @@ namespace IdentityModel.OidcClient
         /// Initializes a new instance of the <see cref="OidcClient"/> class.
         /// </summary>
         /// <param name="options">The options.</param>
+        /// <exception cref="System.ArgumentNullException">options</exception>
         public OidcClient(OidcClientOptions options)
         {
             if (options == null) throw new ArgumentNullException(nameof(options));
@@ -46,11 +47,11 @@ namespace IdentityModel.OidcClient
             _processor = new ResponseProcessor(options);
         }
 
-        // <summary>
-        // Prepares an authentication request.
-        // </summary>
-        // <param name = "extraParameters" > extra parameters to send to the authorize endpoint.</param>
-        // <returns>An authorize state object that can be later used to validate the response</returns>
+        /// <summary>
+        /// Prepares the login request.
+        /// </summary>
+        /// <param name="extraParameters">extra parameters to send to the authorize endpoint.</param>
+        /// <returns>State for initiating the authorize request and processing the response</returns>
         public async Task<AuthorizeState> PrepareLoginAsync(object extraParameters = null)
         {
             _logger.LogTrace("PrepareLoginAsync");
@@ -60,12 +61,11 @@ namespace IdentityModel.OidcClient
         }
 
         /// <summary>
-        /// Validates the response.
+        /// Processes the authorize response.
         /// </summary>
         /// <param name="data">The response data.</param>
         /// <param name="state">The state.</param>
         /// <returns>Result of the login response validation</returns>
-
         public async Task<LoginResult> ProcessResponseAsync(string data, AuthorizeState state)
         {
             _logger.LogTrace("ValidateResponseAsync");
@@ -120,6 +120,39 @@ namespace IdentityModel.OidcClient
             return loginResult;
         }
 
+        /// <summary>
+        /// Gets the user claims from the userinfo endpoint.
+        /// </summary>
+        /// <param name="accessToken">The access token.</param>
+        /// <returns>User claims</returns>
+        public async Task<UserInfoResult> GetUserInfoAsync(string accessToken)
+        {
+            if (accessToken.IsMissing()) throw new ArgumentNullException(nameof(accessToken));
+            if (!_options.ProviderInformation.SupportsUserInfo) throw new InvalidOperationException("No userinfo endpoint specified");
+
+            var userInfoClient = new UserInfoClient(_options.ProviderInformation.UserInfoEndpoint, _options.BackchannelHandler);
+            userInfoClient.Timeout = _options.BackchannelTimeout;
+
+            var userInfoResponse = await userInfoClient.GetAsync(accessToken);
+            if (userInfoResponse.IsError)
+            {
+                return new UserInfoResult
+                {
+                    Error = userInfoResponse.Error
+                };
+            }
+
+            return new UserInfoResult
+            {
+                Claims = userInfoResponse.Claims
+            };
+        }
+
+        /// <summary>
+        /// Refreshes an access token.
+        /// </summary>
+        /// <param name="refreshToken">The refresh token.</param>
+        /// <returns>A token response.</returns>
         public async Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken)
         {
             var client = TokenClientFactory.Create(_options);
@@ -230,34 +263,6 @@ namespace IdentityModel.OidcClient
                     TokenEndPointAuthenticationMethods = disco.TokenEndpointAuthenticationMethodsSupported
                 };
             }
-        }
-
-        /// <summary>
-        /// Gets the user claims from the userinfo endpoint.
-        /// </summary>
-        /// <param name="accessToken">The access token.</param>
-        /// <returns>User claims</returns>
-        public async Task<UserInfoResult> GetUserInfoAsync(string accessToken)
-        {
-            if (accessToken.IsMissing()) throw new ArgumentNullException(nameof(accessToken));
-            if (!_options.ProviderInformation.SupportsUserInfo) throw new InvalidOperationException("No userinfo endpoint specified");
-
-            var userInfoClient = new UserInfoClient(_options.ProviderInformation.UserInfoEndpoint, _options.BackchannelHandler);
-            userInfoClient.Timeout = _options.BackchannelTimeout;
-
-            var userInfoResponse = await userInfoClient.GetAsync(accessToken);
-            if (userInfoResponse.IsError)
-            {
-                return new UserInfoResult
-                {
-                    Error = userInfoResponse.Error
-                };
-            }
-
-            return new UserInfoResult
-            {
-                Claims = userInfoResponse.Claims
-            };
         }
 
         internal ClaimsPrincipal Process(ClaimsPrincipal user, IEnumerable<Claim> userInfoClaims)

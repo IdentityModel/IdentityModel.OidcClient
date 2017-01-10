@@ -9,7 +9,7 @@ using System.Security.Cryptography;
 
 namespace IdentityModel.OidcClient
 {
-    public class IdentityTokenValidator
+    internal class IdentityTokenValidator
     {
         private readonly ILogger _logger;
         private readonly OidcClientOptions _options;
@@ -20,6 +20,11 @@ namespace IdentityModel.OidcClient
             _logger = options.LoggerFactory.CreateLogger<IdentityTokenValidator>();
         }
 
+        /// <summary>
+        /// Validates the specified identity token.
+        /// </summary>
+        /// <param name="identityToken">The identity token.</param>
+        /// <returns>The validation result</returns>
         public IdentityTokenValidationResult Validate(string identityToken)
         {
             var keys = new List<SecurityKey>();
