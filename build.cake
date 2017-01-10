@@ -7,6 +7,7 @@ var configuration   = Argument<string>("configuration", "Release");
 var isLocalBuild        = !AppVeyor.IsRunningOnAppVeyor;
 var packPath            = Directory("./src/IdentityModel.OidcClient");
 var sourcePath          = Directory("./src");
+var clientsPath         = Directory("./clients");
 var testsPath           = Directory("test");
 var buildArtifacts      = Directory("./artifacts/packages");
 
@@ -60,7 +61,7 @@ Task("Pack")
     // add build suffix for CI builds
     if(!isLocalBuild)
     {
-        settings.VersionSuffix = "build" + AppVeyor.Environment.Build.Number.ToString().PadLeft(5,'0');
+        settings.VersionSuffix = AppVeyor.Environment.Build.Number.ToString().PadLeft(4,'0');
     }
 
     DotNetCorePack(packPath, settings);
@@ -81,7 +82,8 @@ Task("Restore")
     };
 
     DotNetCoreRestore(sourcePath, settings);
-    //DotNetCoreRestore(testsPath, settings);
+    DotNetCoreRestore(testsPath, settings);
+    DotNetCoreRestore(clientsPath, settings);
 });
 
 Task("Default")

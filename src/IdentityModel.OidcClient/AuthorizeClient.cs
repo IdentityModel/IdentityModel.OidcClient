@@ -1,48 +1,46 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
-
-using IdentityModel.Client;
-using IdentityModel.OidcClient.WebView;
+﻿using IdentityModel.Client;
+using IdentityModel.OidcClient.Browser;
+using IdentityModel.OidcClient.Infrastructure;
+using IdentityModel.OidcClient.Results;
+using Microsoft.Extensions.Logging;
 using System;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace IdentityModel.OidcClient
 {
-    public class AuthorizeClient
+    internal class AuthorizeClient
     {
+        private readonly CryptoHelper _crypto;
+        private readonly ILogger<AuthorizeClient> _logger;
         private readonly OidcClientOptions _options;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AuthorizeClient"/> class.
+        /// </summary>
+        /// <param name="options">The options.</param>
         public AuthorizeClient(OidcClientOptions options)
         {
             _options = options;
+            _logger = options.LoggerFactory.CreateLogger<AuthorizeClient>();
+            _crypto = new CryptoHelper(options);
         }
 
-        public async Task<AuthorizeState> PrepareAuthorizeAsync(object extaParameters = null)
+        public async Task<AuthorizeResult> AuthorizeAsync(bool invisible = false, object extraParameters = null)
         {
-            return await CreateAuthorizeStateAsync(extaParameters);
-        }
-
-        public async Task<AuthorizeResult> AuthorizeAsync(bool trySilent = false, object extraParameters = null)
-        {
-            if (_options.WebView == null)
+            if (_options.Browser == null)
             {
-                throw new InvalidOperationException("No web view configured.");
+                throw new InvalidOperationException("No browser configured.");
             }
 
-            InvokeResult wviResult;
             AuthorizeResult result = new AuthorizeResult
             {
-                Success = false,
-                State = await CreateAuthorizeStateAsync(extraParameters)
+                State = CreateAuthorizeState(extraParameters)
             };
 
-            var invokeOptions = new InvokeOptions(result.State.StartUrl, _options.RedirectUri);
-            invokeOptions.InvisibleModeTimeout = _options.WebViewTimeout;
+            var invokeOptions = new BrowserOptions(result.State.StartUrl, _options.RedirectUri);
+            invokeOptions.InvisibleModeTimeout = _options.BrowserInvisibleTimeout;
 
-            if (trySilent)
+            if (invisible)
             {
                 invokeOptions.InitialDisplayMode = DisplayMode.Hidden;
             }
@@ -51,94 +49,58 @@ namespace IdentityModel.OidcClient
                 invokeOptions.ResponseMode = ResponseMode.FormPost;
             }
 
-            wviResult = await _options.WebView.InvokeAsync(invokeOptions);
+            var browserResult = await _options.Browser.InvokeAsync(invokeOptions);
 
-            if (wviResult.ResultType == InvokeResultType.Success)
+            if (browserResult.ResultType == BrowserResultType.Success)
             {
-                result.Success = true;
-                result.Data = wviResult.Response;
-
+                result.Data = browserResult.Response;
                 return result;
             }
 
-            result.Error = wviResult.ResultType.ToString();
+            result.Error = browserResult.ResultType.ToString();
             return result;
         }
 
-        public async Task EndSessionAsync(string identityToken = null, bool trySilent = true)
+
+        public AuthorizeState CreateAuthorizeState(object extraParameters = null)
         {
-            if (_options.WebView == null)
-            {
-                throw new InvalidOperationException("No web view defined.");
-            }
+            _logger.LogTrace("CreateAuthorizeStateAsync");
 
-            string url = (await _options.GetDiscoveryDocument()).EndSessionEndpoint;
-            if (url.IsMissing())
-            {
-                throw new InvalidOperationException("no endsession_endpoint defined");
-            }
+            var pkce = _crypto.CreatePkceData();
 
-            if (!string.IsNullOrWhiteSpace(identityToken))
+            var state = new AuthorizeState
             {
-                url += $"?{OidcConstants.EndSessionRequest.IdTokenHint}={identityToken}" +
-                       $"&{OidcConstants.EndSessionRequest.PostLogoutRedirectUri}={_options.RedirectUri}";
-            }
-
-            var webViewOptions = new InvokeOptions(url, _options.RedirectUri)
-            {
-                ResponseMode = ResponseMode.Redirect,
-                InvisibleModeTimeout = _options.WebViewTimeout
+                Nonce = _crypto.CreateNonce(),
+                State = _crypto.CreateState(),
+                RedirectUri = _options.RedirectUri,
+                CodeVerifier = pkce.CodeVerifier,
             };
 
-            if (trySilent)
-            {
-                webViewOptions.InitialDisplayMode = DisplayMode.Hidden;
-            }
+            state.StartUrl = CreateUrl(state, pkce.CodeChallenge, extraParameters);
 
-            var result = await _options.WebView.InvokeAsync(webViewOptions);
-        }
-
-        private async Task<AuthorizeState> CreateAuthorizeStateAsync(object extraParameters = null)
-        {
-            var state = new AuthorizeState();
-
-            state.Nonce = CryptoRandom.CreateUniqueId();
-            state.State = CryptoRandom.CreateUniqueId();
-            state.RedirectUri = _options.RedirectUri;
-
-            string codeChallenge = CreateCodeChallenge(state);
-            state.StartUrl = await CreateUrlAsync(state, codeChallenge, extraParameters);
+            _logger.LogInformation("CreateAuthorizeStateAsync success.");
+            _logger.LogInformation(LogSerializer.Serialize(state));
 
             return state;
         }
 
-        private string CreateCodeChallenge(AuthorizeState state)
+        private string CreateUrl(AuthorizeState state, string codeChallenge, object extraParameters)
         {
-            state.CodeVerifier = CryptoRandom.CreateUniqueId(32);
+            _logger.LogTrace("CreateAuthorizeStateAsync");
 
-            using (var sha256 = SHA256.Create())
-            {
-                var challengeBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(state.CodeVerifier));
-                return Base64Url.Encode(challengeBytes);
-            }
-        }
-
-        private async Task<string> CreateUrlAsync(AuthorizeState state, string codeChallenge, object extraParameters)
-        {
-            var request = new AuthorizeRequest((await _options.GetDiscoveryDocument()).AuthorizeEndpoint);
+            var request = new AuthorizeRequest(_options.ProviderInformation.AuthorizeEndpoint);
 
             string responseType = null;
-            if (_options.Style == OidcClientOptions.AuthenticationStyle.AuthorizationCode)
+            switch (_options.Flow)
             {
-                responseType = OidcConstants.ResponseTypes.Code;
-            }
-            else if(_options.Style == OidcClientOptions.AuthenticationStyle.Hybrid)
-            {
-                responseType = OidcConstants.ResponseTypes.CodeIdToken;
-            }
-            else
-            {
-                throw new InvalidOperationException("Unsupported authentication style");
+                case OidcClientOptions.AuthenticationFlow.AuthorizationCode:
+                    responseType = OidcConstants.ResponseTypes.Code;
+                    break;
+                case OidcClientOptions.AuthenticationFlow.Hybrid:
+                    responseType = OidcConstants.ResponseTypes.CodeIdToken;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(_options.Flow), "Unsupported authentication flow");
             }
 
             var url = request.CreateAuthorizeUrl(

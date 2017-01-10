@@ -3,454 +3,301 @@
 
 
 using IdentityModel.Client;
-using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
+using IdentityModel.OidcClient.Infrastructure;
+using System.Security.Claims;
+using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
+using IdentityModel.OidcClient.Results;
 
 namespace IdentityModel.OidcClient
 {
+    /// <summary>
+    /// OpenID Connect client
+    /// </summary>
     public class OidcClient
     {
-        private readonly ILogger<OidcClient> _logger;
-
-        private readonly AuthorizeClient _authorizeClient;
         private readonly OidcClientOptions _options;
+        private readonly ILogger _logger;
+        private readonly AuthorizeClient _authorizeClient;
 
-        public OidcClient(OidcClientOptions options)
-        {
-            _authorizeClient = new AuthorizeClient(options);
-            _options = options;
-            _logger = options.LoggerFactory.CreateLogger<OidcClient>();
-        }
+        private readonly bool useDiscovery;
+        private readonly ResponseProcessor _processor;
 
         public OidcClientOptions Options
         {
             get { return _options; }
         }
 
-        public async Task<LoginResult> LoginAsync(bool trySilent = false, object extraParameters = null)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OidcClient"/> class.
+        /// </summary>
+        /// <param name="options">The options.</param>
+        /// <exception cref="System.ArgumentNullException">options</exception>
+        public OidcClient(OidcClientOptions options)
         {
-            _logger.LogDebug("LoginAsync");
+            if (options == null) throw new ArgumentNullException(nameof(options));
+            if (options.ProviderInformation == null) useDiscovery = true;
 
-            var authorizeResult = await _authorizeClient.AuthorizeAsync(trySilent, extraParameters);
-
-            if (!authorizeResult.Success)
-            {
-                return new LoginResult
-                {
-                    Success = false,
-                    Error = authorizeResult.Error
-                };
-            }
-
-            return await ValidateResponseAsync(authorizeResult.Data, authorizeResult.State);
+            _options = options;
+            _logger = options.LoggerFactory.CreateLogger<OidcClient>();
+            _authorizeClient = new AuthorizeClient(options);
+            _processor = new ResponseProcessor(options);
         }
 
+        public async Task<LoginResult> LoginAsync(bool invisible = false, object extraParameters = null)
+        {
+            _logger.LogTrace("LoginAsync");
+
+            await EnsureConfiguration();
+            var authorizeResult = await _authorizeClient.AuthorizeAsync(invisible, extraParameters);
+
+            if (authorizeResult.IsError)
+            {
+                return new LoginResult(authorizeResult.Error);
+            }
+
+            return await ProcessResponseAsync(authorizeResult.Data, authorizeResult.State);
+        }
+
+        /// <summary>
+        /// Prepares the login request.
+        /// </summary>
+        /// <param name="extraParameters">extra parameters to send to the authorize endpoint.</param>
+        /// <returns>State for initiating the authorize request and processing the response</returns>
         public async Task<AuthorizeState> PrepareLoginAsync(object extraParameters = null)
         {
-            _logger.LogDebug("PrepareLoginAsync");
+            _logger.LogTrace("PrepareLoginAsync");
 
-            return await _authorizeClient.PrepareAuthorizeAsync(extraParameters);
+            await EnsureConfiguration();
+            return _authorizeClient.CreateAuthorizeState(extraParameters);
         }
 
-        public Task LogoutAsync(string identityToken = null, bool trySilent = true)
+        /// <summary>
+        /// Processes the authorize response.
+        /// </summary>
+        /// <param name="data">The response data.</param>
+        /// <param name="state">The state.</param>
+        /// <returns>Result of the login response validation</returns>
+        public async Task<LoginResult> ProcessResponseAsync(string data, AuthorizeState state)
         {
-            return _authorizeClient.EndSessionAsync(identityToken, trySilent);
-        }
+            _logger.LogTrace("ValidateResponseAsync");
 
-        public async Task<LoginResult> ValidateResponseAsync(string data, AuthorizeState state)
-        {
-            _logger.LogDebug("ValidateResponseAsync");
+            var authorizeResponse = new AuthorizeResponse(data);
 
-            var result = new LoginResult { Success = false };
-
-            var response = new AuthorizeResponse(data);
-
-            if (response.IsError)
+            if (authorizeResponse.IsError)
             {
-                result.Error = response.Error;
-                _logger.LogError(result.Error);
-
-                return result;
+                _logger.LogError(authorizeResponse.Error);
+                return new LoginResult(authorizeResponse.Error);
             }
 
-            if (string.IsNullOrEmpty(response.Code))
+            var result = await _processor.ProcessResponseAsync(authorizeResponse, state);
+            if (result.IsError)
             {
-                result.Error = "missing authorization code";
-                _logger.LogError(result.Error);
-
-                return result;
+                _logger.LogError("Error validating response: " + result.Error);
+                return new LoginResult(result.Error);
             }
 
-            if (string.IsNullOrEmpty(response.State))
-            {
-                result.Error = "missing state";
-                _logger.LogError(result.Error);
-
-                return result;
-            }
-
-            if (!string.Equals(state.State, response.State, StringComparison.Ordinal))
-            {
-                result.Error = "invalid state";
-                _logger.LogError(result.Error);
-
-                return result;
-            }
-
-            if (_options.Style == OidcClientOptions.AuthenticationStyle.AuthorizationCode)
-            {
-                return await ValidateCodeFlowResponseAsync(response, state);
-            }
-            else if (_options.Style == OidcClientOptions.AuthenticationStyle.Hybrid)
-            {
-                return await ValidateHybridFlowResponseAsync(response, state);
-            }
-
-            throw new InvalidOperationException("Invalid authentication style");
-        }
-
-        private async Task<LoginResult> ValidateHybridFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state)
-        {
-            _logger.LogDebug("ValidateHybridFlowResponse");
-
-            var result = new LoginResult { Success = false };
-
-            if (string.IsNullOrEmpty(authorizeResponse.IdentityToken))
-            {
-                result.Error = "missing identity token";
-                _logger.LogError(result.Error);
-
-                return result;
-            }
-
-            var validationResult = await ValidateIdentityTokenAsync(authorizeResponse.IdentityToken);
-            if (!validationResult.Success)
-            {
-                result.Error = validationResult.Error ?? "identity token validation error";
-                _logger.LogError(result.Error);
-
-                return result;
-            }
-
-            if (!ValidateNonce(state.Nonce, validationResult.User))
-            {
-                result.Error = "invalid nonce";
-                _logger.LogError(result.Error);
-
-                return result;
-            }
-
-            if (!ValidateAuthorizationCodeHash(authorizeResponse.Code, validationResult.User))
-            {
-                result.Error = "invalid c_hash";
-                _logger.LogError(result.Error);
-
-                return result;
-            }
-
-            // redeem code for tokens
-            var tokenResponse = await RedeemCodeAsync(authorizeResponse.Code, state);
-            if (tokenResponse.IsError)
-            {
-                return new LoginResult
-                {
-                    Success = false,
-                    Error = tokenResponse.Error
-                };
-            }
-
-            return await ProcessClaimsAsync(authorizeResponse, tokenResponse, validationResult.User);
-        }
-
-        
-        private async Task<LoginResult> ValidateCodeFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state)
-        {
-            _logger.LogDebug("ValidateCodeFlowResponse");
-
-            var result = new LoginResult { Success = false };
-            
-            // redeem code for tokens
-            var tokenResponse = await RedeemCodeAsync(authorizeResponse.Code, state);
-            if (tokenResponse.IsError)
-            {
-                result.Error = tokenResponse.Error;
-                return result;
-            }
-
-            if (tokenResponse.IdentityToken.IsMissing())
-            {
-                result.Error = "missing identity token";
-                _logger.LogError(result.Error);
-
-                return result;
-            }
-
-            var validationResult = await ValidateIdentityTokenAsync(tokenResponse.IdentityToken);
-            if (!validationResult.Success)
-            {
-                result.Error = validationResult.Error ?? "identity token validation error";
-                _logger.LogError(result.Error);
-
-                return result;
-            }
-
-            if (!ValidateAccessTokenHash(tokenResponse.AccessToken, validationResult.User))
-            {
-                result.Error = "invalid access token hash";
-                _logger.LogError(result.Error);
-
-                return result;
-            }
-
-            return await ProcessClaimsAsync(authorizeResponse, tokenResponse, validationResult.User);
-        }
-
-        private async Task<LoginResult> ProcessClaimsAsync(AuthorizeResponse response, TokenResponse tokenResult, ClaimsPrincipal user)
-        {
-            _logger.LogDebug("ProcessClaimsAsync");
-
-            // get profile if enabled
+            var userInfoClaims = Enumerable.Empty<Claim>();
             if (_options.LoadProfile)
             {
-                _logger.LogDebug("load profile");
-
-                var userInfoResult = await GetUserInfoAsync(tokenResult.AccessToken);
-
+                var userInfoResult = await GetUserInfoAsync(result.TokenResponse.AccessToken);
                 if (userInfoResult.IsError)
                 {
-                    return new LoginResult
-                    {
-                        Success = false,
-                        Error = userInfoResult.Error
-                    };
+                    return new LoginResult($"Error contacting userinfo endpoint: {userInfoResult.Error}");
                 }
 
-                _logger.LogDebug("profile claims:");
-                _logger.LogClaims(userInfoResult.Claims);
-
-                var primaryClaimTypes = user.Claims.Select(c => c.Type).Distinct();
-                foreach (var claim in userInfoResult.Claims.Where(c => !primaryClaimTypes.Contains(c.Type)))
-                {
-                    user.Identities.First().AddClaim(claim);
-                }
-
-                _logger.LogClaims(user);
-            }
-            else
-            {
-                _logger.LogDebug("don't load profile");
-                _logger.LogClaims(user);
+                userInfoClaims = userInfoResult.Claims;
             }
 
-            // success
+            var user = Process(result.User, userInfoClaims);
+
             var loginResult = new LoginResult
             {
-                Success = true,
-                User = FilterClaims(user),
-                AccessToken = tokenResult.AccessToken,
-                RefreshToken = tokenResult.RefreshToken,
-                AccessTokenExpiration = DateTime.Now.AddSeconds(tokenResult.ExpiresIn),
-                IdentityToken = tokenResult.IdentityToken,
+                User = user,
+                AccessToken = result.TokenResponse.AccessToken,
+                RefreshToken = result.TokenResponse.RefreshToken,
+                AccessTokenExpiration = DateTime.Now.AddSeconds(result.TokenResponse.ExpiresIn),
+                IdentityToken = result.TokenResponse.IdentityToken,
                 AuthenticationTime = DateTime.Now
             };
 
-            if (!string.IsNullOrWhiteSpace(tokenResult.RefreshToken))
+            if (!string.IsNullOrWhiteSpace(loginResult.RefreshToken))
             {
-                var providerInfo = await _options.GetDiscoveryDocument();
-
-                loginResult.Handler = new RefreshTokenHandler(
-                    providerInfo.TokenEndpoint,
-                    _options.ClientId,
-                    _options.ClientSecret,
-                    tokenResult.RefreshToken,
-                    tokenResult.AccessToken);
+                loginResult.RefreshTokenHandler = new RefreshTokenHandler(
+                    TokenClientFactory.Create(_options),
+                    loginResult.RefreshToken,
+                    loginResult.AccessToken);
             }
 
             return loginResult;
         }
 
-
-        private async Task<IdentityTokenValidationResult> ValidateIdentityTokenAsync(string idToken)
+        /// <summary>
+        /// Gets the user claims from the userinfo endpoint.
+        /// </summary>
+        /// <param name="accessToken">The access token.</param>
+        /// <returns>User claims</returns>
+        public async Task<UserInfoResult> GetUserInfoAsync(string accessToken)
         {
-            var providerInfo = await _options.GetDiscoveryDocument();
+            if (accessToken.IsMissing()) throw new ArgumentNullException(nameof(accessToken));
+            if (!_options.ProviderInformation.SupportsUserInfo) throw new InvalidOperationException("No userinfo endpoint specified");
 
-            _logger.LogDebug("Calling identity token validator: " + _options.IdentityTokenValidator.GetType().FullName);
-            var validationResult = await _options.IdentityTokenValidator.ValidateAsync(idToken, _options.ClientId, providerInfo);
+            var userInfoClient = new UserInfoClient(_options.ProviderInformation.UserInfoEndpoint, _options.BackchannelHandler);
+            userInfoClient.Timeout = _options.BackchannelTimeout;
 
-            if (validationResult.Success == false)
+            var userInfoResponse = await userInfoClient.GetAsync(accessToken);
+            if (userInfoResponse.IsError)
             {
-                return validationResult;
-            }
-
-            var user = validationResult.User;
-
-            _logger.LogDebug("identity token validation claims:");
-            _logger.LogClaims(user);
-            
-            // validate audience
-            var audience = user.FindFirst(JwtClaimTypes.Audience)?.Value ?? "";
-            if (!string.Equals(_options.ClientId, audience))
-            {
-                _logger.LogError($"client id ({_options.ClientId}) does not match audience ({audience})");
-
-                return new IdentityTokenValidationResult
+                return new UserInfoResult
                 {
-                    Success = false,
-                    Error = "invalid audience"
+                    Error = userInfoResponse.Error
                 };
             }
 
-            // validate issuer
-            var issuer = user.FindFirst(JwtClaimTypes.Issuer)?.Value ?? "";
-            if (!string.Equals(providerInfo.Issuer, issuer))
+            return new UserInfoResult
             {
-                _logger.LogError($"configured issuer ({providerInfo.Issuer}) does not match token issuer ({issuer}");
+                Claims = userInfoResponse.Claims
+            };
+        }
 
-                return new IdentityTokenValidationResult
+        /// <summary>
+        /// Refreshes an access token.
+        /// </summary>
+        /// <param name="refreshToken">The refresh token.</param>
+        /// <returns>A token response.</returns>
+        public async Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken)
+        {
+            var client = TokenClientFactory.Create(_options);
+            var response = await client.RequestRefreshTokenAsync(refreshToken);
+
+            if (response.IsError)
+            {
+                return new RefreshTokenResult { Error = response.Error };
+            }
+
+            // validate token response
+            var validationResult = _processor.ValidateTokenResponse(response, requireIdentityToken: _options.Policy.RequireIdentityTokenOnRefreshTokenResponse);
+            if (validationResult.IsError)
+            {
+                return new RefreshTokenResult { Error = validationResult.Error };
+            }
+
+            return new RefreshTokenResult
+            {
+                IdentityToken = response.IdentityToken,
+                AccessToken = response.AccessToken,
+                RefreshToken = response.RefreshToken,
+                ExpiresIn = (int)response.ExpiresIn
+            };
+        }
+
+        private async Task EnsureConfiguration()
+        {
+            if (_options.ClientId.IsMissing())
+            {
+                _logger.LogError("No client id configured");
+                throw new ArgumentNullException(_options.ClientId);
+            }
+
+            if (_options.Scope.IsMissing())
+            {
+                _logger.LogError("No scopes configured");
+                throw new ArgumentNullException(_options.Scope);
+            }
+
+            if (_options.RedirectUri.IsMissing())
+            {
+                _logger.LogError("No redirect URI configured");
+                throw new ArgumentNullException(_options.RedirectUri);
+            }
+
+            await EnsureProviderInformation();
+        }
+
+        private async Task EnsureProviderInformation()
+        {
+            _logger.LogTrace("EnsureProviderInformation");
+
+            if (useDiscovery)
+            {
+                var client = new DiscoveryClient(_options.Authority, _options.BackchannelHandler);
+                client.Policy = _options.Policy.Discovery;
+
+                var disco = await client.GetAsync();
+                if (disco.IsError)
                 {
-                    Success = false,
-                    Error = "invalid issuer"
+                    _logger.LogError("Error loading discovery document: {errorType} - {error}", disco.ErrorType.ToString(), disco.Error);
+
+                    throw new InvalidOperationException("Error loading discovery document: " + disco.Error);
+                }
+
+                if (disco.Issuer.IsMissing())
+                {
+                    var error = "Issuer name is missing in discovery document";
+
+                    _logger.LogError(error);
+                    throw new InvalidOperationException(error);
+                }
+
+                if (disco.AuthorizeEndpoint.IsMissing())
+                {
+                    var error = "Authorize endpoint is missing in discovery document";
+
+                    _logger.LogError(error);
+                    throw new InvalidOperationException(error);
+                }
+
+                if (disco.TokenEndpoint.IsMissing())
+                {
+                    var error = "Token endpoint is missing in discovery document";
+
+                    _logger.LogError(error);
+                    throw new InvalidOperationException(error);
+                }
+
+                if (disco.JwksUri.IsMissing() || disco.KeySet == null)
+                {
+                    var error = "Key set is missing in discovery document";
+
+                    _logger.LogError(error);
+                    throw new InvalidOperationException(error);
+                }
+
+                _options.ProviderInformation = new ProviderInformation
+                {
+                    IssuerName = disco.Issuer,
+                    KeySet = disco.KeySet,
+
+                    AuthorizeEndpoint = disco.AuthorizeEndpoint,
+                    TokenEndpoint = disco.TokenEndpoint,
+                    EndSessionEndpoint = disco.EndSessionEndpoint,
+                    UserInfoEndpoint = disco.UserInfoEndpoint,
+                    TokenEndPointAuthenticationMethods = disco.TokenEndpointAuthenticationMethodsSupported
                 };
             }
-
-            return validationResult;
         }
 
-        private bool ValidateNonce(string nonce, ClaimsPrincipal user)
+        internal ClaimsPrincipal Process(ClaimsPrincipal user, IEnumerable<Claim> userInfoClaims)
         {
-            _logger.LogDebug("validate nonce");
+            var combinedClaims = new HashSet<Claim>(new ClaimComparer(compareValueAndTypeOnly: true));
 
-            var tokenNonce = user.FindFirst(JwtClaimTypes.Nonce)?.Value ?? "";
-            var match = string.Equals(nonce, tokenNonce, StringComparison.Ordinal);
+            user.Claims.ToList().ForEach(c => combinedClaims.Add(c));
+            userInfoClaims.ToList().ForEach(c => combinedClaims.Add(c));
 
-            if (!match)
+            var userClaims = new List<Claim>();
+            if (_options.FilterClaims)
             {
-                _logger.LogError($"nonce ({nonce}) does not match nonce from token ({tokenNonce})");
-            }
-
-            return match;
-        }
-
-        private bool ValidateAuthorizationCodeHash(string code, ClaimsPrincipal user)
-        {
-            _logger.LogDebug("validate authorization code hash");
-
-            var cHash = user.FindFirst(JwtClaimTypes.AuthorizationCodeHash)?.Value ?? "";
-            if (cHash.IsMissing())
-            {
-                return true;
-            }
-
-            using (var sha256 = SHA256.Create())
-            {
-                var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(code));
-
-                byte[] leftPart = new byte[16];
-                Array.Copy(hash, leftPart, 16);
-
-                var leftPartB64 = Base64Url.Encode(leftPart);
-                var match = leftPartB64.Equals(cHash);
-
-                if (!match)
-                {
-                    _logger.LogError($"code hash ({leftPartB64}) does not match c_hash from token ({cHash})");
-                }
-
-                return match;
-            }
-        }
-
-        private bool ValidateAccessTokenHash(string accessToken, ClaimsPrincipal user)
-        {
-            _logger.LogDebug("validate authorization code hash");
-
-            var atHash = user.FindFirst(JwtClaimTypes.AccessTokenHash)?.Value ?? "";
-            if (atHash.IsMissing())
-            {
-                return true;
-            }
-
-            using (var sha256 = SHA256.Create())
-            {
-                var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(accessToken));
-
-                byte[] leftPart = new byte[16];
-                Array.Copy(hash, leftPart, 16);
-
-                var leftPartB64 = Base64Url.Encode(leftPart);
-                var match = leftPartB64.Equals(atHash);
-
-                if (!match)
-                {
-                    _logger.LogError($"access token hash ({leftPartB64}) does not match at_hash from token ({atHash})");
-                }
-
-                return match;
-            }
-        }
-
-        private async Task<TokenResponse> RedeemCodeAsync(string code, AuthorizeState state)
-        {
-            var endpoint = (await _options.GetDiscoveryDocument()).TokenEndpoint;
-
-            TokenClient tokenClient;
-            if (_options.ClientSecret.IsMissing())
-            {
-                tokenClient = new TokenClient(endpoint, _options.ClientId, AuthenticationStyle.PostValues);
+                userClaims = combinedClaims.Where(c => !_options.FilteredClaims.Contains(c.Type)).ToList();
             }
             else
             {
-                tokenClient = new TokenClient(endpoint, _options.ClientId, _options.ClientSecret);
-            }
-            
-            var tokenResult = await tokenClient.RequestAuthorizationCodeAsync(
-                code,
-                state.RedirectUri,
-                codeVerifier: state.CodeVerifier);
-
-            return tokenResult;
-        }
-
-        public async Task<UserInfoResponse> GetUserInfoAsync(string accessToken)
-        {
-            var providerInfo = await _options.GetDiscoveryDocument();
-
-            var userInfoClient = new UserInfoClient(providerInfo.UserInfoEndpoint);
-            return await userInfoClient.GetAsync(accessToken);
-        }
-
-        public async Task<TokenResponse> RefreshTokenAsync(string refreshToken)
-        {
-            var providerInfo = await _options.GetDiscoveryDocument();
-
-            var tokenClient = new TokenClient(
-                providerInfo.TokenEndpoint,
-                _options.ClientId,
-                _options.ClientSecret);
-
-            return await tokenClient.RequestRefreshTokenAsync(refreshToken);
-        }
-
-        private ClaimsPrincipal FilterClaims(ClaimsPrincipal user)
-        {
-            _logger.LogDebug("filtering claims");
-
-            var claims = new List<Claim>();
-            if (_options.FilterClaims)
-            {
-                claims = user.Claims.Where(c => !_options.FilteredClaims.Contains(c.Type)).ToList();
+                userClaims = combinedClaims.ToList();
             }
 
-            _logger.LogDebug("filtered claims:");
-            _logger.LogClaims(claims);
-
-            return new ClaimsPrincipal(new ClaimsIdentity(claims, user.Identity.AuthenticationType, user.Identities.First().NameClaimType, user.Identities.First().RoleClaimType));
+            return new ClaimsPrincipal(new ClaimsIdentity(userClaims, user.Identity.AuthenticationType, user.Identities.First().NameClaimType, user.Identities.First().RoleClaimType));
         }
     }
 }
