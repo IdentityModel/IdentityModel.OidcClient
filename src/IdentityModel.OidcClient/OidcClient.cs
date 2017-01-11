@@ -42,7 +42,7 @@ namespace IdentityModel.OidcClient
 
             if (options.ProviderInformation == null)
             {
-                if (options.Authority.IsMissing()) throw new ArgumentException("No authority set", nameof(_options.Authority));
+                if (options.Authority.IsMissing()) throw new ArgumentException("No authority specified", nameof(_options.Authority));
                 useDiscovery = true;
             }
 
@@ -88,7 +88,7 @@ namespace IdentityModel.OidcClient
         /// <returns>Result of the login response validation</returns>
         public async Task<LoginResult> ProcessResponseAsync(string data, AuthorizeState state)
         {
-            _logger.LogTrace("ValidateResponseAsync");
+            _logger.LogTrace("ProcessResponseAsync");
 
             var authorizeResponse = new AuthorizeResponse(data);
 
@@ -117,7 +117,7 @@ namespace IdentityModel.OidcClient
                 userInfoClaims = userInfoResult.Claims;
             }
 
-            var user = Process(result.User, userInfoClaims);
+            var user = ProcessClaims(result.User, userInfoClaims);
 
             var loginResult = new LoginResult
             {
@@ -147,6 +147,8 @@ namespace IdentityModel.OidcClient
         /// <returns>User claims</returns>
         public async Task<UserInfoResult> GetUserInfoAsync(string accessToken)
         {
+            _logger.LogTrace("GetUserInfoAsync");
+
             if (accessToken.IsMissing()) throw new ArgumentNullException(nameof(accessToken));
             if (!_options.ProviderInformation.SupportsUserInfo) throw new InvalidOperationException("No userinfo endpoint specified");
 
@@ -175,6 +177,8 @@ namespace IdentityModel.OidcClient
         /// <returns>A token response.</returns>
         public async Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken)
         {
+            _logger.LogTrace("RefreshTokenAsync");
+
             var client = TokenClientFactory.Create(_options);
             var response = await client.RequestRefreshTokenAsync(refreshToken);
 
@@ -199,15 +203,18 @@ namespace IdentityModel.OidcClient
             };
         }
 
-        private async Task EnsureProviderInformation()
+        internal async Task EnsureProviderInformation()
         {
             _logger.LogTrace("EnsureProviderInformation");
 
             if (useDiscovery)
             {
-                var client = new DiscoveryClient(_options.Authority, _options.BackchannelHandler);
-                client.Policy = _options.Policy.Discovery;
-
+                var client = new DiscoveryClient(_options.Authority, _options.BackchannelHandler)
+                {
+                    Policy = _options.Policy.Discovery,
+                    Timeout = _options.BackchannelTimeout
+                };
+                
                 var disco = await client.GetAsync();
                 if (disco.IsError)
                 {
@@ -262,8 +269,10 @@ namespace IdentityModel.OidcClient
             }
         }
 
-        internal ClaimsPrincipal Process(ClaimsPrincipal user, IEnumerable<Claim> userInfoClaims)
+        internal ClaimsPrincipal ProcessClaims(ClaimsPrincipal user, IEnumerable<Claim> userInfoClaims)
         {
+            _logger.LogTrace("ProcessClaims");
+
             var combinedClaims = new HashSet<Claim>(new ClaimComparer(compareValueAndTypeOnly: true));
 
             user.Claims.ToList().ForEach(c => combinedClaims.Add(c));
