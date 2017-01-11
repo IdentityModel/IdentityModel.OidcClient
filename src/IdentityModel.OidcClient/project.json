@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0-bunnahabhain-*",
+  "version": "2.0.0-caolila-*",
   "authors": [ "Dominick Baier", "Brock Allen" ],
 
   "packOptions": {
@@ -17,7 +17,7 @@
     "IdentityModel": "2.3.*",
     "Microsoft.Extensions.Logging": "1.1.0",
     "Microsoft.Extensions.Logging.Abstractions": "1.1.0",
-    "System.IdentityModel.Tokens.Jwt": "5.1.1"
+    "System.IdentityModel.Tokens.Jwt": "5.1.2"
   },
 
   "frameworks": {
