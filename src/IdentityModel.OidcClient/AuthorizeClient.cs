@@ -46,7 +46,7 @@ namespace IdentityModel.OidcClient
                 Timeout = TimeSpan.FromSeconds(timeout),
                 DisplayMode = displayMode
             };
-            
+
             if (_options.ResponseMode == OidcClientOptions.AuthorizeResponseMode.FormPost)
             {
                 browserOptions.ResponseMode = OidcClientOptions.AuthorizeResponseMode.FormPost;
@@ -148,13 +148,16 @@ namespace IdentityModel.OidcClient
             {
                 foreach (var entry in extraDictionary)
                 {
-                    if (parameters.ContainsKey(entry.Key))
+                    if (!string.IsNullOrWhiteSpace(entry.Value))
                     {
-                        parameters[entry.Key] = entry.Value;
-                    }
-                    else
-                    {
-                        parameters.Add(entry.Key, entry.Value);
+                        if (parameters.ContainsKey(entry.Key))
+                        {
+                            parameters[entry.Key] = entry.Value;
+                        }
+                        else
+                        {
+                            parameters.Add(entry.Key, entry.Value);
+                        }
                     }
                 }
             }
