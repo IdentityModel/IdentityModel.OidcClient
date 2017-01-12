@@ -18,9 +18,10 @@ namespace IdentityModel.OidcClient
 
         public HashAlgorithm GetMatchingHashAlgorithm(string signatureAlgorithm)
         {
+            _logger.LogTrace("GetMatchingHashAlgorithm");
             _logger.LogDebug("Determining matching hash algorithm for {signatureAlgorithm}", signatureAlgorithm);
 
-            var signingAlgorithmBits = int.Parse(signatureAlgorithm.Substring(2));
+            var signingAlgorithmBits = int.Parse(signatureAlgorithm.Substring(signatureAlgorithm.Length - 3));
             
             switch (signingAlgorithmBits)
             {
@@ -40,6 +41,8 @@ namespace IdentityModel.OidcClient
 
         public bool ValidateHash(string data, string hashedData, string signatureAlgorithm)
         {
+            _logger.LogTrace("ValidateHash");
+
             var hashAlgorithm = GetMatchingHashAlgorithm(signatureAlgorithm);
             if (hashAlgorithm == null)
             {
@@ -67,16 +70,22 @@ namespace IdentityModel.OidcClient
 
         public string CreateState()
         {
+            _logger.LogTrace("CreateState");
+
             return CryptoRandom.CreateUniqueId(16);
         }
 
         public string CreateNonce()
         {
+            _logger.LogTrace("CreateNonce");
+
             return CryptoRandom.CreateUniqueId(16);
         }
 
         public Pkce CreatePkceData()
         {
+            _logger.LogTrace("CreatePkceData");
+
             var pkce = new Pkce
             {
                 CodeVerifier = CryptoRandom.CreateUniqueId()

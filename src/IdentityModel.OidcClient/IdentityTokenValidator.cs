@@ -27,6 +27,8 @@ namespace IdentityModel.OidcClient
         /// <returns>The validation result</returns>
         public IdentityTokenValidationResult Validate(string identityToken)
         {
+            _logger.LogTrace("Validate");
+
             var keys = new List<SecurityKey>();
             foreach (var webKey in _options.ProviderInformation.KeySet.Keys)
             {
@@ -37,6 +39,8 @@ namespace IdentityModel.OidcClient
                 key.KeyId = webKey.Kid;
 
                 keys.Add(key);
+
+                _logger.LogDebug("Added signing key with kid: {kid}", key?.KeyId ?? "not set");
             }
 
             var parameters = new TokenValidationParameters
@@ -67,7 +71,7 @@ namespace IdentityModel.OidcClient
 
                 return new IdentityTokenValidationResult
                 {
-                    Error = ex.ToString()
+                    Error = $"Error validating identity token: {ex.ToString()}"
                 };
             }
 

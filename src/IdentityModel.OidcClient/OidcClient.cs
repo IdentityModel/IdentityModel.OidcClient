@@ -11,6 +11,7 @@ using System.Security.Claims;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using IdentityModel.OidcClient.Results;
+using IdentityModel.OidcClient.Browser;
 
 namespace IdentityModel.OidcClient
 {
@@ -52,12 +53,12 @@ namespace IdentityModel.OidcClient
             _processor = new ResponseProcessor(options);
         }
 
-        public async Task<LoginResult> LoginAsync(bool hidden = false, object extraParameters = null)
+        public async Task<LoginResult> LoginAsync(DisplayMode displayMode = DisplayMode.Visible, int timeout = 300, object extraParameters = null)
         {
             _logger.LogTrace("LoginAsync");
 
             await EnsureProviderInformation();
-            var authorizeResult = await _authorizeClient.AuthorizeAsync(hidden, extraParameters);
+            var authorizeResult = await _authorizeClient.AuthorizeAsync(displayMode, timeout, extraParameters);
 
             if (authorizeResult.IsError)
             {

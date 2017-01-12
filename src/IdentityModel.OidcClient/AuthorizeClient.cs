@@ -27,8 +27,10 @@ namespace IdentityModel.OidcClient
             _crypto = new CryptoHelper(options);
         }
 
-        public async Task<AuthorizeResult> AuthorizeAsync(bool hidden = false, object extraParameters = null)
+        public async Task<AuthorizeResult> AuthorizeAsync(DisplayMode displayMode = DisplayMode.Visible, int timeout = 300, object extraParameters = null)
         {
+            _logger.LogTrace("AuthorizeAsync");
+
             if (_options.Browser == null)
             {
                 throw new InvalidOperationException("No browser configured.");
@@ -39,14 +41,12 @@ namespace IdentityModel.OidcClient
                 State = CreateAuthorizeState(extraParameters)
             };
 
-            var browserOptions = new BrowserOptions(result.State.StartUrl, _options.RedirectUri);
-            browserOptions.Timeout = _options.BrowserTimeout;
-
-            if (hidden)
+            var browserOptions = new BrowserOptions(result.State.StartUrl, _options.RedirectUri)
             {
-                browserOptions.DisplayMode = DisplayMode.Hidden;
-            }
-
+                Timeout = TimeSpan.FromSeconds(timeout),
+                DisplayMode = displayMode
+            };
+            
             if (_options.ResponseMode == OidcClientOptions.AuthorizeResponseMode.FormPost)
             {
                 browserOptions.ResponseMode = OidcClientOptions.AuthorizeResponseMode.FormPost;
@@ -67,7 +67,6 @@ namespace IdentityModel.OidcClient
             result.Error = browserResult.ResultType.ToString();
             return result;
         }
-
 
         public AuthorizeState CreateAuthorizeState(object extraParameters = null)
         {
@@ -91,11 +90,19 @@ namespace IdentityModel.OidcClient
             return state;
         }
 
-        private string CreateUrl(AuthorizeState state, string codeChallenge, object extraParameters)
+        internal string CreateUrl(AuthorizeState state, string codeChallenge, object extraParameters)
         {
-            _logger.LogTrace("CreateAuthorizeStateAsync");
+            _logger.LogTrace("CreateUrl");
 
+            var parameters = CreateParameters(state, codeChallenge, extraParameters);
             var request = new AuthorizeRequest(_options.ProviderInformation.AuthorizeEndpoint);
+
+            return request.Create(parameters);
+        }
+
+        internal Dictionary<string, string> CreateParameters(AuthorizeState state, string codeChallenge, object extraParameters)
+        {
+            _logger.LogTrace("CreateParameters");
 
             string responseType = null;
             switch (_options.Flow)
@@ -112,7 +119,7 @@ namespace IdentityModel.OidcClient
 
             var parameters = new Dictionary<string, string>
             {
-                { OidcConstants.AuthorizeRequest.ResponseType, responseType },   
+                { OidcConstants.AuthorizeRequest.ResponseType, responseType },
                 { OidcConstants.AuthorizeRequest.Nonce, state.Nonce },
                 { OidcConstants.AuthorizeRequest.State, state.State },
                 { OidcConstants.AuthorizeRequest.CodeChallenge, codeChallenge },
@@ -152,11 +159,13 @@ namespace IdentityModel.OidcClient
                 }
             }
 
-            return request.Create(parameters);
+            return parameters;
         }
 
         private Dictionary<string, string> ObjectToDictionary(object values)
         {
+            _logger.LogTrace("ObjectToDictionary");
+
             if (values == null)
             {
                 return null;
