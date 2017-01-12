@@ -106,7 +106,11 @@ namespace ConsoleClientWithBrowser
 
         public void Dispose()
         {
-            _host.Dispose();
+            Task.Run(async () =>
+            {
+                await Task.Delay(500);
+                _host.Dispose();
+            });
         }
 
         void Configure(IApplicationBuilder app)
