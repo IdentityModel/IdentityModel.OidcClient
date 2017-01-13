@@ -29,6 +29,10 @@ namespace IdentityModel.OidcClient
         {
             _logger.LogTrace("ProcessResponseAsync");
 
+            //////////////////////////////////////////////////////
+            // validate common front-channel parameters
+            //////////////////////////////////////////////////////
+
             if (string.IsNullOrEmpty(authorizeResponse.Code))
             {
                 var error = "Missing authorization code";
@@ -169,8 +173,10 @@ namespace IdentityModel.OidcClient
             var tokenResponse = await RedeemCodeAsync(authorizeResponse.Code, state);
             if (tokenResponse.IsError)
             {
-                // todo: logging?
-                result.Error = tokenResponse.Error;
+                var error = $"Error redeeming code: {tokenResponse.Error}";
+                _logger.LogError(error);
+
+                result.Error = error;
                 return result;
             }
 
@@ -178,7 +184,10 @@ namespace IdentityModel.OidcClient
             var tokenResponseValidationResult = ValidateTokenResponse(tokenResponse);
             if (tokenResponseValidationResult.IsError)
             {
-                result.Error = tokenResponseValidationResult.Error;
+                var error = $"Error validating token response: {tokenResponseValidationResult.Error}";
+                _logger.LogError(error);
+
+                result.Error = error;
                 return result;
             }
 
@@ -199,7 +208,7 @@ namespace IdentityModel.OidcClient
             // token response must contain an access token
             if (response.AccessToken.IsMissing())
             {
-                result.Error = "access token is missing on token response";
+                result.Error = "Access token is missing on token response";
                 _logger.LogError(result.Error);
 
                 return result;
@@ -210,7 +219,7 @@ namespace IdentityModel.OidcClient
                 // token response must contain an identity token (openid scope is mandatory)
                 if (response.IdentityToken.IsMissing())
                 {
-                    result.Error = "identity token is missing on token response";
+                    result.Error = "Identity token is missing on token response";
                     _logger.LogError(result.Error);
 
                     return result;
@@ -229,6 +238,19 @@ namespace IdentityModel.OidcClient
                     return result;
                 }
 
+                // validate sub
+                if (_options.Policy.RequireSubject)
+                {
+                    var sub = validationResult.User.FindFirst(JwtClaimTypes.Subject);
+                    if (sub == null)
+                    {
+                        return new TokenResponseValidationResult
+                        {
+                            Error = "sub is missing."
+                        };
+                    }
+                }
+
                 // validate at_hash
                 var atHash = validationResult.User.FindFirst(JwtClaimTypes.AccessTokenHash);
                 if (atHash == null)
@@ -245,7 +267,7 @@ namespace IdentityModel.OidcClient
                 {
                     if (!_crypto.ValidateHash(response.AccessToken, atHash.Value, validationResult.SignatureAlgorithm))
                     {
-                        result.Error = "Invalid access token hash";
+                        result.Error = "Invalid access token hash.";
                         _logger.LogError(result.Error);
 
                         return result;

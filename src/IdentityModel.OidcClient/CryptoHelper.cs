@@ -51,7 +51,7 @@ namespace IdentityModel.OidcClient
 
             using (hashAlgorithm)
             {
-                var hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(data));
+                var hash = hashAlgorithm.ComputeHash(Encoding.ASCII.GetBytes(data));
 
                 byte[] leftPart = new byte[hashAlgorithm.HashSize / 16];
                 Array.Copy(hash, leftPart, hashAlgorithm.HashSize / 16);
