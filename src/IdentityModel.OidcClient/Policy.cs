@@ -58,7 +58,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The supported algorithms.
         /// </value>
-        public ICollection<string> SupportedAlgorithms { get; set; } = new HashSet<string>
+        public ICollection<string> ValidSignatureAlgorithms { get; set; } = new HashSet<string>
         {
             OidcConstants.Algorithms.Asymmetric.RS256,
             OidcConstants.Algorithms.Asymmetric.RS384,

@@ -78,11 +78,11 @@ namespace IdentityModel.OidcClient
             var jwt = token as JwtSecurityToken;
             var algorithm = jwt.Header.Alg;
 
-            if (!_options.Policy.SupportedAlgorithms.Contains(algorithm))
+            if (!_options.Policy.ValidSignatureAlgorithms.Contains(algorithm))
             {
                 return new IdentityTokenValidationResult
                 {
-                    Error = $"Identity token uses unsupported algorithm: {algorithm}"
+                    Error = $"Identity token uses invalid algorithm: {algorithm}"
                 };
             };
 

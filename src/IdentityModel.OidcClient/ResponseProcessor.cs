@@ -81,33 +81,46 @@ namespace IdentityModel.OidcClient
             // id_token must be present
             if (authorizeResponse.IdentityToken.IsMissing())
             {
-                result.Error = "Missing identity token";
+                result.Error = "Missing identity token.";
                 _logger.LogError(result.Error);
 
                 return result;
             }
 
             // id_token must be valid
-            var validationResult = _tokenValidator.Validate(authorizeResponse.IdentityToken);
-            if (validationResult.IsError)
+            var frontChannelValidationResult = _tokenValidator.Validate(authorizeResponse.IdentityToken);
+            if (frontChannelValidationResult.IsError)
             {
-                result.Error = validationResult.Error ?? "Identity token validation error";
+                result.Error = frontChannelValidationResult.Error ?? "Identity token validation error.";
                 _logger.LogError(result.Error);
 
                 return result;
             }
 
-            // nonce must be valid
-            if (!ValidateNonce(state.Nonce, validationResult.User))
+            // validate sub
+            if (_options.Policy.RequireSubject)
             {
-                result.Error = "Invalid nonce";
+                var sub = frontChannelValidationResult.User.FindFirst(JwtClaimTypes.Subject);
+                if (sub == null)
+                {
+                    return new ResponseValidationResult
+                    {
+                        Error = "sub is missing."
+                    };
+                }
+            }
+
+            // nonce must be valid
+            if (!ValidateNonce(state.Nonce, frontChannelValidationResult.User))
+            {
+                result.Error = "Invalid nonce.";
                 _logger.LogError(result.Error);
 
                 return result;
             }
 
             // validate c_hash
-            var cHash = validationResult.User.FindFirst(JwtClaimTypes.AuthorizationCodeHash);
+            var cHash = frontChannelValidationResult.User.FindFirst(JwtClaimTypes.AuthorizationCodeHash);
             if (cHash == null)
             {
                 if (_options.Policy.RequireAuthorizationCodeHash)
@@ -120,9 +133,9 @@ namespace IdentityModel.OidcClient
             }
             else
             {
-                if (!_crypto.ValidateHash(authorizeResponse.Code, cHash.Value, validationResult.SignatureAlgorithm))
+                if (!_crypto.ValidateHash(authorizeResponse.Code, cHash.Value, frontChannelValidationResult.SignatureAlgorithm))
                 {
-                    result.Error = "Invalid c_hash";
+                    result.Error = "Invalid c_hash.";
                     _logger.LogError(result.Error);
 
                     return result;
@@ -148,6 +161,33 @@ namespace IdentityModel.OidcClient
             if (tokenResponseValidationResult.IsError)
             {
                 result.Error = tokenResponseValidationResult.Error;
+                return result;
+            }
+
+            // validate sub
+            if (_options.Policy.RequireSubject)
+            {
+                var sub = tokenResponseValidationResult.IdentityTokenValidationResult.User.FindFirst(JwtClaimTypes.Subject);
+                if (sub == null)
+                {
+                    return new ResponseValidationResult
+                    {
+                        Error = "sub is missing."
+                    };
+                }
+            }
+
+            // compare front & back channel subs
+            var frontChannelSub = frontChannelValidationResult.User.FindFirst(JwtClaimTypes.Subject)?.Value ?? "none";
+            var backChannelSub = tokenResponseValidationResult.IdentityTokenValidationResult.User.FindFirst(JwtClaimTypes.Subject)?.Value ?? "none";
+
+            if (!string.Equals(frontChannelSub, backChannelSub, StringComparison.Ordinal))
+            {
+                var error = $"Subject on front-channel ({frontChannelSub}) does not match subject on back-channel ({backChannelSub}).";
+
+                _logger.LogError(error);
+                result.Error = error;
+
                 return result;
             }
 
@@ -208,7 +248,7 @@ namespace IdentityModel.OidcClient
             // token response must contain an access token
             if (response.AccessToken.IsMissing())
             {
-                result.Error = "Access token is missing on token response";
+                result.Error = "Access token is missing on token response.";
                 _logger.LogError(result.Error);
 
                 return result;
@@ -219,7 +259,7 @@ namespace IdentityModel.OidcClient
                 // token response must contain an identity token (openid scope is mandatory)
                 if (response.IdentityToken.IsMissing())
                 {
-                    result.Error = "Identity token is missing on token response";
+                    result.Error = "Identity token is missing on token response.";
                     _logger.LogError(result.Error);
 
                     return result;

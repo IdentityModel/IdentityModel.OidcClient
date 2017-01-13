@@ -99,7 +99,7 @@ namespace IdentityModel.OidcClient.Tests
             var result = await client.ProcessResponseAsync(url, state);
 
             result.IsError.Should().BeTrue();
-            result.Error.Should().Be("Error validating token response: Access token is missing on token response");
+            result.Error.Should().Be("Error validating token response: Access token is missing on token response.");
         }
 
         [Fact]
@@ -122,7 +122,7 @@ namespace IdentityModel.OidcClient.Tests
             var result = await client.ProcessResponseAsync(url, state);
 
             result.IsError.Should().BeTrue();
-            result.Error.Should().Be("Error validating token response: Identity token is missing on token response");
+            result.Error.Should().Be("Error validating token response: Identity token is missing on token response.");
         }
 
         [Fact]
@@ -307,6 +307,38 @@ namespace IdentityModel.OidcClient.Tests
                 result.IdentityToken.Should().NotBeNull();
                 result.User.Should().NotBeNull();
             }
+        }
+
+        [Fact]
+        public async Task invalid_signing_algorithm_should_fail()
+        {
+            var client = new OidcClient(_options);
+            var state = await client.PrepareLoginAsync();
+
+            var url = $"?state={state.State}&code=bar";
+            var key = Crypto.CreateKey();
+            var idToken = Crypto.CreateJwt(key, "https://authority", "client",
+                new Claim("at_hash", Crypto.HashData("token")),
+                new Claim("sub", "123"));
+
+            var tokenResponse = new Dictionary<string, object>
+            {
+                { "access_token", "token" },
+                { "expires_in", 300 },
+                { "id_token", idToken },
+                { "refresh_token", "refresh_token" }
+            };
+
+            _options.ProviderInformation.KeySet = Crypto.CreateKeySet(key);
+            _options.BackchannelHandler = new NetworkHandler(JsonConvert.SerializeObject(tokenResponse), HttpStatusCode.OK);
+
+            _options.Policy.ValidSignatureAlgorithms.Clear();
+            _options.Policy.ValidSignatureAlgorithms.Add("unsupported");
+
+            var result = await client.ProcessResponseAsync(url, state);
+
+            result.IsError.Should().BeTrue();
+            result.Error.Should().Be("Error validating token response: Identity token uses invalid algorithm: RS256");
         }
     }
 }
