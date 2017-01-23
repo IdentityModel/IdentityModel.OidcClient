@@ -5,7 +5,7 @@ Supported platforms: netstandard14, desktop .NET, .NET Core, Xamarin iOS & Andro
 
 OidcClient is an implemenation of the OIDC/OAuth 2 for native apps [specification](https://tools.ietf.org/wg/oauth/draft-ietf-oauth-native-apps/) for C#.
 
-### "Manual" Mode
+### Manual Mode
 In manual mode, OidcClient helps you with creating the necessary start URL and state parameters, but you need to coordinate with whatever browser you want to use, e.g.
 
 ```csharp
@@ -30,3 +30,38 @@ var result = await client.ProcessResponseAsync(data, state);
 ```
 
 The result will contain the tokens and the claims of the user.
+
+### Automatic Mode
+In automatic mode, you can encapsulate all browser interactions by implementing the `IBrowser` interface. 
+
+```csharp
+var options = new OidcClientOptions
+{
+    Authority = _authority,
+    ClientId = "native.hybrid",
+    RedirectUri = redirectUri,
+    Scope = "openid profile api",
+    Browser = new SystemBrowser(port: 7890)
+};
+
+var client = new OidcClient(options);
+```
+
+Once that is done, authentication and token requests become one line of code:
+
+```csharp
+var result = await client.LoginAsync();
+```
+
+### Logging
+OidcClient has support for the standard .NET logging facilities, e.g. using Serilog:
+
+```csharp
+var serilog = new LoggerConfiguration()
+    .MinimumLevel.Verbose()
+    .Enrich.FromLogContext()
+    .WriteTo.LiterateConsole(outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message}{NewLine}{Exception}{NewLine}")
+    .CreateLogger();
+
+options.LoggerFactory.AddSerilog(serilog);
+```
