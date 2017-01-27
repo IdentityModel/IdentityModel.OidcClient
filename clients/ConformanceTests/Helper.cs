@@ -65,10 +65,40 @@ namespace ConformanceTests
             }
         }
 
-        public async Task<OidcClientOptions> Register()
+        public async Task<OidcClientOptions> RegisterForCode()
         {
             var disco = await GetDiscoveryDocument();
-            var registration = await RegisterClient(disco.RegistrationEndpoint, "http://localhost:7890");
+            var registration = await RegisterClientForCode(disco.RegistrationEndpoint, "http://localhost:7890");
+
+            var serilog = new LoggerConfiguration()
+                .MinimumLevel.Error()
+                .Enrich.FromLogContext()
+                .WriteTo.LiterateConsole(outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message}{NewLine}{Exception}{NewLine}")
+                .CreateLogger();
+
+            var options = new OidcClientOptions
+            {
+                Authority = disco.Issuer,
+                RedirectUri = "http://localhost:7890",
+                ClientId = registration.ClientId,
+                ClientSecret = registration.ClientSecret,
+                TokenClientAuthenticationStyle = AuthenticationStyle.BasicAuthentication,
+                Browser = new SystemBrowser(port: 7890),
+                FilterClaims = false
+            };
+
+            options.LoggerFactory.AddSerilog(serilog);
+
+            options.Policy.RequireAccessTokenHash = false;
+            options.Policy.Discovery.ValidateEndpoints = false;
+
+            return options;
+        }
+
+        public async Task<OidcClientOptions> RegisterForHybrid()
+        {
+            var disco = await GetDiscoveryDocument();
+            var registration = await RegisterClientForHybrid(disco.RegistrationEndpoint, "http://localhost:7890");
 
             var serilog = new LoggerConfiguration()
                 .MinimumLevel.Error()
@@ -113,7 +143,7 @@ namespace ConformanceTests
             return disco;
         }
 
-        public async Task<RegistrationResponse> RegisterClient(string address, string redirectUri)
+        public async Task<RegistrationResponse> RegisterClientForCode(string address, string redirectUri)
         {
             var client = new DynamicRegistrationClient(address);
 
@@ -121,6 +151,24 @@ namespace ConformanceTests
             {
                 RedirectUris = { redirectUri },
                 ApplicationType = "native"
+            };
+
+            var response = await client.RegisterAsync(request);
+            if (response.IsError) throw new Exception(response.ErrorDescription);
+
+            return response;
+        }
+
+        public async Task<RegistrationResponse> RegisterClientForHybrid(string address, string redirectUri)
+        {
+            var client = new DynamicRegistrationClient(address);
+
+            var request = new RegistrationRequest
+            {
+                RedirectUris = { redirectUri },
+                ApplicationType = "native",
+                ResponseTypes = { "code id_token" },
+                GrantTypes = { "authorization_code", "implicit" }
             };
 
             var response = await client.RegisterAsync(request);
