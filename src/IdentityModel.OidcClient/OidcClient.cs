@@ -189,7 +189,7 @@ namespace IdentityModel.OidcClient
             }
 
             // validate token response
-            var validationResult = _processor.ValidateTokenResponse(response, requireIdentityToken: _options.Policy.RequireIdentityTokenOnRefreshTokenResponse);
+            var validationResult = _processor.ValidateTokenResponse(response, null, requireIdentityToken: _options.Policy.RequireIdentityTokenOnRefreshTokenResponse);
             if (validationResult.IsError)
             {
                 return new RefreshTokenResult { Error = validationResult.Error };

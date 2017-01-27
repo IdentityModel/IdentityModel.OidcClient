@@ -157,7 +157,7 @@ namespace IdentityModel.OidcClient
             }
 
             // validate token response
-            var tokenResponseValidationResult = ValidateTokenResponse(tokenResponse);
+            var tokenResponseValidationResult = ValidateTokenResponse(tokenResponse, state);
             if (tokenResponseValidationResult.IsError)
             {
                 result.Error = tokenResponseValidationResult.Error;
@@ -213,7 +213,7 @@ namespace IdentityModel.OidcClient
             var tokenResponse = await RedeemCodeAsync(authorizeResponse.Code, state);
             if (tokenResponse.IsError)
             {
-                var error = $"Error redeeming code: {tokenResponse.Error}";
+                var error = $"Error redeeming code: {tokenResponse.Error ?? "no error code"} / {tokenResponse.ErrorDescription ?? "no description"}";
                 _logger.LogError(error);
 
                 result.Error = error;
@@ -221,7 +221,7 @@ namespace IdentityModel.OidcClient
             }
 
             // validate token response
-            var tokenResponseValidationResult = ValidateTokenResponse(tokenResponse);
+            var tokenResponseValidationResult = ValidateTokenResponse(tokenResponse, state);
             if (tokenResponseValidationResult.IsError)
             {
                 var error = $"Error validating token response: {tokenResponseValidationResult.Error}";
@@ -239,7 +239,7 @@ namespace IdentityModel.OidcClient
             };
         }
 
-        public TokenResponseValidationResult ValidateTokenResponse(TokenResponse response, bool requireIdentityToken = true)
+        public TokenResponseValidationResult ValidateTokenResponse(TokenResponse response, AuthorizeState state, bool requireIdentityToken = true)
         {
             _logger.LogTrace("ValidateTokenResponse");
 
@@ -288,6 +288,18 @@ namespace IdentityModel.OidcClient
                         {
                             Error = "sub is missing."
                         };
+                    }
+                }
+
+                // validate nonce
+                if (state != null)
+                {
+                    if (!ValidateNonce(state.Nonce, validationResult.User))
+                    {
+                        result.Error = "Invalid nonce.";
+                        _logger.LogError(result.Error);
+
+                        return result;
                     }
                 }
 

@@ -37,11 +37,12 @@ namespace IdentityModel.OidcClient.Tests
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
 
-            var url = $"?state={state.State}&code=bar";
+            var url = $"?state={state.State}&nonce={state.Nonce}&code=bar";
             var key = Crypto.CreateKey();
             var idToken = Crypto.CreateJwt(key, "https://authority", "client",
                 new Claim("at_hash", Crypto.HashData("token")),
-                new Claim("sub", "123"));
+                new Claim("sub", "123"),
+                new Claim("nonce", state.Nonce));
 
             var tokenResponse = new Dictionary<string, object>
             {
@@ -74,7 +75,7 @@ namespace IdentityModel.OidcClient.Tests
             var result = await client.ProcessResponseAsync(url, state);
 
             result.IsError.Should().BeTrue();
-            result.Error.Should().Be("Error redeeming code: error");
+            result.Error.Should().StartWith("Error redeeming code: error");
         }
 
         [Fact]
@@ -201,10 +202,11 @@ namespace IdentityModel.OidcClient.Tests
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
 
-            var url = $"?state={state.State}&code=bar";
+            var url = $"?state={state.State}&nonce={state.Nonce}&code=bar";
             var key = Crypto.CreateKey();
             var idToken = Crypto.CreateJwt(key, "https://authority", "client",
-                new Claim("sub", "123"));
+                new Claim("sub", "123"),
+                new Claim("nonce", state.Nonce));
                 
             var tokenResponse = new Dictionary<string, object>
             {
@@ -242,11 +244,12 @@ namespace IdentityModel.OidcClient.Tests
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
 
-            var url = $"?state={state.State}&code=bar";
+            var url = $"?state={state.State}&nonce={state.Nonce}&code=bar";
             var key = Crypto.CreateKey();
             var idToken = Crypto.CreateJwt(key, "https://authority", "client",
                 new Claim("at_hash", "invalid"),
-                new Claim("sub", "123"));
+                new Claim("sub", "123"),
+                new Claim("nonce", state.Nonce));
 
             var tokenResponse = new Dictionary<string, object>
             {
@@ -274,10 +277,11 @@ namespace IdentityModel.OidcClient.Tests
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
 
-            var url = $"?state={state.State}&code=bar";
+            var url = $"?state={state.State}&nonce={state.Nonce}&code=bar";
             var key = Crypto.CreateKey();
             var idToken = Crypto.CreateJwt(key, "https://authority", "client",
-                new Claim("at_hash", Crypto.HashData("token")));
+                new Claim("at_hash", Crypto.HashData("token")),
+                new Claim("nonce", state.Nonce));
 
             var tokenResponse = new Dictionary<string, object>
             {

@@ -55,11 +55,12 @@ namespace IdentityModel.OidcClient.Tests
                 new Claim("nonce", state.Nonce),
                 new Claim("c_hash", Crypto.HashData("code")));
             
-            var url = $"?state={state.State}&code=code&id_token={frontChannelJwt}";
+            var url = $"?state={state.State}&nonce={state.Nonce}&code=code&id_token={frontChannelJwt}";
             
             var backChannelJwt = Crypto.CreateJwt(key, "https://authority", "client",
                 new Claim("at_hash", Crypto.HashData("token")),
-                new Claim("sub", "123"));
+                new Claim("sub", "123"),
+                new Claim("nonce", state.Nonce));
 
             var tokenResponse = new Dictionary<string, object>
             {
@@ -158,11 +159,12 @@ namespace IdentityModel.OidcClient.Tests
                 new Claim("sub", "123"),
                 new Claim("nonce", state.Nonce));
 
-            var url = $"?state={state.State}&code=code&id_token={frontChannelJwt}";
+            var url = $"?state={state.State}&nonce={state.Nonce}&code=code&id_token={frontChannelJwt}";
 
             var backChannelJwt = Crypto.CreateJwt(key, "https://authority", "client",
                 new Claim("at_hash", Crypto.HashData("token")),
-                new Claim("sub", "123"));
+                new Claim("sub", "123"),
+                new Claim("nonce", state.Nonce));
 
             var tokenResponse = new Dictionary<string, object>
             {
@@ -204,11 +206,12 @@ namespace IdentityModel.OidcClient.Tests
                 new Claim("nonce", state.Nonce),
                 new Claim("c_hash", Crypto.HashData("code")));
 
-            var url = $"?state={state.State}&code=code&id_token={frontChannelJwt}";
+            var url = $"?state={state.State}&nonce={state.Nonce}&code=code&id_token={frontChannelJwt}";
 
             var backChannelJwt = Crypto.CreateJwt(key, "https://authority", "client",
                 new Claim("at_hash", Crypto.HashData("token")),
-                new Claim("sub", "456"));
+                new Claim("sub", "456"),
+                new Claim("nonce", state.Nonce));
 
             var tokenResponse = new Dictionary<string, object>
             {
