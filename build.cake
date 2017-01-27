@@ -16,7 +16,21 @@ Task("Build")
     .IsDependentOn("Restore")
     .Does(() =>
 {
-	var projects = GetFiles("./**/project.json");
+    // build sources
+	var projects = GetFiles("./src/**/project.json");
+
+	foreach(var project in projects)
+	{
+        var settings = new DotNetCoreBuildSettings 
+        {
+            Configuration = configuration
+        };
+
+	    DotNetCoreBuild(project.GetDirectory().FullPath, settings); 
+    }
+
+    // build tests
+    projects = GetFiles("./test/**/project.json");
 
 	foreach(var project in projects)
 	{
