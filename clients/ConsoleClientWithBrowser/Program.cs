@@ -40,6 +40,7 @@ namespace ConsoleClientWithBrowser
                 ClientId = "native.hybrid",
                 RedirectUri = redirectUri,
                 Scope = "openid profile api",
+                FilterClaims = false,
                 Browser = new SystemBrowser(port: 7890)
             };
 

@@ -1,9 +1,5 @@
-﻿using IdentityModel.Client;
+﻿using FluentAssertions;
 using IdentityModel.OidcClient;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace ConformanceTests
@@ -20,7 +16,11 @@ namespace ConformanceTests
             //await rp_token_endpoint_client_secret_basic();
             //await rp_id_token_aud();
             //await rp_id_token_kid_absent_single_jwks();
-            await rp_id_token_sig_none();
+            //await rp_id_token_sig_none();
+            //await rp_id_token_issuer_mismatch();
+            //await rp_id_token_kid_absent_multiple_jwks();
+            //await rp_id_token_bad_sig_rs256();
+            await rp_id_token_iat();
         }
 
         // Make an authentication request using the Authorization Code Flow.
@@ -35,6 +35,7 @@ namespace ConformanceTests
             var client = new OidcClient(options);
             var result = await client.LoginAsync();
 
+            result.IsError.Should().BeFalse();
             helper.ShowResult(result);
         }
 
@@ -50,6 +51,7 @@ namespace ConformanceTests
             var client = new OidcClient(options);
             var result = await client.LoginAsync();
 
+            result.IsError.Should().BeFalse();
             helper.ShowResult(result);
         }
 
@@ -65,6 +67,7 @@ namespace ConformanceTests
             var client = new OidcClient(options);
             var result = await client.LoginAsync();
 
+            result.IsError.Should().BeTrue();
             helper.ShowResult(result);
         }
 
@@ -80,6 +83,7 @@ namespace ConformanceTests
             var client = new OidcClient(options);
             var result = await client.LoginAsync();
 
+            result.IsError.Should().BeFalse();
             helper.ShowResult(result);
         }
 
@@ -96,6 +100,7 @@ namespace ConformanceTests
             var client = new OidcClient(options);
             var result = await client.LoginAsync();
 
+            result.IsError.Should().BeTrue();
             helper.ShowResult(result);
         }
 
@@ -112,6 +117,7 @@ namespace ConformanceTests
             var client = new OidcClient(options);
             var result = await client.LoginAsync();
 
+            result.IsError.Should().BeFalse();
             helper.ShowResult(result);
         }
 
@@ -124,11 +130,84 @@ namespace ConformanceTests
 
             options.Scope = "openid";
             options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
+
+            // disable signature requirement to make this test pass
             options.Policy.RequireIdentityTokenSignature = false;
 
             var client = new OidcClient(options);
             var result = await client.LoginAsync();
 
+            result.IsError.Should().BeFalse();
+            helper.ShowResult(result);
+        }
+
+        // Request an ID token and verify its 'iss' value.
+        // Identify the incorrect 'iss' value and reject the ID Token after doing ID Token validation.
+        public async Task rp_id_token_issuer_mismatch()
+        {
+            var helper = new Helper(_rpId, "rp-id_token-issuer-mismatch");
+            var options = await helper.Register();
+
+            options.Scope = "openid";
+            options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
+
+            var client = new OidcClient(options);
+            var result = await client.LoginAsync();
+
+            result.IsError.Should().BeTrue();
+            helper.ShowResult(result);
+        }
+
+        // Request an ID token and verify its signature using the keys provided by the Issuer.
+        // Identify that the 'kid' value is missing from the JOSE header and that the Issuer publishes multiple keys in its JWK Set document (referenced by 'jwks_uri'). 
+        // The RP can do one of two things; reject the ID Token since it can not by using the kid determined which key to use to verify the signature. 
+        // Or it can just test all possible keys and hit upon one that works, which it will in this case.
+        public async Task rp_id_token_kid_absent_multiple_jwks()
+        {
+            var helper = new Helper(_rpId, "rp-id_token-kid-absent-multiple-jwks");
+            var options = await helper.Register();
+
+            options.Scope = "openid";
+            options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
+
+            var client = new OidcClient(options);
+            var result = await client.LoginAsync();
+
+            result.IsError.Should().BeFalse();
+            helper.ShowResult(result);
+        }
+
+        // Request an ID token and verify its signature using the keys provided by the Issuer.
+        // Identify the invalid signature and reject the ID Token after doing ID Token validation.
+        public async Task rp_id_token_bad_sig_rs256()
+        {
+            var helper = new Helper(_rpId, "rp-id_token-bad-sig-rs256");
+            var options = await helper.Register();
+
+            options.Scope = "openid";
+            options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
+
+            var client = new OidcClient(options);
+            var result = await client.LoginAsync();
+
+            result.IsError.Should().BeTrue();
+            helper.ShowResult(result);
+        }
+
+        // Request an ID token and verify its 'iat' value.
+        // Identify the missing 'iat' value and reject the ID Token after doing ID Token validation.
+        public async Task rp_id_token_iat()
+        {
+            var helper = new Helper(_rpId, "rp-id_token-iat");
+            var options = await helper.Register();
+
+            options.Scope = "openid";
+            options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
+
+            var client = new OidcClient(options);
+            var result = await client.LoginAsync();
+
+            result.IsError.Should().BeTrue();
             helper.ShowResult(result);
         }
     }
