@@ -97,7 +97,6 @@ Task("Restore")
 
     DotNetCoreRestore(sourcePath, settings);
     DotNetCoreRestore(testsPath, settings);
-    DotNetCoreRestore(clientsPath, settings);
 });
 
 Task("Default")
