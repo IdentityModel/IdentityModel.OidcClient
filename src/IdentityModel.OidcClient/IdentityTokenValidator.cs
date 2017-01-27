@@ -132,11 +132,43 @@ namespace IdentityModel.OidcClient
                 };
             }
 
+            var error = CheckRequiredClaim(user);
+            if (error.IsPresent())
+            {
+                return new IdentityTokenValidationResult
+                {
+                    Error = error
+                };
+            }
+
             return new IdentityTokenValidationResult
             {
                 User = user,
                 SignatureAlgorithm = algorithm
             };
+        }
+
+        private string CheckRequiredClaim(ClaimsPrincipal user)
+        {
+            var requiredClaims = new List<string>
+            {
+                JwtClaimTypes.Issuer,
+                JwtClaimTypes.Subject,
+                JwtClaimTypes.IssuedAt,
+                JwtClaimTypes.Audience,
+                JwtClaimTypes.Expiration,
+            };
+
+            foreach (var claimType in requiredClaims)
+            {
+                var claim = user.FindFirst(claimType);
+                if (claim == null)
+                {
+                    return $"{claimType} claim is missing";
+                }
+            }
+
+            return null;
         }
     }
 }

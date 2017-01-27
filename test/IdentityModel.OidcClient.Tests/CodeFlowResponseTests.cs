@@ -269,48 +269,6 @@ namespace IdentityModel.OidcClient.Tests
             result.Error.Should().Be("Error validating token response: Invalid access token hash.");
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task subject_policy_should_be_enforced(bool subjectRequired)
-        {
-            var client = new OidcClient(_options);
-            var state = await client.PrepareLoginAsync();
-
-            var url = $"?state={state.State}&nonce={state.Nonce}&code=bar";
-            var key = Crypto.CreateKey();
-            var idToken = Crypto.CreateJwt(key, "https://authority", "client",
-                new Claim("at_hash", Crypto.HashData("token")),
-                new Claim("nonce", state.Nonce));
-
-            var tokenResponse = new Dictionary<string, object>
-            {
-                { "access_token", "token" },
-                { "expires_in", 300 },
-                { "id_token", idToken },
-                { "refresh_token", "refresh_token" }
-            };
-
-            _options.ProviderInformation.KeySet = Crypto.CreateKeySet(key);
-            _options.BackchannelHandler = new NetworkHandler(JsonConvert.SerializeObject(tokenResponse), HttpStatusCode.OK);
-            _options.Policy.RequireSubject = subjectRequired;
-
-            var result = await client.ProcessResponseAsync(url, state);
-
-            if (subjectRequired)
-            {
-                result.IsError.Should().BeTrue();
-                result.Error.Should().Be("Error validating token response: sub is missing.");
-            }
-            else
-            {
-                result.IsError.Should().BeFalse();
-                result.AccessToken.Should().Be("token");
-                result.IdentityToken.Should().NotBeNull();
-                result.User.Should().NotBeNull();
-            }
-        }
-
         [Fact]
         public async Task invalid_signing_algorithm_should_fail()
         {

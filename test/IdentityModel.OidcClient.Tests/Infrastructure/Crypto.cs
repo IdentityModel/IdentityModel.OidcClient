@@ -1,5 +1,6 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -63,10 +64,13 @@ namespace IdentityModel.OidcClient.Tests.Infrastructure
 
         public static string CreateJwt(RsaSecurityKey key, string issuer, string audience, params Claim[] claims)
         {
+            var jwtClaims = new List<Claim>(claims);
+            jwtClaims.Add(new Claim(JwtClaimTypes.IssuedAt, "now"));
+
             var jwt = new JwtSecurityToken(
                 issuer,
                 audience,
-                claims,
+                jwtClaims,
                 DateTime.UtcNow,
                 DateTime.UtcNow.AddHours(1),
                 new SigningCredentials(key, "RS256"));

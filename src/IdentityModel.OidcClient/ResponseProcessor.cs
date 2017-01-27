@@ -97,19 +97,6 @@ namespace IdentityModel.OidcClient
                 return result;
             }
 
-            // validate sub
-            if (_options.Policy.RequireSubject)
-            {
-                var sub = frontChannelValidationResult.User.FindFirst(JwtClaimTypes.Subject);
-                if (sub == null)
-                {
-                    return new ResponseValidationResult
-                    {
-                        Error = "sub is missing."
-                    };
-                }
-            }
-
             // nonce must be valid
             if (!ValidateNonce(state.Nonce, frontChannelValidationResult.User))
             {
@@ -164,22 +151,9 @@ namespace IdentityModel.OidcClient
                 return result;
             }
 
-            // validate sub
-            if (_options.Policy.RequireSubject)
-            {
-                var sub = tokenResponseValidationResult.IdentityTokenValidationResult.User.FindFirst(JwtClaimTypes.Subject);
-                if (sub == null)
-                {
-                    return new ResponseValidationResult
-                    {
-                        Error = "sub is missing."
-                    };
-                }
-            }
-
             // compare front & back channel subs
-            var frontChannelSub = frontChannelValidationResult.User.FindFirst(JwtClaimTypes.Subject)?.Value ?? "none";
-            var backChannelSub = tokenResponseValidationResult.IdentityTokenValidationResult.User.FindFirst(JwtClaimTypes.Subject)?.Value ?? "none";
+            var frontChannelSub = frontChannelValidationResult.User.FindFirst(JwtClaimTypes.Subject).Value;
+            var backChannelSub = tokenResponseValidationResult.IdentityTokenValidationResult.User.FindFirst(JwtClaimTypes.Subject).Value;
 
             if (!string.Equals(frontChannelSub, backChannelSub, StringComparison.Ordinal))
             {
@@ -276,19 +250,6 @@ namespace IdentityModel.OidcClient
                     _logger.LogError(result.Error);
 
                     return result;
-                }
-
-                // validate sub
-                if (_options.Policy.RequireSubject)
-                {
-                    var sub = validationResult.User.FindFirst(JwtClaimTypes.Subject);
-                    if (sub == null)
-                    {
-                        return new TokenResponseValidationResult
-                        {
-                            Error = "sub is missing."
-                        };
-                    }
                 }
 
                 // validate nonce
