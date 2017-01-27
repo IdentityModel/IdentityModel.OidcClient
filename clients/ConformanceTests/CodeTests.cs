@@ -20,7 +20,11 @@ namespace ConformanceTests
             //await rp_id_token_issuer_mismatch();
             //await rp_id_token_kid_absent_multiple_jwks();
             //await rp_id_token_bad_sig_rs256();
-            await rp_id_token_iat();
+            //await rp_id_token_iat();
+            //await rp_id_token_sig_rs256();
+            //await rp_id_token_sub();
+            await rp_userinfo_bad_sub_claim();
+            //await rp_userinfo_bearer_header();
         }
 
         // Make an authentication request using the Authorization Code Flow.
@@ -208,6 +212,74 @@ namespace ConformanceTests
             var result = await client.LoginAsync();
 
             result.IsError.Should().BeTrue();
+            helper.ShowResult(result);
+        }
+
+        // Request an signed ID Token. Verify the signature on the ID Token using the keys published by the Issuer.
+        // Accept the ID Token after doing ID Token validation.
+        public async Task rp_id_token_sig_rs256()
+        {
+            var helper = new Helper(_rpId, "rp-id_token-sig-rs256");
+            var options = await helper.Register();
+
+            options.Scope = "openid";
+            options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
+
+            var client = new OidcClient(options);
+            var result = await client.LoginAsync();
+
+            result.IsError.Should().BeFalse();
+            helper.ShowResult(result);
+        }
+
+        // Request an ID token and verify it contains a sub value.
+        // Identify the missing 'sub' value and reject the ID Token.
+        public async Task rp_id_token_sub()
+        {
+            var helper = new Helper(_rpId, "rp-id_token-sub");
+            var options = await helper.Register();
+
+            options.Scope = "openid";
+            options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
+
+            var client = new OidcClient(options);
+            var result = await client.LoginAsync();
+
+            result.IsError.Should().BeTrue();
+            helper.ShowResult(result);
+        }
+
+        // Request an ID token and verify it contains a sub value.
+        // Identify the missing 'sub' value and reject the ID Token.
+        public async Task rp_userinfo_bad_sub_claim()
+        {
+            var helper = new Helper(_rpId, "rp-userinfo-bad-sub-claim");
+            var options = await helper.Register();
+
+            options.Scope = "openid";
+            options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
+
+            var client = new OidcClient(options);
+            var result = await client.LoginAsync();
+
+            result.IsError.Should().BeTrue();
+            helper.ShowResult(result);
+        }
+
+        // Request an ID token and verify it contains a sub value.
+        // Identify the missing 'sub' value and reject the ID Token.
+        public async Task rp_userinfo_bearer_header()
+        {
+            var helper = new Helper(_rpId, "rp-userinfo-bearer-header");
+            var options = await helper.Register();
+
+            options.Scope = "openid";
+            options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
+
+            var client = new OidcClient(options);
+            var result = await client.LoginAsync();
+
+            result.IsError.Should().BeFalse();
             helper.ShowResult(result);
         }
     }
