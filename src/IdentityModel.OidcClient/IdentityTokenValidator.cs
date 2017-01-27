@@ -32,15 +32,23 @@ namespace IdentityModel.OidcClient
             var keys = new List<SecurityKey>();
             foreach (var webKey in _options.ProviderInformation.KeySet.Keys)
             {
-                var e = Base64Url.Decode(webKey.E);
-                var n = Base64Url.Decode(webKey.N);
+                // todo
+                if (webKey.E.IsPresent() && webKey.N.IsPresent())
+                {
+                    var e = Base64Url.Decode(webKey.E);
+                    var n = Base64Url.Decode(webKey.N);
 
-                var key = new RsaSecurityKey(new RSAParameters { Exponent = e, Modulus = n });
-                key.KeyId = webKey.Kid;
+                    var key = new RsaSecurityKey(new RSAParameters { Exponent = e, Modulus = n });
+                    key.KeyId = webKey.Kid;
 
-                keys.Add(key);
+                    keys.Add(key);
 
-                _logger.LogDebug("Added signing key with kid: {kid}", key?.KeyId ?? "not set");
+                    _logger.LogDebug("Added signing key with kid: {kid}", key?.KeyId ?? "not set");
+                }
+                else
+                {
+                    _logger.LogDebug("Signing key with kid: {kid} currently not supported", webKey.Kid ?? "not set");
+                }
             }
 
             var parameters = new TokenValidationParameters
