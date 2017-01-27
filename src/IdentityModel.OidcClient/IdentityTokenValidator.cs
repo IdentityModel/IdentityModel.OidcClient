@@ -29,33 +29,14 @@ namespace IdentityModel.OidcClient
         {
             _logger.LogTrace("Validate");
 
-            var keys = new List<SecurityKey>();
-            foreach (var webKey in _options.ProviderInformation.KeySet.Keys)
-            {
-                // todo
-                if (webKey.E.IsPresent() && webKey.N.IsPresent())
-                {
-                    var e = Base64Url.Decode(webKey.E);
-                    var n = Base64Url.Decode(webKey.N);
+            var handler = new JwtSecurityTokenHandler();
+            handler.InboundClaimTypeMap.Clear();
 
-                    var key = new RsaSecurityKey(new RSAParameters { Exponent = e, Modulus = n });
-                    key.KeyId = webKey.Kid;
-
-                    keys.Add(key);
-
-                    _logger.LogDebug("Added signing key with kid: {kid}", key?.KeyId ?? "not set");
-                }
-                else
-                {
-                    _logger.LogDebug("Signing key with kid: {kid} currently not supported", webKey.Kid ?? "not set");
-                }
-            }
-
+            // setup general validation parameters
             var parameters = new TokenValidationParameters
             {
                 ValidIssuer = _options.ProviderInformation.IssuerName,
                 ValidAudience = _options.ClientId,
-                IssuerSigningKeys = keys,
 
                 NameClaimType = JwtClaimTypes.Name,
                 RoleClaimType = JwtClaimTypes.Role,
@@ -63,9 +44,77 @@ namespace IdentityModel.OidcClient
                 ClockSkew = _options.ClockSkew
             };
 
-            var handler = new JwtSecurityTokenHandler();
-            handler.InboundClaimTypeMap.Clear();
+            // read the token signing algorithm
+            JwtSecurityToken jwt;
 
+            try
+            {
+                jwt = handler.ReadJwtToken(identityToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+
+                return new IdentityTokenValidationResult
+                {
+                    Error = $"Error validating identity token: {ex.ToString()}"
+                };
+            }
+
+            var algorithm = jwt.Header.Alg;
+
+            // if token is unsigned, and this is allowed, skip signature validation
+            if (string.Equals(algorithm, "none"))
+            {
+                if (_options.Policy.RequireIdentityTokenSignature)
+                {
+                    return new IdentityTokenValidationResult
+                    {
+                        Error = $"Identity token is not singed. Signatures are required by policy"
+                    };
+                }
+                else
+                {
+                    parameters.RequireSignedTokens = false;
+                }
+            }
+            else
+            {
+                // check if signature algorithm is allowed by policy
+                if (!_options.Policy.ValidSignatureAlgorithms.Contains(algorithm))
+                {
+                    return new IdentityTokenValidationResult
+                    {
+                        Error = $"Identity token uses invalid algorithm: {algorithm}"
+                    };
+                };
+
+                // read keys from provide information
+                var keys = new List<SecurityKey>();
+                foreach (var webKey in _options.ProviderInformation.KeySet.Keys)
+                {
+                    // todo
+                    if (webKey.E.IsPresent() && webKey.N.IsPresent())
+                    {
+                        var e = Base64Url.Decode(webKey.E);
+                        var n = Base64Url.Decode(webKey.N);
+
+                        var key = new RsaSecurityKey(new RSAParameters { Exponent = e, Modulus = n });
+                        key.KeyId = webKey.Kid;
+
+                        keys.Add(key);
+
+                        _logger.LogDebug("Added signing key with kid: {kid}", key?.KeyId ?? "not set");
+                    }
+                    else
+                    {
+                        _logger.LogDebug("Signing key with kid: {kid} currently not supported", webKey.Kid ?? "not set");
+                    }
+                }
+
+                parameters.IssuerSigningKeys = keys;
+            }
+            
             SecurityToken token;
             ClaimsPrincipal user;
 
@@ -82,17 +131,6 @@ namespace IdentityModel.OidcClient
                     Error = $"Error validating identity token: {ex.ToString()}"
                 };
             }
-
-            var jwt = token as JwtSecurityToken;
-            var algorithm = jwt.Header.Alg;
-
-            if (!_options.Policy.ValidSignatureAlgorithms.Contains(algorithm))
-            {
-                return new IdentityTokenValidationResult
-                {
-                    Error = $"Identity token uses invalid algorithm: {algorithm}"
-                };
-            };
 
             return new IdentityTokenValidationResult
             {

@@ -53,6 +53,14 @@ namespace IdentityModel.OidcClient
         public bool RequireIdentityTokenOnRefreshTokenResponse { get; set; } = false;
 
         /// <summary>
+        /// Gets or sets a value indicating whether an identity token must be signed or not (unsigned identity tokens are only allowed in authorization code flow)
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if identity token must be signed; otherwise, <c>false</c>.
+        /// </value>
+        public bool RequireIdentityTokenSignature { get; set; } = true;
+
+        /// <summary>
         /// Gets or sets the supported identity token signing algorithms.
         /// </summary>
         /// <value>

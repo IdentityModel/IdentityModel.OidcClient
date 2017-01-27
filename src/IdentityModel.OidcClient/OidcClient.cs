@@ -57,7 +57,7 @@ namespace IdentityModel.OidcClient
         {
             _logger.LogTrace("LoginAsync");
 
-            await EnsureProviderInformation();
+            await EnsureConfiguration();
             var authorizeResult = await _authorizeClient.AuthorizeAsync(displayMode, timeout, extraParameters);
 
             if (authorizeResult.IsError)
@@ -77,7 +77,7 @@ namespace IdentityModel.OidcClient
         {
             _logger.LogTrace("PrepareLoginAsync");
 
-            await EnsureProviderInformation();
+            await EnsureConfiguration();
             return _authorizeClient.CreateAuthorizeState(extraParameters);
         }
 
@@ -202,6 +202,19 @@ namespace IdentityModel.OidcClient
                 RefreshToken = response.RefreshToken,
                 ExpiresIn = (int)response.ExpiresIn
             };
+        }
+
+        internal async Task EnsureConfiguration()
+        {
+            if (_options.Flow == OidcClientOptions.AuthenticationFlow.Hybrid && _options.Policy.RequireIdentityTokenSignature == false)
+            {
+                var error = "Allowing unsigned identity tokens is not allowed for hybrid flow";
+                _logger.LogError(error);
+
+                throw new InvalidOperationException(error);
+            }
+
+            await EnsureProviderInformation();
         }
 
         internal async Task EnsureProviderInformation()
