@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0-craigellachie-*",
+  "version": "2.0.0-dalwhinnie-*",
   "authors": [ "Dominick Baier", "Brock Allen" ],
 
   "packOptions": {
@@ -14,7 +14,7 @@
   },
 
   "dependencies": {
-    "IdentityModel": "2.4.*",
+    "IdentityModel": "2.5.*",
     "Microsoft.Extensions.Logging": "1.1.0",
     "Microsoft.Extensions.Logging.Abstractions": "1.1.0",
     "System.IdentityModel.Tokens.Jwt": "5.1.2"
