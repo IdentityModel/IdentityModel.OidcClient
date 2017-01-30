@@ -192,5 +192,10 @@ namespace IdentityModel.OidcClient
             FormPost,
             Redirect
         }
+
+        // disable json serialization
+        public bool ShouldSerializeBrowser() => false;
+        public bool ShouldSerializeBackchannelHandler() => false;
+        public bool ShouldSerializeLoggerFactory() => false;
     }
 }

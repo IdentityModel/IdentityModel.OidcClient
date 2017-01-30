@@ -232,6 +232,9 @@ namespace IdentityModel.OidcClient
             }
 
             await EnsureProviderInformation();
+
+            _logger.LogDebug("Effective options:");
+            _logger.LogDebug(LogSerializer.Serialize(_options));
         }
 
         internal async Task EnsureProviderInformation()
