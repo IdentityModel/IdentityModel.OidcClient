@@ -50,14 +50,14 @@ namespace IdentityModel.OidcClient
             _options = options;
             _logger = options.LoggerFactory.CreateLogger<OidcClient>();
             _authorizeClient = new AuthorizeClient(options);
-            _processor = new ResponseProcessor(options);
+            _processor = new ResponseProcessor(options, EnsureProviderInformationAsync);
         }
 
         public async Task<LoginResult> LoginAsync(DisplayMode displayMode = DisplayMode.Visible, int timeout = 300, object extraParameters = null)
         {
             _logger.LogTrace("LoginAsync");
 
-            await EnsureConfiguration();
+            await EnsureConfigurationAsync();
             var authorizeResult = await _authorizeClient.AuthorizeAsync(displayMode, timeout, extraParameters);
 
             if (authorizeResult.IsError)
@@ -77,7 +77,7 @@ namespace IdentityModel.OidcClient
         {
             _logger.LogTrace("PrepareLoginAsync");
 
-            await EnsureConfiguration();
+            await EnsureConfigurationAsync();
             return _authorizeClient.CreateAuthorizeState(extraParameters);
         }
 
@@ -206,7 +206,7 @@ namespace IdentityModel.OidcClient
             }
 
             // validate token response
-            var validationResult = _processor.ValidateTokenResponse(response, null, requireIdentityToken: _options.Policy.RequireIdentityTokenOnRefreshTokenResponse);
+            var validationResult = await _processor.ValidateTokenResponseAsync(response, null, requireIdentityToken: _options.Policy.RequireIdentityTokenOnRefreshTokenResponse);
             if (validationResult.IsError)
             {
                 return new RefreshTokenResult { Error = validationResult.Error };
@@ -221,7 +221,7 @@ namespace IdentityModel.OidcClient
             };
         }
 
-        internal async Task EnsureConfiguration()
+        internal async Task EnsureConfigurationAsync()
         {
             if (_options.Flow == OidcClientOptions.AuthenticationFlow.Hybrid && _options.Policy.RequireIdentityTokenSignature == false)
             {
@@ -231,13 +231,13 @@ namespace IdentityModel.OidcClient
                 throw new InvalidOperationException(error);
             }
 
-            await EnsureProviderInformation();
+            await EnsureProviderInformationAsync();
 
             _logger.LogDebug("Effective options:");
             _logger.LogDebug(LogSerializer.Serialize(_options));
         }
 
-        internal async Task EnsureProviderInformation()
+        internal async Task EnsureProviderInformationAsync()
         {
             _logger.LogTrace("EnsureProviderInformation");
 

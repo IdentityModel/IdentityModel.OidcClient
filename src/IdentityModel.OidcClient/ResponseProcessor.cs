@@ -15,13 +15,15 @@ namespace IdentityModel.OidcClient
         private ILogger<ResponseProcessor> _logger;
         private readonly IdentityTokenValidator _tokenValidator;
         private readonly CryptoHelper _crypto;
+        private readonly Func<Task> _refreshKeysAsync;
 
-        public ResponseProcessor(OidcClientOptions options)
+        public ResponseProcessor(OidcClientOptions options, Func<Task> refreshKeysAsync)
         {
             _options = options;
+            _refreshKeysAsync = refreshKeysAsync;
             _logger = options.LoggerFactory.CreateLogger<ResponseProcessor>();
 
-            _tokenValidator = new IdentityTokenValidator(options);
+            _tokenValidator = new IdentityTokenValidator(options, refreshKeysAsync);
             _crypto = new CryptoHelper(options);
         }
 
@@ -88,7 +90,7 @@ namespace IdentityModel.OidcClient
             }
 
             // id_token must be valid
-            var frontChannelValidationResult = _tokenValidator.Validate(authorizeResponse.IdentityToken);
+            var frontChannelValidationResult = await _tokenValidator.ValidateAsync(authorizeResponse.IdentityToken);
             if (frontChannelValidationResult.IsError)
             {
                 result.Error = frontChannelValidationResult.Error ?? "Identity token validation error.";
@@ -144,7 +146,7 @@ namespace IdentityModel.OidcClient
             }
 
             // validate token response
-            var tokenResponseValidationResult = ValidateTokenResponse(tokenResponse, state);
+            var tokenResponseValidationResult = await ValidateTokenResponseAsync(tokenResponse, state);
             if (tokenResponseValidationResult.IsError)
             {
                 result.Error = tokenResponseValidationResult.Error;
@@ -195,7 +197,7 @@ namespace IdentityModel.OidcClient
             }
 
             // validate token response
-            var tokenResponseValidationResult = ValidateTokenResponse(tokenResponse, state);
+            var tokenResponseValidationResult = await ValidateTokenResponseAsync(tokenResponse, state);
             if (tokenResponseValidationResult.IsError)
             {
                 var error = $"Error validating token response: {tokenResponseValidationResult.Error}";
@@ -213,7 +215,7 @@ namespace IdentityModel.OidcClient
             };
         }
 
-        public TokenResponseValidationResult ValidateTokenResponse(TokenResponse response, AuthorizeState state, bool requireIdentityToken = true)
+        public async Task<TokenResponseValidationResult> ValidateTokenResponseAsync(TokenResponse response, AuthorizeState state, bool requireIdentityToken = true)
         {
             _logger.LogTrace("ValidateTokenResponse");
 
@@ -243,7 +245,7 @@ namespace IdentityModel.OidcClient
             if (response.IdentityToken.IsPresent())
             {
                 // if identity token is present, it must be valid
-                var validationResult = _tokenValidator.Validate(response.IdentityToken);
+                var validationResult = await _tokenValidator.ValidateAsync(response.IdentityToken);
                 if (validationResult.IsError)
                 {
                     result.Error = validationResult.Error ?? "Identity token validation error";
