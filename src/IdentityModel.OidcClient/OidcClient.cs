@@ -248,14 +248,19 @@ namespace IdentityModel.OidcClient
                     Policy = _options.Policy.Discovery,
                     Timeout = _options.BackchannelTimeout
                 };
+
+                var disco = await client.GetAsync().ConfigureAwait(false);
                 
-                var disco = await client.GetAsync();
                 if (disco.IsError)
                 {
                     _logger.LogError("Error loading discovery document: {errorType} - {error}", disco.ErrorType.ToString(), disco.Error);
 
                     throw new InvalidOperationException("Error loading discovery document: " + disco.Error);
                 }
+
+                _logger.LogTrace("Successfully loaded discovery document");
+                _logger.LogTrace("Loaded keyset from {jwks_uri}", disco.JwksUri);
+                _logger.LogTrace("Keyet contains the following kids: {kids}", from k in disco.KeySet.Keys select k.Kid ?? "unspecified");
 
                 _options.ProviderInformation = new ProviderInformation
                 {

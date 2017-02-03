@@ -71,7 +71,7 @@ namespace ConformanceTests
             var registration = await RegisterClientForCode(disco.RegistrationEndpoint, "http://localhost:7890");
 
             var serilog = new LoggerConfiguration()
-                .MinimumLevel.Error()
+                .MinimumLevel.Verbose()
                 .Enrich.FromLogContext()
                 .WriteTo.LiterateConsole(outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message}{NewLine}{Exception}{NewLine}")
                 .CreateLogger();

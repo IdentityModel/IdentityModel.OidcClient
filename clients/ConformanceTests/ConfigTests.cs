@@ -7,7 +7,7 @@ namespace ConformanceTests
     // test description: https://rp.certification.openid.net:8080/list?profile=CNF
     public class ConfigTests
     {
-        string _rpId = "identitymodel.oidcclient.code";
+        string _rpId = "identitymodel.oidcclient.config";
         
         public async Task Start()
         {
@@ -107,10 +107,10 @@ namespace ConformanceTests
             //result.IsError.Should().BeFalse();
             helper.ShowResult(result);
 
-            // second
-            result = await client.LoginAsync();
-            result.IsError.Should().BeFalse();
-            helper.ShowResult(result);
+            //// second
+            //result = await client.LoginAsync();
+            //result.IsError.Should().BeFalse();
+            //helper.ShowResult(result);
         }
     }
 }
