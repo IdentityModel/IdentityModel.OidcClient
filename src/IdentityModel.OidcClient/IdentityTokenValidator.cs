@@ -98,22 +98,34 @@ namespace IdentityModel.OidcClient
             {
                 user = ValidateSignature(identityToken, handler, parameters);
             }
-            catch (SecurityTokenSignatureKeyNotFoundException)
+            catch (SecurityTokenSignatureKeyNotFoundException sigEx)
             {
-                _logger.LogDebug("Key for validating token signature cannot be found. Refreshing keyset.");
-
-                // try to refresh the key set and try again
-                await _refreshKeysAsync();
-
-                try
+                if (_options.RefreshDiscoveryOnSignatureFailure)
                 {
-                    user = ValidateSignature(identityToken, handler, parameters);
+                    _logger.LogInformation("Key for validating token signature cannot be found. Refreshing keyset.");
+
+                    // try to refresh the key set and try again
+                    await _refreshKeysAsync();
+
+                    try
+                    {
+                        user = ValidateSignature(identityToken, handler, parameters);
+                    }
+                    catch (Exception ex)
+                    {
+                        return new IdentityTokenValidationResult
+                        {
+                            Error = $"Error validating identity token: {ex.ToString()}"
+                        };
+                    }
                 }
-                catch (Exception ex)
+                else
                 {
+                    _logger.LogError(sigEx.ToString());
+
                     return new IdentityTokenValidationResult
                     {
-                        Error = $"Error validating identity token: {ex.ToString()}"
+                        Error = $"Error validating identity token: {sigEx.ToString()}"
                     };
                 }
             }

@@ -243,6 +243,17 @@ namespace IdentityModel.OidcClient
 
             if (useDiscovery)
             {
+                if (_options.RefreshDiscoveryDocumentForLogin == false)
+                {
+                    // discovery document has been loaded before - skip reload
+                    if (_options.ProviderInformation != null)
+                    {
+                        _logger.LogDebug("Skipping refresh of discovery document.");
+
+                        return;
+                    }
+                }
+
                 var client = new DiscoveryClient(_options.Authority, _options.BackchannelHandler)
                 {
                     Policy = _options.Policy.Discovery,
@@ -258,9 +269,9 @@ namespace IdentityModel.OidcClient
                     throw new InvalidOperationException("Error loading discovery document: " + disco.Error);
                 }
 
-                _logger.LogTrace("Successfully loaded discovery document");
-                _logger.LogTrace("Loaded keyset from {jwks_uri}", disco.JwksUri);
-                _logger.LogTrace("Keyet contains the following kids: {kids}", from k in disco.KeySet.Keys select k.Kid ?? "unspecified");
+                _logger.LogDebug("Successfully loaded discovery document");
+                _logger.LogDebug("Loaded keyset from {jwks_uri}", disco.JwksUri);
+                _logger.LogDebug("Keyet contains the following kids: {kids}", from k in disco.KeySet.Keys select k.Kid ?? "unspecified");
 
                 _options.ProviderInformation = new ProviderInformation
                 {

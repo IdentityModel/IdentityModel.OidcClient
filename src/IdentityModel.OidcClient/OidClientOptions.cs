@@ -88,6 +88,22 @@ namespace IdentityModel.OidcClient
         public TimeSpan ClockSkew { get; set; } = TimeSpan.FromMinutes(5);
 
         /// <summary>
+        /// Gets or sets a value indicating whether the discovery document is re-loaded for every login/prepare login request
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if discovery document needs to be re-loaded; otherwise, <c>false</c>.
+        /// </value>
+        public bool RefreshDiscoveryDocumentForLogin { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the discovery document gets re-loaded when token validation fails due to signing key problems
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if discovery get re-loaded; otherwise, <c>false</c>.
+        /// </value>
+        public bool RefreshDiscoveryOnSignatureFailure { get; set; } = false;
+
+        /// <summary>
         /// Gets or sets a value indicating whether a response_mode of form_post will be used.
         /// </summary>
         /// <value>

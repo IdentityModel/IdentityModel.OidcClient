@@ -11,11 +11,11 @@ namespace ConformanceTests
         
         public async Task Start()
         {
-            //await rp_discovery_jwks_uri_keys();
+            await rp_discovery_jwks_uri_keys();
             //await rp_discovery_issuer_not_matching_config();
             //await rp_discovery_openid_configuration();
             //await rp_id_token_sig_none();
-            await rp_key_rotation_op_sign_key();
+            //await rp_key_rotation_op_sign_key();
         }
 
         // The Relying Party uses keys from the jwks_uri which has been obtained from the OpenID Provider Metadata.
@@ -100,6 +100,9 @@ namespace ConformanceTests
             options.Scope = "openid";
             options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
 
+            options.RefreshDiscoveryDocumentForLogin = false;
+            options.RefreshDiscoveryOnSignatureFailure = false;
+
             var client = new OidcClient(options);
 
             // first
@@ -108,9 +111,9 @@ namespace ConformanceTests
             helper.ShowResult(result);
 
             //// second
-            //result = await client.LoginAsync();
+            result = await client.LoginAsync();
             //result.IsError.Should().BeFalse();
-            //helper.ShowResult(result);
+            helper.ShowResult(result);
         }
     }
 }
