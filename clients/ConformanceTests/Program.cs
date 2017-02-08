@@ -8,7 +8,7 @@ namespace ConformanceTests
 
         public static async Task MainAsync()
         {
-            await new ConfigTests().Start();
+            //await new ConfigTests().Start();
             //await new CodeTests().Start();
             //await new CodeIdTokenTests().Start();
         }

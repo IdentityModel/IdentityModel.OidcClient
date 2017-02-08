@@ -102,7 +102,7 @@ namespace IdentityModel.OidcClient
             {
                 if (_options.RefreshDiscoveryOnSignatureFailure)
                 {
-                    _logger.LogInformation("Key for validating token signature cannot be found. Refreshing keyset.");
+                    _logger.LogWarning("Key for validating token signature cannot be found. Refreshing keyset.");
 
                     // try to refresh the key set and try again
                     await _refreshKeysAsync();

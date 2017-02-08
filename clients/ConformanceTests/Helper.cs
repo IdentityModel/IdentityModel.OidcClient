@@ -9,7 +9,7 @@ namespace ConformanceTests
 {
     public class Helper
     {
-        string _discoEndpoint = "https://rp.certification.openid.net:8080/{0}/{1}/.well-known/openid-configuration";
+        string _discoEndpoint = "https://rp.certification.openid.net:8090/{0}/{1}/.well-known/openid-configuration";
 
         public string RpId { get; private set; }
         public string TestName { get; private set; }
@@ -33,6 +33,16 @@ namespace ConformanceTests
             var log = await client.GetStringAsync(GetLogUrl());
 
             return log;
+        }
+
+        public async Task ResetKeyRotation()
+        {
+            var url = $"https://rp.certification.openid.net:8090/{RpId}/rp-key-rotation-op-sign-key-native/reset";
+
+            var client = new HttpClient();
+            var response = await client.GetAsync(url);
+
+            Console.WriteLine("Reset key rotation: " + response.StatusCode);
         }
 
         public void ShowResult(LoginResult result)
