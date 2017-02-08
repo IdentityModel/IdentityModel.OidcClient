@@ -56,8 +56,6 @@ namespace IdentityModel.OidcClient
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.ToString());
-
                 return new IdentityTokenValidationResult
                 {
                     Error = $"Error validating identity token: {ex.ToString()}"
@@ -78,6 +76,7 @@ namespace IdentityModel.OidcClient
                 }
                 else
                 {
+                    _logger.LogInformation("Identity token is not signed. This is allowed by configuration.");
                     parameters.RequireSignedTokens = false;
                 }
             }
@@ -121,8 +120,6 @@ namespace IdentityModel.OidcClient
                 }
                 else
                 {
-                    _logger.LogError(sigEx.ToString());
-
                     return new IdentityTokenValidationResult
                     {
                         Error = $"Error validating identity token: {sigEx.ToString()}"
@@ -131,8 +128,6 @@ namespace IdentityModel.OidcClient
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.ToString());
-
                 return new IdentityTokenValidationResult
                 {
                     Error = $"Error validating identity token: {ex.ToString()}"

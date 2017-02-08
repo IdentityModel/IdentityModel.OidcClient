@@ -70,11 +70,9 @@ namespace IdentityModel.OidcClient
             }
         }
 
-        public async Task<ResponseValidationResult> ProcessHybridFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state)
+        private async Task<ResponseValidationResult> ProcessHybridFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state)
         {
             _logger.LogTrace("ProcessHybridFlowResponseAsync");
-
-            var result = new ResponseValidationResult();
 
             //////////////////////////////////////////////////////
             // validate front-channel response
@@ -83,29 +81,20 @@ namespace IdentityModel.OidcClient
             // id_token must be present
             if (authorizeResponse.IdentityToken.IsMissing())
             {
-                result.Error = "Missing identity token.";
-                _logger.LogError(result.Error);
-
-                return result;
+                return new ResponseValidationResult("Missing identity token.");
             }
 
             // id_token must be valid
             var frontChannelValidationResult = await _tokenValidator.ValidateAsync(authorizeResponse.IdentityToken);
             if (frontChannelValidationResult.IsError)
             {
-                result.Error = frontChannelValidationResult.Error ?? "Identity token validation error.";
-                _logger.LogError(result.Error);
-
-                return result;
+                return new ResponseValidationResult(frontChannelValidationResult.Error ?? "Identity token validation error.");
             }
 
             // nonce must be valid
             if (!ValidateNonce(state.Nonce, frontChannelValidationResult.User))
             {
-                result.Error = "Invalid nonce.";
-                _logger.LogError(result.Error);
-
-                return result;
+                return new ResponseValidationResult("Invalid nonce.");
             }
 
             // validate c_hash
@@ -114,20 +103,14 @@ namespace IdentityModel.OidcClient
             {
                 if (_options.Policy.RequireAuthorizationCodeHash)
                 {
-                    return new ResponseValidationResult
-                    {
-                        Error = "c_hash is missing."
-                    };
+                    return new ResponseValidationResult("c_hash is missing.");
                 }
             }
             else
             {
                 if (!_crypto.ValidateHash(authorizeResponse.Code, cHash.Value, frontChannelValidationResult.SignatureAlgorithm))
                 {
-                    result.Error = "Invalid c_hash.";
-                    _logger.LogError(result.Error);
-
-                    return result;
+                    return new ResponseValidationResult("Invalid c_hash.");
                 }
             }
 
@@ -139,18 +122,14 @@ namespace IdentityModel.OidcClient
             var tokenResponse = await RedeemCodeAsync(authorizeResponse.Code, state);
             if (tokenResponse.IsError)
             {
-                _logger.LogError(tokenResponse.Error);
-                result.Error = tokenResponse.Error;
-
-                return result;
+                return new ResponseValidationResult(tokenResponse.Error);
             }
 
             // validate token response
             var tokenResponseValidationResult = await ValidateTokenResponseAsync(tokenResponse, state);
             if (tokenResponseValidationResult.IsError)
             {
-                result.Error = tokenResponseValidationResult.Error;
-                return result;
+                return new ResponseValidationResult(tokenResponseValidationResult.Error);
             }
 
             // compare front & back channel subs
@@ -159,12 +138,7 @@ namespace IdentityModel.OidcClient
 
             if (!string.Equals(frontChannelSub, backChannelSub, StringComparison.Ordinal))
             {
-                var error = $"Subject on front-channel ({frontChannelSub}) does not match subject on back-channel ({backChannelSub}).";
-
-                _logger.LogError(error);
-                result.Error = error;
-
-                return result;
+                return new ResponseValidationResult($"Subject on front-channel ({frontChannelSub}) does not match subject on back-channel ({backChannelSub}).");
             }
 
             return new ResponseValidationResult
@@ -175,12 +149,10 @@ namespace IdentityModel.OidcClient
             };
         }
 
-        public async Task<ResponseValidationResult> ProcessCodeFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state)
+        private async Task<ResponseValidationResult> ProcessCodeFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state)
         {
             _logger.LogTrace("ProcessCodeFlowResponseAsync");
-
-            var result = new ResponseValidationResult();
-
+            
             //////////////////////////////////////////////////////
             // process back-channel response
             //////////////////////////////////////////////////////
@@ -189,22 +161,14 @@ namespace IdentityModel.OidcClient
             var tokenResponse = await RedeemCodeAsync(authorizeResponse.Code, state);
             if (tokenResponse.IsError)
             {
-                var error = $"Error redeeming code: {tokenResponse.Error ?? "no error code"} / {tokenResponse.ErrorDescription ?? "no description"}";
-                _logger.LogError(error);
-
-                result.Error = error;
-                return result;
+                return new ResponseValidationResult($"Error redeeming code: {tokenResponse.Error ?? "no error code"} / {tokenResponse.ErrorDescription ?? "no description"}");
             }
 
             // validate token response
             var tokenResponseValidationResult = await ValidateTokenResponseAsync(tokenResponse, state);
             if (tokenResponseValidationResult.IsError)
             {
-                var error = $"Error validating token response: {tokenResponseValidationResult.Error}";
-                _logger.LogError(error);
-
-                result.Error = error;
-                return result;
+                return new ResponseValidationResult($"Error validating token response: {tokenResponseValidationResult.Error}");
             }
 
             return new ResponseValidationResult
@@ -215,7 +179,7 @@ namespace IdentityModel.OidcClient
             };
         }
 
-        public async Task<TokenResponseValidationResult> ValidateTokenResponseAsync(TokenResponse response, AuthorizeState state, bool requireIdentityToken = true)
+        internal async Task<TokenResponseValidationResult> ValidateTokenResponseAsync(TokenResponse response, AuthorizeState state, bool requireIdentityToken = true)
         {
             _logger.LogTrace("ValidateTokenResponse");
 
@@ -249,8 +213,6 @@ namespace IdentityModel.OidcClient
                 if (validationResult.IsError)
                 {
                     result.Error = validationResult.Error ?? "Identity token validation error";
-                    _logger.LogError(result.Error);
-
                     return result;
                 }
 
@@ -260,8 +222,6 @@ namespace IdentityModel.OidcClient
                     if (!ValidateNonce(state.Nonce, validationResult.User))
                     {
                         result.Error = "Invalid nonce.";
-                        _logger.LogError(result.Error);
-
                         return result;
                     }
                 }

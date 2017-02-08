@@ -56,6 +56,7 @@ namespace IdentityModel.OidcClient
         public async Task<LoginResult> LoginAsync(DisplayMode displayMode = DisplayMode.Visible, int timeout = 300, object extraParameters = null)
         {
             _logger.LogTrace("LoginAsync");
+            _logger.LogInformation("Starting authentication request.");
 
             await EnsureConfigurationAsync();
             var authorizeResult = await _authorizeClient.AuthorizeAsync(displayMode, timeout, extraParameters);
@@ -65,7 +66,14 @@ namespace IdentityModel.OidcClient
                 return new LoginResult(authorizeResult.Error);
             }
 
-            return await ProcessResponseAsync(authorizeResult.Data, authorizeResult.State);
+            var result = await ProcessResponseAsync(authorizeResult.Data, authorizeResult.State);
+
+            if (!result.IsError)
+            {
+                _logger.LogInformation("Authentication request success.");
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -90,7 +98,9 @@ namespace IdentityModel.OidcClient
         public async Task<LoginResult> ProcessResponseAsync(string data, AuthorizeState state)
         {
             _logger.LogTrace("ProcessResponseAsync");
+            _logger.LogInformation("Processing response.");
 
+            _logger.LogDebug("Authorize response: {response}", data);
             var authorizeResponse = new AuthorizeResponse(data);
 
             if (authorizeResponse.IsError)
@@ -102,7 +112,7 @@ namespace IdentityModel.OidcClient
             var result = await _processor.ProcessResponseAsync(authorizeResponse, state);
             if (result.IsError)
             {
-                _logger.LogError("Error validating response: " + result.Error);
+                _logger.LogError(result.Error);
                 return new LoginResult(result.Error);
             }
 
@@ -112,7 +122,10 @@ namespace IdentityModel.OidcClient
                 var userInfoResult = await GetUserInfoAsync(result.TokenResponse.AccessToken);
                 if (userInfoResult.IsError)
                 {
-                    return new LoginResult($"Error contacting userinfo endpoint: {userInfoResult.Error}");
+                    var error = $"Error contacting userinfo endpoint: {userInfoResult.Error}";
+                    _logger.LogError(error);
+
+                    return new LoginResult(error);
                 }
 
                 userInfoClaims = userInfoResult.Claims;
@@ -121,16 +134,16 @@ namespace IdentityModel.OidcClient
                 if (userInfoSub == null)
                 {
                     var error = "sub claim is missing from userinfo endpoint";
-
                     _logger.LogError(error);
+
                     return new LoginResult(error);
                 }
 
                 if (!string.Equals(userInfoSub.Value, result.User.FindFirst(JwtClaimTypes.Subject).Value))
                 {
                     var error = "sub claim from userinfo endpoint is different than sub claim from identity token.";
-
                     _logger.LogError(error);
+
                     return new LoginResult(error);
                 }
             }

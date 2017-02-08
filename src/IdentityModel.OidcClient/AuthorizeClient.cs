@@ -84,8 +84,7 @@ namespace IdentityModel.OidcClient
 
             state.StartUrl = CreateUrl(state.State, state.Nonce, pkce.CodeChallenge, extraParameters);
 
-            _logger.LogInformation("CreateAuthorizeStateAsync success.");
-            _logger.LogInformation(LogSerializer.Serialize(state));
+            _logger.LogDebug(LogSerializer.Serialize(state));
 
             return state;
         }
