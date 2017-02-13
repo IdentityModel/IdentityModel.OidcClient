@@ -28,7 +28,7 @@ namespace IdentityModel.OidcClient.Tests
             var result = await client.ProcessResponseAsync(url, state);
 
             result.IsError.Should().BeTrue();
-            result.Error.Should().Be("Missing authorization code");
+            result.Error.Should().Be("Missing authorization code.");
         }
 
         [Fact]
@@ -41,7 +41,7 @@ namespace IdentityModel.OidcClient.Tests
             var result = await client.ProcessResponseAsync(url, state);
 
             result.IsError.Should().BeTrue();
-            result.Error.Should().Be("Missing state");
+            result.Error.Should().Be("Missing state.");
         }
 
         [Fact]
@@ -54,7 +54,7 @@ namespace IdentityModel.OidcClient.Tests
             var result = await client.ProcessResponseAsync(url, state);
 
             result.IsError.Should().BeTrue();
-            result.Error.Should().Be("Invalid state");
+            result.Error.Should().Be("Invalid state.");
         }
     }
 }

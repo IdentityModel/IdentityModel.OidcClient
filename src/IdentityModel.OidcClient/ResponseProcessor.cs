@@ -37,26 +37,17 @@ namespace IdentityModel.OidcClient
 
             if (string.IsNullOrEmpty(authorizeResponse.Code))
             {
-                var error = "Missing authorization code";
-                _logger.LogError(error);
-
-                return new ResponseValidationResult { Error = error };
+                return new ResponseValidationResult("Missing authorization code.");
             }
 
             if (string.IsNullOrEmpty(authorizeResponse.State))
             {
-                var error = "Missing state";
-                _logger.LogError(error);
-
-                return new ResponseValidationResult { Error = error };
+                return new ResponseValidationResult("Missing state.");
             }
 
             if (!string.Equals(state.State, authorizeResponse.State, StringComparison.Ordinal))
             {
-                var error = "Invalid state";
-                _logger.LogError(error);
-
-                return new ResponseValidationResult { Error = error };
+                return new ResponseValidationResult("Invalid state.");
             }
 
             switch (_options.Flow)
@@ -66,7 +57,7 @@ namespace IdentityModel.OidcClient
                 case OidcClientOptions.AuthenticationFlow.Hybrid:
                     return await ProcessHybridFlowResponseAsync(authorizeResponse, state);
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(_options.Flow), "Invalid authentication style");
+                    throw new ArgumentOutOfRangeException(nameof(_options.Flow), "Invalid authentication style.");
             }
         }
 
@@ -182,16 +173,11 @@ namespace IdentityModel.OidcClient
         internal async Task<TokenResponseValidationResult> ValidateTokenResponseAsync(TokenResponse response, AuthorizeState state, bool requireIdentityToken = true)
         {
             _logger.LogTrace("ValidateTokenResponse");
-
-            var result = new TokenResponseValidationResult();
-
+            
             // token response must contain an access token
             if (response.AccessToken.IsMissing())
             {
-                result.Error = "Access token is missing on token response.";
-                _logger.LogError(result.Error);
-
-                return result;
+                return new TokenResponseValidationResult("Access token is missing on token response.");
             }
 
             if (requireIdentityToken)
@@ -199,10 +185,7 @@ namespace IdentityModel.OidcClient
                 // token response must contain an identity token (openid scope is mandatory)
                 if (response.IdentityToken.IsMissing())
                 {
-                    result.Error = "Identity token is missing on token response.";
-                    _logger.LogError(result.Error);
-
-                    return result;
+                    return new TokenResponseValidationResult("Identity token is missing on token response.");
                 }
             }
 
@@ -212,8 +195,7 @@ namespace IdentityModel.OidcClient
                 var validationResult = await _tokenValidator.ValidateAsync(response.IdentityToken);
                 if (validationResult.IsError)
                 {
-                    result.Error = validationResult.Error ?? "Identity token validation error";
-                    return result;
+                    return new TokenResponseValidationResult(validationResult.Error ?? "Identity token validation error");
                 }
 
                 // validate nonce
@@ -221,8 +203,7 @@ namespace IdentityModel.OidcClient
                 {
                     if (!ValidateNonce(state.Nonce, validationResult.User))
                     {
-                        result.Error = "Invalid nonce.";
-                        return result;
+                        return new TokenResponseValidationResult("Invalid nonce.");
                     }
                 }
 
@@ -232,30 +213,21 @@ namespace IdentityModel.OidcClient
                 {
                     if (_options.Policy.RequireAccessTokenHash)
                     {
-                        return new TokenResponseValidationResult
-                        {
-                            Error = "at_hash is missing."
-                        };
+                        return new TokenResponseValidationResult("at_hash is missing.");
                     }
                 }
                 else
                 {
                     if (!_crypto.ValidateHash(response.AccessToken, atHash.Value, validationResult.SignatureAlgorithm))
                     {
-                        result.Error = "Invalid access token hash.";
-                        _logger.LogError(result.Error);
-
-                        return result;
+                        return new TokenResponseValidationResult("Invalid access token hash.");
                     }
                 }
-                
-                return new TokenResponseValidationResult
-                {
-                    IdentityTokenValidationResult = validationResult
-                };
+
+                return new TokenResponseValidationResult(validationResult);
             }
 
-            return new TokenResponseValidationResult();
+            return new TokenResponseValidationResult((IdentityTokenValidationResult)null);
         }
 
         private bool ValidateNonce(string nonce, ClaimsPrincipal user)

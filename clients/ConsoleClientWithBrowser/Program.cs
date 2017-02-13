@@ -45,7 +45,7 @@ namespace ConsoleClientWithBrowser
             };
 
             var serilog = new LoggerConfiguration()
-                .MinimumLevel.Debug()
+                .MinimumLevel.Error()
                 .Enrich.FromLogContext()
                 .WriteTo.LiterateConsole(outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message}{NewLine}{Exception}{NewLine}")
                 .CreateLogger();
@@ -94,9 +94,7 @@ namespace ConsoleClientWithBrowser
                 var key = Console.ReadKey();
 
                 if (key.Key == ConsoleKey.X) return;
-
                 if (key.Key == ConsoleKey.C) await CallApi(currentAccessToken);
-
                 if (key.Key == ConsoleKey.R)
                 {
                     var refreshResult = await _oidcClient.RefreshTokenAsync(currentRefreshToken);
