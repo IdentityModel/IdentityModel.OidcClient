@@ -180,6 +180,7 @@ namespace IdentityModel.OidcClient
         {
             _logger.LogTrace("GetUserInfoAsync");
 
+            await EnsureConfigurationAsync();
             if (accessToken.IsMissing()) throw new ArgumentNullException(nameof(accessToken));
             if (!_options.ProviderInformation.SupportsUserInfo) throw new InvalidOperationException("No userinfo endpoint specified");
 
@@ -210,6 +211,7 @@ namespace IdentityModel.OidcClient
         {
             _logger.LogTrace("RefreshTokenAsync");
 
+            await EnsureConfigurationAsync();
             var client = TokenClientFactory.Create(_options);
             var response = await client.RequestRefreshTokenAsync(refreshToken);
 
