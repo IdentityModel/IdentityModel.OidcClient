@@ -16,4 +16,4 @@ deploy:
   on:
     branch: dev
 
-  image: Visual Studio 2017
+image: Visual Studio 2017
