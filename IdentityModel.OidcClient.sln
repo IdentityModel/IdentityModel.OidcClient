@@ -1,28 +1,25 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{0B7CC363-CF34-4B40-A769-7E928A6B25AF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BC352876-1FCE-4149-B255-B3B075B82F7E}"
-	ProjectSection(SolutionItems) = preProject
-		global.json = global.json
-	EndProjectSection
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "IdentityModel.OidcClient", "src\IdentityModel.OidcClient\IdentityModel.OidcClient.xproj", "{BE059A81-6F97-4345-9A70-A9B278D86213}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{3DEB81D4-5B40-4D20-AC50-66D1CD6EA24A}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "IdentityModel.OidcClient.Tests", "test\IdentityModel.OidcClient.Tests\IdentityModel.OidcClient.Tests.xproj", "{B3874074-52B5-4319-B1F4-6896E8DC51B4}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "clients", "clients", "{A4154BEB-4B4A-4A48-B75D-B52432304F36}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ConsoleClient", "clients\ConsoleClient\ConsoleClient.xproj", "{A17CE98F-4F71-4AA6-AB0A-EB6A04A2C8C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityModel.OidcClient", "src\IdentityModel.OidcClient\IdentityModel.OidcClient.csproj", "{BE059A81-6F97-4345-9A70-A9B278D86213}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ConsoleClientWithBrowser", "clients\ConsoleClientWithBrowser\ConsoleClientWithBrowser.xproj", "{D8307A14-403E-48A4-870F-88CF9FE8CACA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityModel.OidcClient.Tests", "test\IdentityModel.OidcClient.Tests\IdentityModel.OidcClient.Tests.csproj", "{B3874074-52B5-4319-B1F4-6896E8DC51B4}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ConformanceTests", "clients\ConformanceTests\ConformanceTests.xproj", "{EF53746C-0BCE-4E0D-8251-9FC973746C31}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleClient", "clients\ConsoleClient\ConsoleClient.csproj", "{A17CE98F-4F71-4AA6-AB0A-EB6A04A2C8C4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleClientWithBrowser", "clients\ConsoleClientWithBrowser\ConsoleClientWithBrowser.csproj", "{D8307A14-403E-48A4-870F-88CF9FE8CACA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConformanceTests", "clients\ConformanceTests\ConformanceTests.csproj", "{EF53746C-0BCE-4E0D-8251-9FC973746C31}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

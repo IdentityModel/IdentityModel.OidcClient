@@ -4,89 +4,26 @@ var configuration   = Argument<string>("configuration", "Release");
 ///////////////////////////////////////////////////////////////////////////////
 // GLOBAL VARIABLES
 ///////////////////////////////////////////////////////////////////////////////
-var isLocalBuild        = !AppVeyor.IsRunningOnAppVeyor;
 var packPath            = Directory("./src/IdentityModel.OidcClient");
-var sourcePath          = Directory("./src");
-var clientsPath         = Directory("./clients");
-var testsPath           = Directory("test");
 var buildArtifacts      = Directory("./artifacts/packages");
 
-Task("Build")
-    .IsDependentOn("Clean")
-    .IsDependentOn("Restore")
-    .Does(() =>
-{
-    // build sources
-	var projects = GetFiles("./src/**/project.json");
+var isAppVeyor          = AppVeyor.IsRunningOnAppVeyor;
+var isWindows           = IsRunningOnWindows();
+var netcore             = "netcoreapp1.1";
+var netstandard         = "netstandard1.4";
 
-	foreach(var project in projects)
-	{
-        var settings = new DotNetCoreBuildSettings 
-        {
-            Configuration = configuration
-        };
-
-	    DotNetCoreBuild(project.GetDirectory().FullPath, settings); 
-    }
-
-    // build tests
-    projects = GetFiles("./test/**/project.json");
-
-	foreach(var project in projects)
-	{
-        var settings = new DotNetCoreBuildSettings 
-        {
-            Configuration = configuration
-        };
-
-	    DotNetCoreBuild(project.GetDirectory().FullPath, settings); 
-    }
-});
-
-Task("RunTests")
-    .IsDependentOn("Restore")
-    .IsDependentOn("Clean")
-    .Does(() =>
-{
-    var projects = GetFiles("./test/**/project.json");
-
-    foreach(var project in projects)
-	{
-        var settings = new DotNetCoreTestSettings
-        {
-            Configuration = configuration
-        };
-
-        DotNetCoreTest(project.GetDirectory().FullPath, settings);
-    }
-});
-
-Task("Pack")
-    .IsDependentOn("Restore")
-    .IsDependentOn("Clean")
-    .Does(() =>
-{
-    var settings = new DotNetCorePackSettings
-    {
-        Configuration = configuration,
-        OutputDirectory = buildArtifacts,
-    };
-
-    // add build suffix for CI builds
-    if(!isLocalBuild)
-    {
-        settings.VersionSuffix = "b" + AppVeyor.Environment.Build.Number.ToString().PadLeft(4,'0');
-    }
-
-    DotNetCorePack(packPath, settings);
-});
-
+///////////////////////////////////////////////////////////////////////////////
+// Clean
+///////////////////////////////////////////////////////////////////////////////
 Task("Clean")
     .Does(() =>
 {
     CleanDirectories(new DirectoryPath[] { buildArtifacts });
 });
 
+///////////////////////////////////////////////////////////////////////////////
+// Restore
+///////////////////////////////////////////////////////////////////////////////
 Task("Restore")
     .Does(() =>
 {
@@ -95,13 +32,116 @@ Task("Restore")
         Sources = new [] { "https://api.nuget.org/v3/index.json" }
     };
 
-    DotNetCoreRestore(sourcePath, settings);
-    DotNetCoreRestore(testsPath, settings);
+    var projects = GetFiles("./**/*.csproj");
+
+	foreach(var project in projects)
+	{
+	    DotNetCoreRestore(project.GetDirectory().FullPath, settings);
+    }
 });
+
+///////////////////////////////////////////////////////////////////////////////
+// Build
+///////////////////////////////////////////////////////////////////////////////
+Task("Build")
+    .IsDependentOn("Clean")
+    .IsDependentOn("Restore")
+    .Does(() =>
+{
+    var settings = new DotNetCoreBuildSettings 
+    {
+        Configuration = configuration
+    };
+
+    // libraries
+	var projects = GetFiles("./src/**/*.csproj");
+
+    if (!isWindows)
+    {
+        Information("Not on Windows - building only for " + netstandard);
+        settings.Framework = netstandard;
+    }
+
+	foreach(var project in projects)
+	{
+	    DotNetCoreBuild(project.GetDirectory().FullPath, settings); 
+    }
+
+    // tests
+	projects = GetFiles("./test/**/*.csproj");
+
+    if (!isWindows)
+    {
+        Information("Not on Windows - building only for " + netcore);
+        settings.Framework = netcore;
+    }
+
+	foreach(var project in projects)
+	{
+	    DotNetCoreBuild(project.GetDirectory().FullPath, settings); 
+    }
+});
+
+///////////////////////////////////////////////////////////////////////////////
+// Test
+///////////////////////////////////////////////////////////////////////////////
+Task("Test")
+    .IsDependentOn("Restore")
+    .IsDependentOn("Clean")
+    .Does(() =>
+{
+    var settings = new DotNetCoreTestSettings
+    {
+        Configuration = configuration
+    };
+
+    var projects = GetFiles("./test/**/*.csproj");
+
+    if (!isWindows)
+    {
+        Information("Not on Windows - testing only for " + netcore);
+        settings.Framework = netcore;
+    }
+
+    foreach(var project in projects)
+	{
+        DotNetCoreTest(project.FullPath, settings);
+    }
+});
+
+///////////////////////////////////////////////////////////////////////////////
+// Pack
+///////////////////////////////////////////////////////////////////////////////
+Task("Pack")
+    .IsDependentOn("Restore")
+    .IsDependentOn("Clean")
+    .Does(() =>
+{
+    if (!isWindows)
+    {
+        Information("Not on Windows - skipping pack");
+        return;
+    }
+
+    var settings = new DotNetCorePackSettings
+    {
+        Configuration = configuration,
+        OutputDirectory = buildArtifacts,
+    };
+
+    // add build suffix for CI builds
+    if(isAppVeyor)
+    {
+        settings.VersionSuffix = "b" + AppVeyor.Environment.Build.Number.ToString().PadLeft(4,'0');
+    }
+
+    DotNetCorePack(packPath, settings);
+});
+
 
 Task("Default")
   .IsDependentOn("Build")
-  .IsDependentOn("RunTests")
+  .IsDependentOn("Test")
   .IsDependentOn("Pack");
 
 RunTarget(target);
