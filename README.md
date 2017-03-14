@@ -1,5 +1,5 @@
 # C#/NetStandard OpenID Connect Client Library for native Applications
-Supported platforms: netstandard14, desktop .NET, .NET Core, Xamarin iOS & Android. [Nuget.](https://www.nuget.org/packages/IdentityModel.OidcClient/)
+Supported platforms: netstandard14, desktop .NET, UWP, .NET Core, Xamarin iOS & Android. [Nuget.](https://www.nuget.org/packages/IdentityModel.OidcClient/)
 
 [Certified](http://openid.net/certification/) OpenID Connect relying party implementation. 
 
