@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Http;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
+using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,18 +15,35 @@ namespace ConsoleClientWithBrowser
 {
     public class SystemBrowser : IBrowser
     {
-        private readonly int _port;
+        public int Port { get; }
         private readonly string _path;
 
-        public SystemBrowser(int port, string path = null)
+        public SystemBrowser(int? port = null, string path = null)
         {
-            _port = port;
             _path = path;
+
+            if (!port.HasValue)
+            {
+                Port = GetRandomUnusedPort();
+            }
+            else
+            {
+                Port = port.Value;
+            }
+        }
+
+        private int GetRandomUnusedPort()
+        {
+            var listener = new TcpListener(IPAddress.Loopback, 0);
+            listener.Start();
+            var port = ((IPEndPoint)listener.LocalEndpoint).Port;
+            listener.Stop();
+            return port;
         }
 
         public async Task<BrowserResult> InvokeAsync(BrowserOptions options)
         {
-            using (var listener = new LoopbackHttpListener(_port, _path))
+            using (var listener = new LoopbackHttpListener(Port, _path))
             {
                 OpenBrowser(options.StartUrl);
 
