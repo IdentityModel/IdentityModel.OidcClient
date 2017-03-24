@@ -280,6 +280,11 @@ namespace IdentityModel.OidcClient
                 if (disco.IsError)
                 {
                     _logger.LogError("Error loading discovery document: {errorType} - {error}", disco.ErrorType.ToString(), disco.Error);
+                    
+                    if (disco.ErrorType == ResponseErrorType.Exception)
+                    {
+                        throw new InvalidOperationException("Error loading discovery document: " + disco.Error, disco.Exception);
+                    }
 
                     throw new InvalidOperationException("Error loading discovery document: " + disco.Error);
                 }
