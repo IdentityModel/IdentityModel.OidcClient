@@ -100,6 +100,8 @@ namespace IdentityModel.OidcClient
             _logger.LogTrace("ProcessResponseAsync");
             _logger.LogInformation("Processing response.");
 
+            await EnsureConfigurationAsync();
+
             _logger.LogDebug("Authorize response: {response}", data);
             var authorizeResponse = new AuthorizeResponse(data);
 
