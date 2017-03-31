@@ -250,8 +250,8 @@ namespace IdentityModel.OidcClient
 
             await EnsureProviderInformationAsync();
 
-            _logger.LogDebug("Effective options:");
-            _logger.LogDebug(LogSerializer.Serialize(_options));
+            _logger.LogTrace("Effective options:");
+            _logger.LogTrace(LogSerializer.Serialize(_options));
         }
 
         internal async Task EnsureProviderInformationAsync()
