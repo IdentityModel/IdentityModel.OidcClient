@@ -254,7 +254,8 @@ namespace IdentityModel.OidcClient
             var tokenResult = await client.RequestAuthorizationCodeAsync(
                 code,
                 state.RedirectUri,
-                codeVerifier: state.CodeVerifier);
+                codeVerifier: state.CodeVerifier,
+                extra: state.ExtraParameters);
 
             return tokenResult;
         }

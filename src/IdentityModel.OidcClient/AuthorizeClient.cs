@@ -80,6 +80,7 @@ namespace IdentityModel.OidcClient
                 State = _crypto.CreateState(),
                 RedirectUri = _options.RedirectUri,
                 CodeVerifier = pkce.CodeVerifier,
+                ExtraParameters = extraParameters
             };
 
             state.StartUrl = CreateUrl(state.State, state.Nonce, pkce.CodeChallenge, extraParameters);
