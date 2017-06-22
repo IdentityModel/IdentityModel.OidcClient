@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using IdentityModel.Jwk;
 
 namespace IdentityModel.OidcClient
 {
@@ -177,10 +176,10 @@ namespace IdentityModel.OidcClient
         public ILoggerFactory LoggerFactory { get; } = new LoggerFactory();
 
         /// <summary>
-        /// Gets or sets the ProofOfPossessionKey
+        /// Gets or sets the ProofOfPossession
         /// </summary>
-        /// <remarks>For use with the Identity Server 3 implementation of the PoP spec</remarks>
-        public JsonWebKey ProofOfPossessionKey { get; set; }
+        /// <remarks>If a Key is set, PoP will be used when obtaining an AccessToken.  Note that this is for use with the Identity Server 3 implementation of the PoP spec</remarks>
+        public ProofOfPossession ProofOfPossession { get; set; } = new ProofOfPossession();
 
         /// <summary>
         /// Gets or sets the claims types that should be filtered.

@@ -218,9 +218,9 @@ namespace IdentityModel.OidcClient
             var client = TokenClientFactory.Create(_options);
             TokenResponse response;
 
-            if (_options.ProofOfPossessionKey != null)
+            if (_options.ProofOfPossession.Key != null)
             {
-                response = await client.RequestRefreshTokenPopAsync(refreshToken, _options.ProofOfPossessionKey.Alg, _options.ProofOfPossessionKey.ToJwkString());
+                response = await client.RequestRefreshTokenPopAsync(refreshToken, _options.ProofOfPossession.Algorithm, _options.ProofOfPossession.JwkString);
             }
             else
             {

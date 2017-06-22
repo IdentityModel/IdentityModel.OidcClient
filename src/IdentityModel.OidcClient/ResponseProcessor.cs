@@ -252,14 +252,14 @@ namespace IdentityModel.OidcClient
 
             var client = GetTokenClient();
 
-            if (_options.ProofOfPossessionKey != null)
+            if (_options.ProofOfPossession.Key != null)
             {
                 var popTokenResult = await client.RequestAuthorizationCodePopAsync(
                     code,
                     state.RedirectUri,
                     state.CodeVerifier,
-                    _options.ProofOfPossessionKey.Alg,
-                    _options.ProofOfPossessionKey.ToJwkString()
+                    _options.ProofOfPossession.Algorithm,
+                    _options.ProofOfPossession.JwkString
                     );
 
                 return popTokenResult;
