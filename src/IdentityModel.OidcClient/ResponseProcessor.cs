@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using IdentityModel.Jwk;
 
 namespace IdentityModel.OidcClient
 {
@@ -251,12 +252,27 @@ namespace IdentityModel.OidcClient
 
             var client = GetTokenClient();
 
-            var tokenResult = await client.RequestAuthorizationCodeAsync(
-                code,
-                state.RedirectUri,
-                codeVerifier: state.CodeVerifier);
+            if (_options.ProofOfPossessionKey != null)
+            {
+                var popTokenResult = await client.RequestAuthorizationCodePopAsync(
+                    code,
+                    state.RedirectUri,
+                    state.CodeVerifier,
+                    _options.ProofOfPossessionKey.Alg,
+                    _options.ProofOfPossessionKey.ToJwkString()
+                    );
 
-            return tokenResult;
+                return popTokenResult;
+            }
+            else
+            {
+                var tokenResult = await client.RequestAuthorizationCodeAsync(
+                    code,
+                    state.RedirectUri,
+                    codeVerifier: state.CodeVerifier);
+
+                return tokenResult;
+            }
         }
 
         private TokenClient GetTokenClient()
