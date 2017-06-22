@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using IdentityModel.OidcClient.Infrastructure;
 using System.Security.Claims;
 using System.Collections.Generic;
+using IdentityModel.Jwk;
 using Microsoft.Extensions.Logging;
 using IdentityModel.OidcClient.Results;
 using IdentityModel.OidcClient.Browser;
@@ -215,7 +216,16 @@ namespace IdentityModel.OidcClient
 
             await EnsureConfigurationAsync();
             var client = TokenClientFactory.Create(_options);
-            var response = await client.RequestRefreshTokenAsync(refreshToken);
+            TokenResponse response;
+
+            if (_options.ProofOfPossessionKey != null)
+            {
+                response = await client.RequestRefreshTokenPopAsync(refreshToken, _options.ProofOfPossessionKey.Alg, _options.ProofOfPossessionKey.ToJwkString());
+            }
+            else
+            {
+                response = await client.RequestRefreshTokenAsync(refreshToken);
+            }
 
             if (response.IsError)
             {
