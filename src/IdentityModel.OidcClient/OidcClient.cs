@@ -217,7 +217,7 @@ namespace IdentityModel.OidcClient
             await EnsureConfigurationAsync();
             var client = TokenClientFactory.Create(_options);
             TokenResponse response;
-
+#pragma warning disable 618
             if (_options.ProofOfPossession.Key != null)
             {
                 response = await client.RequestRefreshTokenPopAsync(refreshToken, _options.ProofOfPossession.Algorithm, _options.ProofOfPossession.JwkString);
@@ -226,6 +226,7 @@ namespace IdentityModel.OidcClient
             {
                 response = await client.RequestRefreshTokenAsync(refreshToken);
             }
+#pragma warning restore 618
 
             if (response.IsError)
             {

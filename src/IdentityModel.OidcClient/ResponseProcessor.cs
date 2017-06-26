@@ -251,7 +251,7 @@ namespace IdentityModel.OidcClient
             _logger.LogTrace("RedeemCodeAsync");
 
             var client = GetTokenClient();
-
+#pragma warning disable 618
             if (_options.ProofOfPossession.Key != null)
             {
                 var popTokenResult = await client.RequestAuthorizationCodePopAsync(
@@ -273,6 +273,7 @@ namespace IdentityModel.OidcClient
 
                 return tokenResult;
             }
+#pragma warning restore 618
         }
 
         private TokenClient GetTokenClient()

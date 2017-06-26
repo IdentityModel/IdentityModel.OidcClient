@@ -179,6 +179,7 @@ namespace IdentityModel.OidcClient
         /// Gets or sets the ProofOfPossession
         /// </summary>
         /// <remarks>If a Key is set, PoP will be used when obtaining an AccessToken.  Note that this is for use with the Identity Server 3 implementation of the PoP spec</remarks>
+        [Obsolete("Proof of Possession is defined in RFC6750 (https://tools.ietf.org/html/rfc6750), which may be deprecated in favour of oAuth 2.0 Token Binding (https://tools.ietf.org/html/draft-ietf-oauth-token-binding-03).  Only use this if you need to interop with an Identity Server 3 instance that implements PoP (see: https://identityserver.github.io/Documentation/docsv2/pop/overview.html for more information)")]
         public ProofOfPossession ProofOfPossession { get; set; } = new ProofOfPossession();
 
         /// <summary>
