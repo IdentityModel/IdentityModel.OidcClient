@@ -167,7 +167,8 @@ namespace IdentityModel.OidcClient
                 loginResult.RefreshTokenHandler = new RefreshTokenHandler(
                     TokenClientFactory.Create(_options),
                     loginResult.RefreshToken,
-                    loginResult.AccessToken);
+                    loginResult.AccessToken,
+                    _options.RefreshTokenInnerHttpHandler);
             }
 
             return loginResult;

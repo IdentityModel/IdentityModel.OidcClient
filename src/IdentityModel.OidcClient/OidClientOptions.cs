@@ -136,6 +136,14 @@ namespace IdentityModel.OidcClient
         public AuthenticationFlow Flow { get; set; } = AuthenticationFlow.Hybrid;
 
         /// <summary>
+        /// Gets or sets the inner HTTP handler used with RefreshTokenHandler.
+        /// </summary>
+        /// <value>
+        /// The handler.
+        /// </value>
+        public HttpMessageHandler RefreshTokenInnerHttpHandler { get; set; } = new HttpClientHandler();
+
+        /// <summary>
         /// Gets or sets the HTTP handler used for back-channel communication (token and userinfo endpoint).
         /// </summary>
         /// <value>
@@ -193,6 +201,7 @@ namespace IdentityModel.OidcClient
             JwtClaimTypes.AuthorizationCodeHash,
             JwtClaimTypes.AccessTokenHash
         };
+
 
         /// <summary>
         /// The authentication flows
