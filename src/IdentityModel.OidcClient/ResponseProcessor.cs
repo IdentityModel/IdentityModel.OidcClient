@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using IdentityModel.Jwk;
 
 namespace IdentityModel.OidcClient
 {
@@ -250,13 +251,29 @@ namespace IdentityModel.OidcClient
             _logger.LogTrace("RedeemCodeAsync");
 
             var client = GetTokenClient();
+#pragma warning disable 618
+            if (_options.ProofOfPossession.Key != null)
+            {
+                var popTokenResult = await client.RequestAuthorizationCodePopAsync(
+                    code,
+                    state.RedirectUri,
+                    state.CodeVerifier,
+                    _options.ProofOfPossession.Algorithm,
+                    _options.ProofOfPossession.JwkString
+                    );
 
-            var tokenResult = await client.RequestAuthorizationCodeAsync(
-                code,
-                state.RedirectUri,
-                codeVerifier: state.CodeVerifier);
+                return popTokenResult;
+            }
+            else
+            {
+                var tokenResult = await client.RequestAuthorizationCodeAsync(
+                    code,
+                    state.RedirectUri,
+                    codeVerifier: state.CodeVerifier);
 
-            return tokenResult;
+                return tokenResult;
+            }
+#pragma warning restore 618
         }
 
         private TokenClient GetTokenClient()
