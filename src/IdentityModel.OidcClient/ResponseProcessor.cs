@@ -27,7 +27,7 @@ namespace IdentityModel.OidcClient
             _crypto = new CryptoHelper(options);
         }
 
-        public async Task<ResponseValidationResult> ProcessResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state)
+        public async Task<ResponseValidationResult> ProcessResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state, object extraParameters)
         {
             _logger.LogTrace("ProcessResponseAsync");
 
@@ -53,15 +53,15 @@ namespace IdentityModel.OidcClient
             switch (_options.Flow)
             {
                 case OidcClientOptions.AuthenticationFlow.AuthorizationCode:
-                    return await ProcessCodeFlowResponseAsync(authorizeResponse, state);
+                    return await ProcessCodeFlowResponseAsync(authorizeResponse, state, extraParameters);
                 case OidcClientOptions.AuthenticationFlow.Hybrid:
-                    return await ProcessHybridFlowResponseAsync(authorizeResponse, state);
+                    return await ProcessHybridFlowResponseAsync(authorizeResponse, state, extraParameters);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(_options.Flow), "Invalid authentication style.");
             }
         }
 
-        private async Task<ResponseValidationResult> ProcessHybridFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state)
+        private async Task<ResponseValidationResult> ProcessHybridFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state, object extraParameters = null)
         {
             _logger.LogTrace("ProcessHybridFlowResponseAsync");
 
@@ -110,7 +110,7 @@ namespace IdentityModel.OidcClient
             //////////////////////////////////////////////////////
 
             // redeem code for tokens
-            var tokenResponse = await RedeemCodeAsync(authorizeResponse.Code, state);
+            var tokenResponse = await RedeemCodeAsync(authorizeResponse.Code, state, extraParameters);
             if (tokenResponse.IsError)
             {
                 return new ResponseValidationResult(tokenResponse.Error);
@@ -140,7 +140,7 @@ namespace IdentityModel.OidcClient
             };
         }
 
-        private async Task<ResponseValidationResult> ProcessCodeFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state)
+        private async Task<ResponseValidationResult> ProcessCodeFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state, object extraParameters)
         {
             _logger.LogTrace("ProcessCodeFlowResponseAsync");
             
@@ -149,7 +149,7 @@ namespace IdentityModel.OidcClient
             //////////////////////////////////////////////////////
 
             // redeem code for tokens
-            var tokenResponse = await RedeemCodeAsync(authorizeResponse.Code, state);
+            var tokenResponse = await RedeemCodeAsync(authorizeResponse.Code, state, extraParameters);
             if (tokenResponse.IsError)
             {
                 return new ResponseValidationResult($"Error redeeming code: {tokenResponse.Error ?? "no error code"} / {tokenResponse.ErrorDescription ?? "no description"}");
@@ -245,7 +245,7 @@ namespace IdentityModel.OidcClient
             return match;
         }
 
-        private async Task<TokenResponse> RedeemCodeAsync(string code, AuthorizeState state)
+        private async Task<TokenResponse> RedeemCodeAsync(string code, AuthorizeState state, object extraParameters)
         {
             _logger.LogTrace("RedeemCodeAsync");
 
@@ -254,7 +254,8 @@ namespace IdentityModel.OidcClient
             var tokenResult = await client.RequestAuthorizationCodeAsync(
                 code,
                 state.RedirectUri,
-                codeVerifier: state.CodeVerifier);
+                codeVerifier: state.CodeVerifier,
+                extra: extraParameters);
 
             return tokenResult;
         }

@@ -53,20 +53,34 @@ namespace IdentityModel.OidcClient
             _processor = new ResponseProcessor(options, EnsureProviderInformationAsync);
         }
 
+        [Obsolete("This method will be removed in a future version. Please change your code to use LoginRequest")]
         public async Task<LoginResult> LoginAsync(DisplayMode displayMode = DisplayMode.Visible, int timeout = 300, object extraParameters = null)
+        {
+            return await LoginAsync(new LoginRequest
+            {
+                BrowserDisplayMode = displayMode,
+                BrowserTimeout = timeout,
+                FrontChannelExtraParameters = extraParameters
+            });
+        }
+
+        public async Task<LoginResult> LoginAsync(LoginRequest request)
         {
             _logger.LogTrace("LoginAsync");
             _logger.LogInformation("Starting authentication request.");
 
+            // fallback to defaults 
+            if (request == null) request = new LoginRequest();
+
             await EnsureConfigurationAsync();
-            var authorizeResult = await _authorizeClient.AuthorizeAsync(displayMode, timeout, extraParameters);
+            var authorizeResult = await _authorizeClient.AuthorizeAsync(request.BrowserDisplayMode, request.BrowserTimeout, request.FrontChannelExtraParameters);
 
             if (authorizeResult.IsError)
             {
                 return new LoginResult(authorizeResult.Error);
             }
 
-            var result = await ProcessResponseAsync(authorizeResult.Data, authorizeResult.State);
+            var result = await ProcessResponseAsync(authorizeResult.Data, authorizeResult.State, request.BackChannelExtraParameters);
 
             if (!result.IsError)
             {
@@ -95,7 +109,7 @@ namespace IdentityModel.OidcClient
         /// <param name="data">The response data.</param>
         /// <param name="state">The state.</param>
         /// <returns>Result of the login response validation</returns>
-        public async Task<LoginResult> ProcessResponseAsync(string data, AuthorizeState state)
+        public async Task<LoginResult> ProcessResponseAsync(string data, AuthorizeState state, object extraParameters = null)
         {
             _logger.LogTrace("ProcessResponseAsync");
             _logger.LogInformation("Processing response.");
@@ -111,7 +125,7 @@ namespace IdentityModel.OidcClient
                 return new LoginResult(authorizeResponse.Error);
             }
 
-            var result = await _processor.ProcessResponseAsync(authorizeResponse, state);
+            var result = await _processor.ProcessResponseAsync(authorizeResponse, state, extraParameters);
             if (result.IsError)
             {
                 _logger.LogError(result.Error);
@@ -212,13 +226,13 @@ namespace IdentityModel.OidcClient
         /// </summary>
         /// <param name="refreshToken">The refresh token.</param>
         /// <returns>A token response.</returns>
-        public async Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken)
+        public async Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken, object extraParameters = null)
         {
             _logger.LogTrace("RefreshTokenAsync");
 
             await EnsureConfigurationAsync();
             var client = TokenClientFactory.Create(_options);
-            var response = await client.RequestRefreshTokenAsync(refreshToken);
+            var response = await client.RequestRefreshTokenAsync(refreshToken, extra: extraParameters);
 
             if (response.IsError)
             {
