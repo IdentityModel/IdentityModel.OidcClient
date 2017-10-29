@@ -4,6 +4,7 @@
 
 using IdentityModel.OidcClient.Browser;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -69,6 +70,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The browser.
         /// </value>
+        [JsonIgnore]
         public IBrowser Browser { get; set; }
 
         /// <summary>
@@ -141,6 +143,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The handler.
         /// </value>
+        [JsonIgnore]
         public HttpMessageHandler RefreshTokenInnerHttpHandler { get; set; } = new HttpClientHandler();
 
         /// <summary>
@@ -149,6 +152,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The backchannel handler.
         /// </value>
+        [JsonIgnore]
         public HttpMessageHandler BackchannelHandler { get; set; } = new HttpClientHandler();
 
         /// <summary>
@@ -181,6 +185,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The logger factory.
         /// </value>
+        [JsonIgnore]
         public ILoggerFactory LoggerFactory { get; } = new LoggerFactory();
 
         /// <summary>
@@ -217,10 +222,5 @@ namespace IdentityModel.OidcClient
             FormPost,
             Redirect
         }
-
-        // disable json serialization
-        public bool ShouldSerializeBrowser() => false;
-        public bool ShouldSerializeBackchannelHandler() => false;
-        public bool ShouldSerializeLoggerFactory() => false;
     }
 }
