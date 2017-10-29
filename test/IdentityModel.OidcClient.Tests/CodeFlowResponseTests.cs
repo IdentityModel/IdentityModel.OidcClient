@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Xunit;
@@ -61,6 +62,49 @@ namespace IdentityModel.OidcClient.Tests
             result.AccessToken.Should().Be("token");
             result.IdentityToken.Should().NotBeNull();
             result.User.Should().NotBeNull();
+        }
+
+        [Fact]
+        public async Task extra_parameters_on_backchannel_should_be_sent()
+        {
+            var client = new OidcClient(_options);
+            var state = await client.PrepareLoginAsync();
+
+            var url = $"?state={state.State}&nonce={state.Nonce}&code=bar";
+            var key = Crypto.CreateKey();
+            var idToken = Crypto.CreateJwt(key, "https://authority", "client",
+                new Claim("at_hash", Crypto.HashData("token")),
+                new Claim("sub", "123"),
+                new Claim("nonce", state.Nonce));
+
+            var tokenResponse = new Dictionary<string, object>
+            {
+                { "access_token", "token" },
+                { "expires_in", 300 },
+                { "id_token", idToken },
+                { "refresh_token", "refresh_token" }
+            };
+
+            _options.ProviderInformation.KeySet = Crypto.CreateKeySet(key);
+            var handler = new NetworkHandler(JsonConvert.SerializeObject(tokenResponse), HttpStatusCode.OK);
+            _options.BackchannelHandler = handler;
+
+            var extra = new
+            {
+                foo = "foo",
+                bar = "bar"
+            };
+
+            var result = await client.ProcessResponseAsync(url, state, extra);
+
+            result.IsError.Should().BeFalse();
+            result.AccessToken.Should().Be("token");
+            result.IdentityToken.Should().NotBeNull();
+            result.User.Should().NotBeNull();
+
+            var body = handler.Body;
+            body.Should().Contain("foo=foo");
+            body.Should().Contain("bar=bar");
         }
 
         [Fact]

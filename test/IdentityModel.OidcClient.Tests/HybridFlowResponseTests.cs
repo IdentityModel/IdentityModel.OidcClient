@@ -82,6 +82,56 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
+        public async Task extra_parameters_on_backchannel_should_be_sent()
+        {
+            var client = new OidcClient(_options);
+            var state = await client.PrepareLoginAsync();
+
+            var key = Crypto.CreateKey();
+            var frontChannelJwt = Crypto.CreateJwt(key, "https://authority", "client",
+                new Claim("sub", "123"),
+                new Claim("nonce", state.Nonce),
+                new Claim("c_hash", Crypto.HashData("code")));
+
+            var url = $"?state={state.State}&nonce={state.Nonce}&code=code&id_token={frontChannelJwt}";
+
+            var backChannelJwt = Crypto.CreateJwt(key, "https://authority", "client",
+                new Claim("at_hash", Crypto.HashData("token")),
+                new Claim("sub", "123"),
+                new Claim("nonce", state.Nonce));
+
+            var tokenResponse = new Dictionary<string, object>
+            {
+                { "access_token", "token" },
+                { "expires_in", 300 },
+                { "id_token", backChannelJwt },
+                { "refresh_token", "refresh_token" }
+            };
+
+            _options.ProviderInformation.KeySet = Crypto.CreateKeySet(key);
+            var handler = new NetworkHandler(JsonConvert.SerializeObject(tokenResponse), HttpStatusCode.OK);
+            _options.BackchannelHandler = handler;
+
+            var extra = new
+            {
+                foo = "foo",
+                bar = "bar"
+            };
+
+            var result = await client.ProcessResponseAsync(url, state, extra);
+
+            result.IsError.Should().BeFalse();
+            result.AccessToken.Should().Be("token");
+            result.IdentityToken.Should().NotBeNull();
+            result.User.Should().NotBeNull();
+
+            var body = handler.Body;
+            body.Should().Contain("foo=foo");
+            body.Should().Contain("bar=bar");
+        }
+
+
+        [Fact]
         public async Task invalid_nonce_should_fail()
         {
             var client = new OidcClient(_options);
