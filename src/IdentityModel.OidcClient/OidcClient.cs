@@ -187,8 +187,10 @@ namespace IdentityModel.OidcClient
             if (accessToken.IsMissing()) throw new ArgumentNullException(nameof(accessToken));
             if (!_options.ProviderInformation.SupportsUserInfo) throw new InvalidOperationException("No userinfo endpoint specified");
 
-            var userInfoClient = new UserInfoClient(_options.ProviderInformation.UserInfoEndpoint, _options.BackchannelHandler);
-            userInfoClient.Timeout = _options.BackchannelTimeout;
+            var userInfoClient = new UserInfoClient(_options.ProviderInformation.UserInfoEndpoint, _options.BackchannelHandler)
+            {
+                Timeout = _options.BackchannelTimeout
+            };
 
             var userInfoResponse = await userInfoClient.GetAsync(accessToken);
             if (userInfoResponse.IsError)
