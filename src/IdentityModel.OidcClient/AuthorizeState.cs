@@ -40,7 +40,7 @@ namespace IdentityModel.OidcClient
         /// The code verifier.
         /// </value>
         public string CodeVerifier { get; set; }
-        
+
         /// <summary>
         /// Gets or sets the redirect URI.
         /// </summary>
@@ -48,5 +48,13 @@ namespace IdentityModel.OidcClient
         /// The redirect URI.
         /// </value>
         public string RedirectUri { get; set; }
+
+        /// <summary>
+        /// Gets or sets the extra parameters.
+        /// </summary>
+        /// <value>
+        /// The extra parameters.
+        /// </value>
+        public object ExtraParameters { get; set; }
     }
 }
