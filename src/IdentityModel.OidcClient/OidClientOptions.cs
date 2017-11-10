@@ -214,7 +214,8 @@ namespace IdentityModel.OidcClient
         public enum AuthenticationFlow
         {
             AuthorizationCode,
-            Hybrid
+            Implicit,
+            Hybrid,
         }
 
         public enum AuthorizeResponseMode
@@ -222,5 +223,15 @@ namespace IdentityModel.OidcClient
             FormPost,
             Redirect
         }
+
+        /// <summary>
+        /// The claim type to use for name claims.
+        /// </summary>
+        public string NameClaimType { get; set; } = JwtClaimTypes.Name;
+
+        /// <summary>
+        /// The claim type to use for role claims.
+        /// </summary>
+        public string RoleClaimType { get; set; } = JwtClaimTypes.Role;
     }
 }

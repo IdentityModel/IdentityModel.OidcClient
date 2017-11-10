@@ -35,7 +35,7 @@ namespace IdentityModel.OidcClient
             // validate common front-channel parameters
             //////////////////////////////////////////////////////
 
-            if (string.IsNullOrEmpty(authorizeResponse.Code))
+            if (_options.Flow != OidcClientOptions.AuthenticationFlow.Implicit && string.IsNullOrEmpty(authorizeResponse.Code))
             {
                 return new ResponseValidationResult("Missing authorization code.");
             }
@@ -54,6 +54,8 @@ namespace IdentityModel.OidcClient
             {
                 case OidcClientOptions.AuthenticationFlow.AuthorizationCode:
                     return await ProcessCodeFlowResponseAsync(authorizeResponse, state, extraParameters);
+                case OidcClientOptions.AuthenticationFlow.Implicit:
+                    return await ProcessImplicitFlowResponseAsync(authorizeResponse, state, extraParameters);
                 case OidcClientOptions.AuthenticationFlow.Hybrid:
                     return await ProcessHybridFlowResponseAsync(authorizeResponse, state, extraParameters);
                 default:
@@ -137,6 +139,59 @@ namespace IdentityModel.OidcClient
                 AuthorizeResponse = authorizeResponse,
                 TokenResponse = tokenResponse,
                 User = tokenResponseValidationResult.IdentityTokenValidationResult.User
+            };
+        }
+
+        private async Task<ResponseValidationResult> ProcessImplicitFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state, object extraParameters = null)
+        {
+            _logger.LogTrace("ProcessImplicitFlowResponseAsync");
+
+            // id_token must be present
+            if (authorizeResponse.IdentityToken.IsMissing())
+            {
+                return new ResponseValidationResult("Missing identity token.");
+            }
+
+            // access token must be present
+            if (authorizeResponse.AccessToken.IsMissing())
+            {
+                return new ResponseValidationResult("Access token is missing on token response.");
+            }
+
+            // id_token must be valid
+            var validationResult = await _tokenValidator.ValidateAsync(authorizeResponse.IdentityToken);
+            if (validationResult.IsError)
+            {
+                return new ResponseValidationResult(validationResult.Error ?? "Identity token validation error.");
+            }
+
+            // nonce must be valid
+            if (!ValidateNonce(state.Nonce, validationResult.User))
+            {
+                return new ResponseValidationResult("Invalid nonce.");
+            }
+
+            // validate at_hash
+            var atHash = validationResult.User.FindFirst(JwtClaimTypes.AccessTokenHash);
+            if (atHash == null)
+            {
+                if (_options.Policy.RequireAccessTokenHash)
+                {
+                    return new ResponseValidationResult("at_hash is missing.");
+                }
+            }
+            else
+            {
+                if (!_crypto.ValidateHash(authorizeResponse.AccessToken, atHash.Value, validationResult.SignatureAlgorithm))
+                {
+                    return new ResponseValidationResult("Invalid access token hash.");
+                }
+            }
+
+            return new ResponseValidationResult
+            {
+                AuthorizeResponse = authorizeResponse,
+                User = validationResult.User
             };
         }
 

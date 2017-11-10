@@ -41,8 +41,8 @@ namespace IdentityModel.OidcClient
                 ValidIssuer = _options.ProviderInformation.IssuerName,
                 ValidAudience = _options.ClientId,
 
-                NameClaimType = JwtClaimTypes.Name,
-                RoleClaimType = JwtClaimTypes.Role,
+                NameClaimType = _options.NameClaimType,
+                RoleClaimType = _options.RoleClaimType,
 
                 ClockSkew = _options.ClockSkew
             };

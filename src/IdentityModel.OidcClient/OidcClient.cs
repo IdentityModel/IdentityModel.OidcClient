@@ -135,7 +135,7 @@ namespace IdentityModel.OidcClient
             var userInfoClaims = Enumerable.Empty<Claim>();
             if (_options.LoadProfile)
             {
-                var userInfoResult = await GetUserInfoAsync(result.TokenResponse.AccessToken);
+                var userInfoResult = await GetUserInfoAsync(result.TokenResponse?.AccessToken ?? result.AuthorizeResponse.AccessToken);
                 if (userInfoResult.IsError)
                 {
                     var error = $"Error contacting userinfo endpoint: {userInfoResult.Error}";
@@ -169,10 +169,10 @@ namespace IdentityModel.OidcClient
             var loginResult = new LoginResult
             {
                 User = user,
-                AccessToken = result.TokenResponse.AccessToken,
-                RefreshToken = result.TokenResponse.RefreshToken,
-                AccessTokenExpiration = DateTime.Now.AddSeconds(result.TokenResponse.ExpiresIn),
-                IdentityToken = result.TokenResponse.IdentityToken,
+                AccessToken = result.TokenResponse?.AccessToken ?? result.AuthorizeResponse.AccessToken,
+                RefreshToken = result.TokenResponse?.RefreshToken,
+                AccessTokenExpiration = DateTime.Now.AddSeconds(result.TokenResponse?.ExpiresIn ?? result.AuthorizeResponse.ExpiresIn),
+                IdentityToken = result.TokenResponse?.IdentityToken ?? result.AuthorizeResponse.IdentityToken,
                 AuthenticationTime = DateTime.Now
             };
 
@@ -291,7 +291,7 @@ namespace IdentityModel.OidcClient
                 var client = new DiscoveryClient(_options.Authority, _options.BackchannelHandler)
                 {
                     Policy = _options.Policy.Discovery,
-                    Timeout = _options.BackchannelTimeout
+                    Timeout = _options.BackchannelTimeout,
                 };
 
                 var disco = await client.GetAsync().ConfigureAwait(false);
