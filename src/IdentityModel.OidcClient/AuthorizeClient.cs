@@ -72,17 +72,17 @@ namespace IdentityModel.OidcClient
         {
             _logger.LogTrace("CreateAuthorizeStateAsync");
 
-            var pkce = _crypto.CreatePkceData();
+            var pkce = _options.Flow != OidcClientOptions.AuthenticationFlow.Implicit ? _crypto.CreatePkceData() : null;
 
             var state = new AuthorizeState
             {
                 Nonce = _crypto.CreateNonce(),
                 State = _crypto.CreateState(),
                 RedirectUri = _options.RedirectUri,
-                CodeVerifier = pkce.CodeVerifier,
+                CodeVerifier = pkce?.CodeVerifier,
             };
 
-            state.StartUrl = CreateUrl(state.State, state.Nonce, pkce.CodeChallenge, extraParameters);
+            state.StartUrl = CreateUrl(state.State, state.Nonce, pkce?.CodeChallenge, extraParameters);
 
             _logger.LogDebug(LogSerializer.Serialize(state));
 
@@ -124,10 +124,13 @@ namespace IdentityModel.OidcClient
                 { OidcConstants.AuthorizeRequest.ResponseType, responseType },
                 { OidcConstants.AuthorizeRequest.Nonce, nonce },
                 { OidcConstants.AuthorizeRequest.State, state },
-                { OidcConstants.AuthorizeRequest.CodeChallenge, codeChallenge },
-                { OidcConstants.AuthorizeRequest.CodeChallengeMethod, OidcConstants.CodeChallengeMethods.Sha256 },
             };
 
+            if(!string.IsNullOrEmpty(codeChallenge))
+            {
+                parameters.Add(OidcConstants.AuthorizeRequest.CodeChallenge, codeChallenge);
+                parameters.Add(OidcConstants.AuthorizeRequest.CodeChallengeMethod, OidcConstants.CodeChallengeMethods.Sha256);
+            }
             if (_options.ClientId.IsPresent())
             {
                 parameters.Add(OidcConstants.AuthorizeRequest.ClientId, _options.ClientId);
