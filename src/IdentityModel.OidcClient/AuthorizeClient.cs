@@ -109,6 +109,9 @@ namespace IdentityModel.OidcClient
                 case OidcClientOptions.AuthenticationFlow.AuthorizationCode:
                     responseType = OidcConstants.ResponseTypes.Code;
                     break;
+                case OidcClientOptions.AuthenticationFlow.Implicit:
+                    responseType = OidcConstants.ResponseTypes.IdTokenToken;
+                    break;
                 case OidcClientOptions.AuthenticationFlow.Hybrid:
                     responseType = OidcConstants.ResponseTypes.CodeIdToken;
                     break;
