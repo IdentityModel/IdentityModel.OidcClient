@@ -1,4 +1,8 @@
-﻿using FluentAssertions;
+﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
+
+using FluentAssertions;
 using Xunit;
 
 namespace IdentityModel.OidcClient.Tests
@@ -19,7 +23,7 @@ namespace IdentityModel.OidcClient.Tests
             };
 
             var client = new AuthorizeClient(options);
-            var parameters = client.CreateParameters("state", "nonce", "code_challenge", null);
+            var parameters = client.CreateAuthorizeParameters("state", "nonce", "code_challenge", null);
 
             parameters.Should().Contain("client_id", "client_id");
             parameters.Should().Contain("scope", "openid");
@@ -54,7 +58,7 @@ namespace IdentityModel.OidcClient.Tests
             };
 
             var client = new AuthorizeClient(options);
-            var parameters = client.CreateParameters("state", "nonce", "code_challenge", extra);
+            var parameters = client.CreateAuthorizeParameters("state", "nonce", "code_challenge", extra);
 
             parameters.Should().Contain("client_id", "client_id2");
             parameters.Should().Contain("scope", "openid extra");
@@ -85,7 +89,7 @@ namespace IdentityModel.OidcClient.Tests
             };
 
             var client = new AuthorizeClient(options);
-            var parameters = client.CreateParameters("state", "nonce", "code_challenge", extra);
+            var parameters = client.CreateAuthorizeParameters("state", "nonce", "code_challenge", extra);
 
             parameters.Should().Contain("client_id", "client_id2");
             parameters.Should().Contain("scope", "openid extra");
