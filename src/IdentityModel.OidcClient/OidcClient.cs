@@ -90,6 +90,13 @@ namespace IdentityModel.OidcClient
             return result;
         }
 
+        public async Task LogoutAsync(LogoutRequest request = null)
+        {
+            if (request == null) request = new LogoutRequest();
+
+            await _authorizeClient.EndSessionAsync(request);
+        }
+
         /// <summary>
         /// Prepares the login request.
         /// </summary>
