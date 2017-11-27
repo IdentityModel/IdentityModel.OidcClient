@@ -65,6 +65,14 @@ namespace IdentityModel.OidcClient
         public string RedirectUri { get; set; }
 
         /// <summary>
+        /// Gets or sets the post logout redirect URI.
+        /// </summary>
+        /// <value>
+        /// The post logout redirect URI.
+        /// </value>
+        public string PostLogoutRedirectUri { get; set; }
+
+        /// <summary>
         /// Gets or sets the browser implementation.
         /// </summary>
         /// <value>

@@ -68,6 +68,25 @@ namespace IdentityModel.OidcClient
             return result;
         }
 
+        public async Task EndSessionAsync(LogoutRequest request)
+        {
+            var endpoint = _options.ProviderInformation.EndSessionEndpoint;
+            if (endpoint.IsMissing())
+            {
+                throw new InvalidOperationException("Discovery document has no end session endpoint");
+            }
+
+            var url = CreateEndSessionUrl(endpoint, request);
+
+            var browserOptions = new BrowserOptions(url, _options.PostLogoutRedirectUri ?? string.Empty)
+            {
+                Timeout = TimeSpan.FromSeconds(request.BrowserTimeout),
+                DisplayMode = request.BrowserDisplayMode
+            };
+
+            var browserResult = await _options.Browser.InvokeAsync(browserOptions);
+        }
+
         public AuthorizeState CreateAuthorizeState(object extraParameters = null)
         {
             _logger.LogTrace("CreateAuthorizeStateAsync");
@@ -82,26 +101,42 @@ namespace IdentityModel.OidcClient
                 CodeVerifier = pkce.CodeVerifier,
             };
 
-            state.StartUrl = CreateUrl(state.State, state.Nonce, pkce.CodeChallenge, extraParameters);
+            state.StartUrl = CreateAuthorizeUrl(state.State, state.Nonce, pkce.CodeChallenge, extraParameters);
 
             _logger.LogDebug(LogSerializer.Serialize(state));
 
             return state;
         }
 
-        internal string CreateUrl(string state, string nonce, string codeChallenge, object extraParameters)
+        internal string CreateAuthorizeUrl(string state, string nonce, string codeChallenge, object extraParameters)
         {
-            _logger.LogTrace("CreateUrl");
+            _logger.LogTrace("CreateAuthorizeUrl");
 
-            var parameters = CreateParameters(state, nonce, codeChallenge, extraParameters);
+            var parameters = CreateAuthorizeParameters(state, nonce, codeChallenge, extraParameters);
             var request = new AuthorizeRequest(_options.ProviderInformation.AuthorizeEndpoint);
 
             return request.Create(parameters);
         }
 
-        internal Dictionary<string, string> CreateParameters(string state, string nonce, string codeChallenge, object extraParameters)
+        internal string CreateEndSessionUrl(string endpoint, LogoutRequest request)
         {
-            _logger.LogTrace("CreateParameters");
+            var parameters = new Dictionary<string, string>();
+
+            if (request.IdTokenHint.IsPresent())
+            {
+                parameters.Add(OidcConstants.EndSessionRequest.IdTokenHint, request.IdTokenHint);
+            }
+            if (_options.PostLogoutRedirectUri.IsPresent())
+            {
+                parameters.Add(OidcConstants.EndSessionRequest.PostLogoutRedirectUri, _options.PostLogoutRedirectUri);
+            }
+
+            return new AuthorizeRequest(endpoint).Create(parameters);
+        }
+
+        internal Dictionary<string, string> CreateAuthorizeParameters(string state, string nonce, string codeChallenge, object extraParameters)
+        {
+            _logger.LogTrace("CreateAuthorizeParameters");
 
             string responseType = null;
             switch (_options.Flow)
@@ -173,8 +208,10 @@ namespace IdentityModel.OidcClient
                 return null;
             }
 
-            var dictionary = values as Dictionary<string, string>;
-            if (dictionary != null) return dictionary;
+            if (values is Dictionary<string, string> dictionary)
+            {
+                return dictionary;
+            }
 
             dictionary = new Dictionary<string, string>();
 
