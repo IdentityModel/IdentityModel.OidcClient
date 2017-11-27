@@ -131,7 +131,8 @@ namespace IdentityModel.OidcClient
                 parameters.Add(OidcConstants.EndSessionRequest.PostLogoutRedirectUri, _options.PostLogoutRedirectUri);
             }
 
-            return new AuthorizeRequest(endpoint).Create(parameters);
+            // workaround bug in IdentityModel
+            return new AuthorizeRequest(endpoint).Create(parameters).TrimEnd('?');
         }
 
         internal Dictionary<string, string> CreateAuthorizeParameters(string state, string nonce, string codeChallenge, object extraParameters)
