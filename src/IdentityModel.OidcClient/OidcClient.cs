@@ -258,7 +258,10 @@ namespace IdentityModel.OidcClient
         /// Refreshes an access token.
         /// </summary>
         /// <param name="refreshToken">The refresh token.</param>
-        /// <returns>A token response.</returns>
+        /// <param name="extraParameters">The extra parameters.</param>
+        /// <returns>
+        /// A token response.
+        /// </returns>
         public async Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken, object extraParameters = null)
         {
             _logger.LogTrace("RefreshTokenAsync");
