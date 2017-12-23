@@ -55,7 +55,7 @@ namespace ConsoleClientWithBrowser
             options.LoggerFactory.AddSerilog(serilog);
 
             _oidcClient = new OidcClient(options);
-            var result = await _oidcClient.LoginAsync();
+            var result = await _oidcClient.LoginAsync(new LoginRequest());
 
             ShowResult(result);
             await NextSteps(result);

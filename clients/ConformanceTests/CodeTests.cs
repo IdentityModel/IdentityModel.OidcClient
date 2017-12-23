@@ -38,7 +38,7 @@ namespace ConformanceTests
             options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
             
             var client = new OidcClient(options);
-            var result = await client.LoginAsync();
+            var result = await client.LoginAsync(new LoginRequest());
 
             result.IsError.Should().BeFalse();
             helper.ShowResult(result);
@@ -54,7 +54,7 @@ namespace ConformanceTests
             options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
 
             var client = new OidcClient(options);
-            var result = await client.LoginAsync();
+            var result = await client.LoginAsync(new LoginRequest());
 
             result.IsError.Should().BeFalse();
             helper.ShowResult(result);
@@ -70,7 +70,7 @@ namespace ConformanceTests
             options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
 
             var client = new OidcClient(options);
-            var result = await client.LoginAsync();
+            var result = await client.LoginAsync(new LoginRequest());
 
             result.IsError.Should().BeTrue();
             helper.ShowResult(result);
@@ -86,7 +86,7 @@ namespace ConformanceTests
             options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
 
             var client = new OidcClient(options);
-            var result = await client.LoginAsync();
+            var result = await client.LoginAsync(new LoginRequest());
 
             result.IsError.Should().BeFalse();
             helper.ShowResult(result);
@@ -103,7 +103,7 @@ namespace ConformanceTests
             options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
 
             var client = new OidcClient(options);
-            var result = await client.LoginAsync();
+            var result = await client.LoginAsync(new LoginRequest());
 
             result.IsError.Should().BeTrue();
             helper.ShowResult(result);
@@ -120,7 +120,7 @@ namespace ConformanceTests
             options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
 
             var client = new OidcClient(options);
-            var result = await client.LoginAsync();
+            var result = await client.LoginAsync(new LoginRequest());
 
             result.IsError.Should().BeFalse();
             helper.ShowResult(result);
@@ -140,7 +140,7 @@ namespace ConformanceTests
             options.Policy.RequireIdentityTokenSignature = false;
 
             var client = new OidcClient(options);
-            var result = await client.LoginAsync();
+            var result = await client.LoginAsync(new LoginRequest());
 
             result.IsError.Should().BeFalse();
             helper.ShowResult(result);
@@ -157,7 +157,7 @@ namespace ConformanceTests
             options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
 
             var client = new OidcClient(options);
-            var result = await client.LoginAsync();
+            var result = await client.LoginAsync(new LoginRequest());
 
             result.IsError.Should().BeTrue();
             helper.ShowResult(result);
@@ -176,7 +176,7 @@ namespace ConformanceTests
             options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
 
             var client = new OidcClient(options);
-            var result = await client.LoginAsync();
+            var result = await client.LoginAsync(new LoginRequest());
 
             result.IsError.Should().BeFalse();
             helper.ShowResult(result);
@@ -193,7 +193,7 @@ namespace ConformanceTests
             options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
 
             var client = new OidcClient(options);
-            var result = await client.LoginAsync();
+            var result = await client.LoginAsync(new LoginRequest());
 
             result.IsError.Should().BeTrue();
             helper.ShowResult(result);
@@ -210,7 +210,7 @@ namespace ConformanceTests
             options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
 
             var client = new OidcClient(options);
-            var result = await client.LoginAsync();
+            var result = await client.LoginAsync(new LoginRequest());
 
             result.IsError.Should().BeTrue();
             helper.ShowResult(result);
@@ -227,7 +227,7 @@ namespace ConformanceTests
             options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
 
             var client = new OidcClient(options);
-            var result = await client.LoginAsync();
+            var result = await client.LoginAsync(new LoginRequest());
 
             result.IsError.Should().BeFalse();
             helper.ShowResult(result);
@@ -244,7 +244,7 @@ namespace ConformanceTests
             options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
 
             var client = new OidcClient(options);
-            var result = await client.LoginAsync();
+            var result = await client.LoginAsync(new LoginRequest());
 
             result.IsError.Should().BeTrue();
             helper.ShowResult(result);
@@ -261,7 +261,7 @@ namespace ConformanceTests
             options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
 
             var client = new OidcClient(options);
-            var result = await client.LoginAsync();
+            var result = await client.LoginAsync(new LoginRequest());
 
             result.IsError.Should().BeTrue();
             helper.ShowResult(result);
@@ -278,7 +278,7 @@ namespace ConformanceTests
             options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
 
             var client = new OidcClient(options);
-            var result = await client.LoginAsync();
+            var result = await client.LoginAsync(new LoginRequest());
 
             result.IsError.Should().BeFalse();
             helper.ShowResult(result);
