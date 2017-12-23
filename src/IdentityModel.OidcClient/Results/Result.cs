@@ -1,8 +1,28 @@
-﻿namespace IdentityModel.OidcClient
+﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
+
+namespace IdentityModel.OidcClient
 {
-    public class Result
+    /// <summary>
+    /// Base class for results.
+    /// </summary>
+    public abstract class Result
     {
+        /// <summary>
+        /// Gets a value indicating whether this instance is error.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is error; otherwise, <c>false</c>.
+        /// </value>
         public bool IsError => Error.IsPresent();
+
+        /// <summary>
+        /// Gets or sets the error.
+        /// </summary>
+        /// <value>
+        /// The error.
+        /// </value>
         public string Error { get; set; }
     }
 }

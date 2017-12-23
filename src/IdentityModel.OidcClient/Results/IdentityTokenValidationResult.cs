@@ -6,7 +6,7 @@ using System.Security.Claims;
 
 namespace IdentityModel.OidcClient.Results
 {
-    public class IdentityTokenValidationResult : Result
+    internal class IdentityTokenValidationResult : Result
     {
         public ClaimsPrincipal User { get; set; }
         public string SignatureAlgorithm { get; set; }

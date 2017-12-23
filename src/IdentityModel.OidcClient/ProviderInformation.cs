@@ -69,7 +69,20 @@ namespace IdentityModel.OidcClient
         public IEnumerable<string> TokenEndPointAuthenticationMethods { get; set; } = new string[] { };
 
 
+        /// <summary>
+        /// Gets a value indicating whether [supports user information].
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [supports user information]; otherwise, <c>false</c>.
+        /// </value>
         public bool SupportsUserInfo => UserInfoEndpoint.IsPresent();
+        
+        /// <summary>
+        /// Gets a value indicating whether [supports end session].
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [supports end session]; otherwise, <c>false</c>.
+        /// </value>
         public bool SupportsEndSession => EndSessionEndpoint.IsPresent();
     }
 }

@@ -6,8 +6,16 @@ using System.Threading.Tasks;
 
 namespace IdentityModel.OidcClient.Browser
 {
+    /// <summary>
+    /// Models a browser
+    /// </summary>
     public interface IBrowser
     {
+        /// <summary>
+        /// Invokes the browser.
+        /// </summary>
+        /// <param name="options">The options.</param>
+        /// <returns></returns>
         Task<BrowserResult> InvokeAsync(BrowserOptions options);
     }
 }

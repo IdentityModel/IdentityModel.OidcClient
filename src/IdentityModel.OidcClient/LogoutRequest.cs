@@ -6,11 +6,33 @@ using IdentityModel.OidcClient.Browser;
 
 namespace IdentityModel.OidcClient
 {
+    /// <summary>
+    /// A logout request
+    /// </summary>
     public class LogoutRequest
     {
+        /// <summary>
+        /// Gets or sets the browser display mode.
+        /// </summary>
+        /// <value>
+        /// The browser display mode.
+        /// </value>
         public DisplayMode BrowserDisplayMode { get; set; } = DisplayMode.Visible;
+
+        /// <summary>
+        /// Gets or sets the browser timeout.
+        /// </summary>
+        /// <value>
+        /// The browser timeout.
+        /// </value>
         public int BrowserTimeout { get; set; } = 300;
 
+        /// <summary>
+        /// Gets or sets the id_token_hint.
+        /// </summary>
+        /// <value>
+        /// The identifier token hint.
+        /// </value>
         public string IdTokenHint { get; set; }
     }
 }

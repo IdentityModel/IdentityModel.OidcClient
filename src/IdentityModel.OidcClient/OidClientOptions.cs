@@ -221,13 +221,28 @@ namespace IdentityModel.OidcClient
         /// </summary>
         public enum AuthenticationFlow
         {
+            /// <summary>
+            /// authorization code
+            /// </summary>
             AuthorizationCode,
+            /// <summary>
+            /// hybrid
+            /// </summary>
             Hybrid
         }
 
+        /// <summary>
+        /// The response mode
+        /// </summary>
         public enum AuthorizeResponseMode
         {
+            /// <summary>
+            /// form post
+            /// </summary>
             FormPost,
+            /// <summary>
+            /// redirect
+            /// </summary>
             Redirect
         }
     }

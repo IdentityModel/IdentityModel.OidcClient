@@ -27,6 +27,12 @@ namespace IdentityModel.OidcClient
         private readonly bool useDiscovery;
         private readonly ResponseProcessor _processor;
 
+        /// <summary>
+        /// Gets the options.
+        /// </summary>
+        /// <value>
+        /// The options.
+        /// </value>
         public OidcClientOptions Options
         {
             get { return _options; }
@@ -53,6 +59,13 @@ namespace IdentityModel.OidcClient
             _processor = new ResponseProcessor(options, EnsureProviderInformationAsync);
         }
 
+        /// <summary>
+        /// Starts a login.
+        /// </summary>
+        /// <param name="displayMode">The browser display mode.</param>
+        /// <param name="timeout">The browser timeout.</param>
+        /// <param name="extraParameters">The extra parameters.</param>
+        /// <returns></returns>
         [Obsolete("This method will be removed in a future version. Please change your code to use LoginRequest")]
         public async Task<LoginResult> LoginAsync(DisplayMode displayMode = DisplayMode.Visible, int timeout = 300, object extraParameters = null)
         {
@@ -64,6 +77,11 @@ namespace IdentityModel.OidcClient
             });
         }
 
+        /// <summary>
+        /// Starts a login.
+        /// </summary>
+        /// <param name="request">The login request.</param>
+        /// <returns></returns>
         public async Task<LoginResult> LoginAsync(LoginRequest request)
         {
             _logger.LogTrace("LoginAsync");
@@ -90,6 +108,11 @@ namespace IdentityModel.OidcClient
             return result;
         }
 
+        /// <summary>
+        /// Starts a logout.
+        /// </summary>
+        /// <param name="request">The logout request.</param>
+        /// <returns></returns>
         public async Task LogoutAsync(LogoutRequest request = null)
         {
             if (request == null) request = new LogoutRequest();
@@ -115,7 +138,10 @@ namespace IdentityModel.OidcClient
         /// </summary>
         /// <param name="data">The response data.</param>
         /// <param name="state">The state.</param>
-        /// <returns>Result of the login response validation</returns>
+        /// <param name="extraParameters">The extra parameters.</param>
+        /// <returns>
+        /// Result of the login response validation
+        /// </returns>
         public async Task<LoginResult> ProcessResponseAsync(string data, AuthorizeState state, object extraParameters = null)
         {
             _logger.LogTrace("ProcessResponseAsync");
