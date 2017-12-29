@@ -100,7 +100,7 @@ namespace ConsoleClientWithBrowser
                 if (key.Key == ConsoleKey.R)
                 {
                     var refreshResult = await _oidcClient.RefreshTokenAsync(currentRefreshToken);
-                    if (result.IsError)
+                    if (refreshResult.IsError)
                     {
                         Console.WriteLine($"Error: {refreshResult.Error}");
                     }
