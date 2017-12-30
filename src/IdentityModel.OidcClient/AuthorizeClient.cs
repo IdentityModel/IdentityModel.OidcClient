@@ -120,18 +120,11 @@ namespace IdentityModel.OidcClient
 
         internal string CreateEndSessionUrl(string endpoint, LogoutRequest request)
         {
-            var parameters = new Dictionary<string, string>();
+            _logger.LogTrace("CreateEndSessionUrl");
 
-            if (request.IdTokenHint.IsPresent())
-            {
-                parameters.Add(OidcConstants.EndSessionRequest.IdTokenHint, request.IdTokenHint);
-            }
-            if (_options.PostLogoutRedirectUri.IsPresent())
-            {
-                parameters.Add(OidcConstants.EndSessionRequest.PostLogoutRedirectUri, _options.PostLogoutRedirectUri);
-            }
-
-            return new RequestUrl(endpoint).Create(parameters);
+            return new RequestUrl(endpoint).CreateEndSessionUrl(
+                idTokenHint: request.IdTokenHint,
+                postLogoutRedirectUri: _options.PostLogoutRedirectUri);
         }
 
         internal Dictionary<string, string> CreateAuthorizeParameters(string state, string nonce, string codeChallenge, object extraParameters)
