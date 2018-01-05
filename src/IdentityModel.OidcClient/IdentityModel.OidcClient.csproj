@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <VersionPrefix>2.4.0</VersionPrefix>
-    <VersionSuffix>preview3</VersionSuffix>
+    <!--<VersionSuffix>preview3</VersionSuffix>-->
     <Authors>Dominick Baier;Brock Allen</Authors>
     <TargetFrameworks>net452;netstandard1.4;netstandard2.0</TargetFrameworks>
     <AssemblyName>IdentityModel.OidcClient</AssemblyName>
@@ -18,7 +18,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="IdentityModel" Version="3.0.0-ardbeg" />
+    <PackageReference Include="IdentityModel" Version="3.0.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.1.5" />
   </ItemGroup>
 

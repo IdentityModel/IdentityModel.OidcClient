@@ -21,8 +21,6 @@ namespace IdentityModel.OidcClient.Infrastructure
             }
 
             tokenClient.Timeout = options.BackchannelTimeout;
-            tokenClient.AuthenticationStyle = options.TokenClientAuthenticationStyle;
-
             return tokenClient;
         }
     }
