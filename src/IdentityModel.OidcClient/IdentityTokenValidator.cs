@@ -40,7 +40,7 @@ namespace IdentityModel.OidcClient
             {
                 ValidIssuer = _options.ProviderInformation.IssuerName,
                 ValidAudience = _options.ClientId,
-
+                ValidateIssuer = _options.Policy.Discovery.ValidateIssuerName,
                 NameClaimType = JwtClaimTypes.Name,
                 RoleClaimType = JwtClaimTypes.Role,
 
