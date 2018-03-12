@@ -109,6 +109,24 @@ namespace IdentityModel.OidcClient
         }
 
         /// <summary>
+        /// Creates a logout URL.
+        /// </summary>
+        /// <param name="request">The logout request.</param>
+        /// <returns></returns>
+        public string PrepareLogout(LogoutRequest request = null)
+        {
+            if (request == null) request = new LogoutRequest();
+
+            var endpoint = _options.ProviderInformation.EndSessionEndpoint;
+            if (endpoint.IsMissing())
+            {
+                throw new InvalidOperationException("Discovery document has no end session endpoint");
+            }
+
+            return _authorizeClient.CreateEndSessionUrl(endpoint, request);
+        }
+
+        /// <summary>
         /// Starts a logout.
         /// </summary>
         /// <param name="request">The logout request.</param>
