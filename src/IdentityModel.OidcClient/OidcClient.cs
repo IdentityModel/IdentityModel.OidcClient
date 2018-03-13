@@ -113,9 +113,10 @@ namespace IdentityModel.OidcClient
         /// </summary>
         /// <param name="request">The logout request.</param>
         /// <returns></returns>
-        public string PrepareLogout(LogoutRequest request = null)
+        public async Task<string> PrepareLogoutAsync(LogoutRequest request = null)
         {
             if (request == null) request = new LogoutRequest();
+            await EnsureConfigurationAsync();
 
             var endpoint = _options.ProviderInformation.EndSessionEndpoint;
             if (endpoint.IsMissing())
@@ -134,6 +135,7 @@ namespace IdentityModel.OidcClient
         public async Task LogoutAsync(LogoutRequest request = null)
         {
             if (request == null) request = new LogoutRequest();
+            await EnsureConfigurationAsync();
 
             await _authorizeClient.EndSessionAsync(request);
         }
