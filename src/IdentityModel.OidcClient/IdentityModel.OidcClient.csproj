@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>2.5.1</VersionPrefix>
-    <!--<VersionSuffix>preview3</VersionSuffix>-->
+    <VersionPrefix>2.6.0</VersionPrefix>
+    <VersionSuffix>preview-1</VersionSuffix>
     <Authors>Dominick Baier;Brock Allen</Authors>
     <TargetFrameworks>net452;netstandard1.4;netstandard2.0</TargetFrameworks>
     <AssemblyName>IdentityModel.OidcClient</AssemblyName>
@@ -18,7 +18,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="IdentityModel" Version="3.3.1" />
+    <PackageReference Include="IdentityModel" Version="3.4.1" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.2.1" />
   </ItemGroup>
 
@@ -32,8 +32,6 @@
   
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
     <PackageReference Include="Microsoft.Extensions.Logging" Version="1.1.2" />
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 
 </Project>

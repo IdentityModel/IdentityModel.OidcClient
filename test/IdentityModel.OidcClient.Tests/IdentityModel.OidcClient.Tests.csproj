@@ -15,7 +15,7 @@
     <PackageReference Include="FluentAssertions" Version="5.1.2" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
+  <!--<ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
@@ -23,5 +23,5 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
+  </ItemGroup>-->
 </Project>
