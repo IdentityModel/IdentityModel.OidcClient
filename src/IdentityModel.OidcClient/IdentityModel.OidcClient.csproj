@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <VersionPrefix>2.6.0</VersionPrefix>
-    <VersionSuffix>preview-1</VersionSuffix>
+    <!--<VersionSuffix>preview-1</VersionSuffix>-->
     <Authors>Dominick Baier;Brock Allen</Authors>
     <TargetFrameworks>net452;netstandard1.4;netstandard2.0</TargetFrameworks>
     <AssemblyName>IdentityModel.OidcClient</AssemblyName>
@@ -14,11 +14,11 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>git://github.com/identitymodel/identitymodel.oidcclient2</RepositoryUrl>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    
+
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="IdentityModel" Version="3.4.1" />
+    <PackageReference Include="IdentityModel" Version="3.5.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.2.1" />
   </ItemGroup>
 
@@ -29,7 +29,7 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />
   </ItemGroup>
-  
+
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
     <PackageReference Include="Microsoft.Extensions.Logging" Version="1.1.2" />
   </ItemGroup>
