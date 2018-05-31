@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>2.6.0</VersionPrefix>
+    <VersionPrefix>2.7.0</VersionPrefix>
     <!--<VersionSuffix>preview-1</VersionSuffix>-->
     <Authors>Dominick Baier;Brock Allen</Authors>
     <TargetFrameworks>net452;netstandard1.4;netstandard2.0</TargetFrameworks>
@@ -18,7 +18,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="IdentityModel" Version="3.5.0" />
+    <PackageReference Include="IdentityModel" Version="3.7.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.2.1" />
   </ItemGroup>
 
