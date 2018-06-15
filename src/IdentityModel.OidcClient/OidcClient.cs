@@ -18,7 +18,7 @@ namespace IdentityModel.OidcClient
     /// <summary>
     /// OpenID Connect client
     /// </summary>
-    public class OidcClient
+    public class OidcClient : IOidcClient
     {
         private readonly OidcClientOptions _options;
         private readonly ILogger _logger;
