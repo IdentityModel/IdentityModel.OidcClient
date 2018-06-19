@@ -6,8 +6,14 @@ namespace IdentityModel.OidcClient.Infrastructure
     /// <summary>
     /// Helper to JSON serialize object data for logging.
     /// </summary>
-    internal static class LogSerializer
+    public static class LogSerializer
     {
+        /// <summary>
+        /// Allows log serialization to be disabled, for example, for platforms
+        /// that don't support serialization of arbitarary objects to JSON.
+        /// </summary>
+        public static bool Enabled = true;
+
         static readonly JsonSerializerSettings jsonSettings = new JsonSerializerSettings
         {
             NullValueHandling = NullValueHandling.Ignore,
@@ -27,7 +33,7 @@ namespace IdentityModel.OidcClient.Infrastructure
         /// <returns></returns>
         public static string Serialize(object logObject)
         {
-            return JsonConvert.SerializeObject(logObject, jsonSettings);
+            return Enabled ? JsonConvert.SerializeObject(logObject, jsonSettings) : "Logging has been disabled";
         }
     }
 }
