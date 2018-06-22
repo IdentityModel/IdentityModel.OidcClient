@@ -16,7 +16,7 @@ namespace IdentityModel.OidcClient.Results
         /// <value>
         /// The identity token.
         /// </value>
-        public string IdentityToken { get; internal set; }
+        public virtual string IdentityToken { get; internal set; }
 
         /// <summary>
         /// Gets or sets the access token.
@@ -24,7 +24,7 @@ namespace IdentityModel.OidcClient.Results
         /// <value>
         /// The access token.
         /// </value>
-        public string AccessToken { get; internal set; }
+        public virtual string AccessToken { get; internal set; }
 
         /// <summary>
         /// Gets or sets the refresh token.
@@ -32,7 +32,7 @@ namespace IdentityModel.OidcClient.Results
         /// <value>
         /// The refresh token.
         /// </value>
-        public string RefreshToken { get; internal set; }
+        public virtual string RefreshToken { get; internal set; }
 
         /// <summary>
         /// Gets or sets the expires in.
@@ -40,6 +40,6 @@ namespace IdentityModel.OidcClient.Results
         /// <value>
         /// The expires in.
         /// </value>
-        public int ExpiresIn { get; internal set; }
+        public virtual int ExpiresIn { get; internal set; }
     }
 }

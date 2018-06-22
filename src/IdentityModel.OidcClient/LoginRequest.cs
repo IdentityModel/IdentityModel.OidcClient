@@ -17,7 +17,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The browser display mode.
         /// </value>
-        public DisplayMode BrowserDisplayMode { get; set; } = DisplayMode.Visible;
+        public virtual DisplayMode BrowserDisplayMode { get; set; } = DisplayMode.Visible;
 
         /// <summary>
         /// Gets or sets the browser timeout.
@@ -25,7 +25,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The browser timeout.
         /// </value>
-        public int BrowserTimeout { get; set; } = 300;
+        public virtual int BrowserTimeout { get; set; } = 300;
 
         /// <summary>
         /// Gets or sets the front channel extra parameters.
@@ -33,7 +33,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The front channel extra parameters.
         /// </value>
-        public object FrontChannelExtraParameters { get; set; }
+        public virtual object FrontChannelExtraParameters { get; set; }
 
         /// <summary>
         /// Gets or sets the back channel extra parameters.
@@ -41,6 +41,6 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The back channel extra parameters.
         /// </value>
-        public object BackChannelExtraParameters { get; set; }
+        public virtual object BackChannelExtraParameters { get; set; }
     }
 }

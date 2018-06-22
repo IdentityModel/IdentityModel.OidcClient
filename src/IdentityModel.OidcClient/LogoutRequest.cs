@@ -17,7 +17,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The browser display mode.
         /// </value>
-        public DisplayMode BrowserDisplayMode { get; set; } = DisplayMode.Visible;
+        public virtual DisplayMode BrowserDisplayMode { get; set; } = DisplayMode.Visible;
 
         /// <summary>
         /// Gets or sets the browser timeout.
@@ -25,7 +25,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The browser timeout.
         /// </value>
-        public int BrowserTimeout { get; set; } = 300;
+        public virtual int BrowserTimeout { get; set; } = 300;
 
         /// <summary>
         /// Gets or sets the id_token_hint.
@@ -33,6 +33,6 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The identifier token hint.
         /// </value>
-        public string IdTokenHint { get; set; }
+        public virtual string IdTokenHint { get; set; }
     }
 }
