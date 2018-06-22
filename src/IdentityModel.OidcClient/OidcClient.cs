@@ -67,7 +67,7 @@ namespace IdentityModel.OidcClient
         /// <param name="extraParameters">The extra parameters.</param>
         /// <returns></returns>
         [Obsolete("This method will be removed in a future version. Please change your code to use LoginRequest")]
-        public async Task<LoginResult> LoginAsync(DisplayMode displayMode = DisplayMode.Visible, int timeout = 300, object extraParameters = null)
+        public virtual async Task<LoginResult> LoginAsync(DisplayMode displayMode = DisplayMode.Visible, int timeout = 300, object extraParameters = null)
         {
             return await LoginAsync(new LoginRequest
             {
@@ -82,7 +82,7 @@ namespace IdentityModel.OidcClient
         /// </summary>
         /// <param name="request">The login request.</param>
         /// <returns></returns>
-        public async Task<LoginResult> LoginAsync(LoginRequest request)
+        public virtual async Task<LoginResult> LoginAsync(LoginRequest request)
         {
             _logger.LogTrace("LoginAsync");
             _logger.LogInformation("Starting authentication request.");
@@ -113,7 +113,7 @@ namespace IdentityModel.OidcClient
         /// </summary>
         /// <param name="request">The logout request.</param>
         /// <returns></returns>
-        public async Task<string> PrepareLogoutAsync(LogoutRequest request = null)
+        public virtual async Task<string> PrepareLogoutAsync(LogoutRequest request = null)
         {
             if (request == null) request = new LogoutRequest();
             await EnsureConfigurationAsync();
@@ -132,7 +132,7 @@ namespace IdentityModel.OidcClient
         /// </summary>
         /// <param name="request">The logout request.</param>
         /// <returns></returns>
-        public async Task LogoutAsync(LogoutRequest request = null)
+        public virtual async Task LogoutAsync(LogoutRequest request = null)
         {
             if (request == null) request = new LogoutRequest();
             await EnsureConfigurationAsync();
@@ -145,7 +145,7 @@ namespace IdentityModel.OidcClient
         /// </summary>
         /// <param name="extraParameters">extra parameters to send to the authorize endpoint.</param>
         /// <returns>State for initiating the authorize request and processing the response</returns>
-        public async Task<AuthorizeState> PrepareLoginAsync(object extraParameters = null)
+        public virtual async Task<AuthorizeState> PrepareLoginAsync(object extraParameters = null)
         {
             _logger.LogTrace("PrepareLoginAsync");
 
@@ -162,7 +162,7 @@ namespace IdentityModel.OidcClient
         /// <returns>
         /// Result of the login response validation
         /// </returns>
-        public async Task<LoginResult> ProcessResponseAsync(string data, AuthorizeState state, object extraParameters = null)
+        public virtual async Task<LoginResult> ProcessResponseAsync(string data, AuthorizeState state, object extraParameters = null)
         {
             _logger.LogTrace("ProcessResponseAsync");
             _logger.LogInformation("Processing response.");
@@ -246,7 +246,7 @@ namespace IdentityModel.OidcClient
         /// </summary>
         /// <param name="accessToken">The access token.</param>
         /// <returns>User claims</returns>
-        public async Task<UserInfoResult> GetUserInfoAsync(string accessToken)
+        public virtual async Task<UserInfoResult> GetUserInfoAsync(string accessToken)
         {
             _logger.LogTrace("GetUserInfoAsync");
 
@@ -282,7 +282,7 @@ namespace IdentityModel.OidcClient
         /// <returns>
         /// A token response.
         /// </returns>
-        public async Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken, object extraParameters = null)
+        public virtual async Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken, object extraParameters = null)
         {
             _logger.LogTrace("RefreshTokenAsync");
 
