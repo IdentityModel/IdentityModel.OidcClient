@@ -19,6 +19,6 @@ namespace IdentityModel.OidcClient.Results
         /// <value>
         /// The claims.
         /// </value>
-        public IEnumerable<Claim> Claims { get; internal set; }
+        public virtual IEnumerable<Claim> Claims { get; internal set; }
     }
 }

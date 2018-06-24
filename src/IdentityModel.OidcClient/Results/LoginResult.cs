@@ -36,7 +36,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The user.
         /// </value>
-        public ClaimsPrincipal User { get; internal set; }
+        public virtual ClaimsPrincipal User { get; internal set; }
 
         /// <summary>
         /// Gets or sets the access token.
@@ -44,7 +44,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The access token.
         /// </value>
-        public string AccessToken { get; internal set; }
+        public virtual string AccessToken { get; internal set; }
 
         /// <summary>
         /// Gets or sets the identity token.
@@ -52,7 +52,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The identity token.
         /// </value>
-        public string IdentityToken { get; internal set; }
+        public virtual string IdentityToken { get; internal set; }
 
         /// <summary>
         /// Gets or sets the refresh token.
@@ -60,7 +60,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The refresh token.
         /// </value>
-        public string RefreshToken { get; internal set; }
+        public virtual string RefreshToken { get; internal set; }
 
         /// <summary>
         /// Gets or sets the access token expiration.
@@ -68,7 +68,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The access token expiration.
         /// </value>
-        public DateTime AccessTokenExpiration { get; internal set; }
+        public virtual DateTime AccessTokenExpiration { get; internal set; }
 
         /// <summary>
         /// Gets or sets the authentication time.
@@ -76,7 +76,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The authentication time.
         /// </value>
-        public DateTime AuthenticationTime { get; internal set; }
+        public virtual DateTime AuthenticationTime { get; internal set; }
 
         /// <summary>
         /// Gets or sets the refresh token handler.
@@ -84,6 +84,6 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The refresh token handler.
         /// </value>
-        public HttpMessageHandler RefreshTokenHandler { get; internal set; }
+        public virtual HttpMessageHandler RefreshTokenHandler { get; internal set; }
     }
 }
