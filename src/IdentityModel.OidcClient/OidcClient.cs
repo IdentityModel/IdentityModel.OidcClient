@@ -307,7 +307,8 @@ namespace IdentityModel.OidcClient
                 IdentityToken = response.IdentityToken,
                 AccessToken = response.AccessToken,
                 RefreshToken = response.RefreshToken,
-                ExpiresIn = (int)response.ExpiresIn
+                ExpiresIn = (int)response.ExpiresIn,
+                AccessTokenExpiration = DateTime.Now.AddSeconds(response.ExpiresIn)
             };
         }
 
