@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System;
+
 namespace IdentityModel.OidcClient.Results
 {
     /// <summary>
@@ -41,5 +43,14 @@ namespace IdentityModel.OidcClient.Results
         /// The expires in.
         /// </value>
         public virtual int ExpiresIn { get; internal set; }
+        
+        /// <summary>
+        /// Gets or sets the access token expiration.
+        /// </summary>
+        /// <value>
+        /// The access token expiration.
+        /// </value>
+        public virtual DateTime AccessTokenExpiration { get; internal set; }
+
     }
 }
