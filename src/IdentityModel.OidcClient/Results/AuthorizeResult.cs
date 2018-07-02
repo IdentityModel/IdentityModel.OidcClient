@@ -6,7 +6,7 @@ namespace IdentityModel.OidcClient.Results
 {
     internal class AuthorizeResult : Result
     {
-        public string Data { get; set; }
-        public AuthorizeState State { get; set; }
+        public virtual string Data { get; set; }
+        public virtual AuthorizeState State { get; set; }
     }
 }

@@ -19,8 +19,8 @@ namespace IdentityModel.OidcClient
             Error = error;
         }
 
-        public AuthorizeResponse AuthorizeResponse { get; set; }
-        public TokenResponse TokenResponse { get; set; }
-        public ClaimsPrincipal User { get; set; }
+        public virtual AuthorizeResponse AuthorizeResponse { get; set; }
+        public virtual TokenResponse TokenResponse { get; set; }
+        public virtual ClaimsPrincipal User { get; set; }
     }
 }
