@@ -15,7 +15,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         ///   <c>true</c> if this instance is error; otherwise, <c>false</c>.
         /// </value>
-        public bool IsError => Error.IsPresent();
+        public virtual bool IsError => Error.IsPresent();
 
         /// <summary>
         /// Gets or sets the error.
@@ -23,6 +23,6 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The error.
         /// </value>
-        public string Error { get; set; }
+        public virtual string Error { get; set; }
     }
 }
