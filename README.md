@@ -7,7 +7,7 @@ Supported platforms: netstandard14, desktop .NET, UWP, .NET Core, Xamarin iOS & 
 
 ## Description
 
-OidcClient is an implemenation of the OIDC/OAuth 2 for native apps [specification](https://tools.ietf.org/wg/oauth/draft-ietf-oauth-native-apps/) for C#.
+OidcClient is an implementation of the OIDC/OAuth 2 for native apps [specification](https://tools.ietf.org/wg/oauth/draft-ietf-oauth-native-apps/) for C#.
 
 ### Manual Mode
 In manual mode, OidcClient helps you with creating the necessary start URL and state parameters, but you need to coordinate with whatever browser you want to use, e.g.
