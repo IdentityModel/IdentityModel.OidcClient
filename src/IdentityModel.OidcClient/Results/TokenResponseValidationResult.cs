@@ -16,6 +16,6 @@ namespace IdentityModel.OidcClient.Results
             IdentityTokenValidationResult = result;
         }
 
-        public IdentityTokenValidationResult IdentityTokenValidationResult { get; set; }
+        public virtual IdentityTokenValidationResult IdentityTokenValidationResult { get; set; }
     }
 }
