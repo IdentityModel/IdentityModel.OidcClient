@@ -367,7 +367,7 @@ namespace IdentityModel.OidcClient
 
                 _logger.LogDebug("Successfully loaded discovery document");
                 _logger.LogDebug("Loaded keyset from {jwks_uri}", disco.JwksUri);
-                _logger.LogDebug("Keyet contains the following kids: {kids}", from k in disco.KeySet.Keys select k.Kid ?? "unspecified");
+                _logger.LogDebug("Keyset contains the following kids: {kids}", from k in disco.KeySet.Keys select k.Kid ?? "unspecified");
 
                 _options.ProviderInformation = new ProviderInformation
                 {
