@@ -163,7 +163,7 @@ namespace IdentityModel.OidcClient
                     if (webKey.E.IsPresent() && webKey.N.IsPresent())
                     {
                         // only add keys used for signatures
-                        if (webKey.Use == "sig")
+                        if (webKey.Use == "sig" || webKey.Use == null)
                         {
                             var e = Base64Url.Decode(webKey.E);
                             var n = Base64Url.Decode(webKey.N);
