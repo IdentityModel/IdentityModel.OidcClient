@@ -69,6 +69,41 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
+        public async Task multi_tenant_token_issuer_name_should_succeed_by_policy_option()
+        {
+            var client = new OidcClient(_options);
+            var state = await client.PrepareLoginAsync();
+
+            _options.Policy.Discovery.ValidateEndpoints = false;
+            _options.Policy.ValidateTokenIssuerName = false;
+
+            var url = $"?state={state.State}&nonce={state.Nonce}&code=bar";
+            var key = Crypto.CreateKey();
+            var idToken = Crypto.CreateJwt(key, "https://{some_multi_tenant_name}", "client",
+                new Claim("at_hash", Crypto.HashData("token")),
+                new Claim("sub", "123"),
+                new Claim("nonce", state.Nonce));
+
+            var tokenResponse = new Dictionary<string, object>
+            {
+                { "access_token", "token" },
+                { "expires_in", 300 },
+                { "id_token", idToken },
+                { "refresh_token", "refresh_token" }
+            };
+
+            _options.ProviderInformation.KeySet = Crypto.CreateKeySet(key);
+            _options.BackchannelHandler = new NetworkHandler(JsonConvert.SerializeObject(tokenResponse), HttpStatusCode.OK);
+
+            var result = await client.ProcessResponseAsync(url, state);
+
+            result.IsError.Should().BeFalse();
+            result.AccessToken.Should().Be("token");
+            result.IdentityToken.Should().NotBeNull();
+            result.User.Should().NotBeNull();
+        }
+
+        [Fact]
         public async Task extra_parameters_on_backchannel_should_be_sent()
         {
             var client = new OidcClient(_options);
