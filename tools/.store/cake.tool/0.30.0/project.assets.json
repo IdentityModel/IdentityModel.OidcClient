@@ -1,0 +1,174 @@
+{
+  "version": 3,
+  "targets": {
+    ".NETCoreApp,Version=v2.1": {
+      "Cake.Tool/0.30.0": {
+        "type": "package"
+      }
+    },
+    ".NETCoreApp,Version=v2.1/any": {
+      "Cake.Tool/0.30.0": {
+        "type": "package",
+        "tools": {
+          "tools/netcoreapp2.1/any/Autofac.dll": {},
+          "tools/netcoreapp2.1/any/Cake.Common.dll": {},
+          "tools/netcoreapp2.1/any/Cake.Common.pdb": {},
+          "tools/netcoreapp2.1/any/Cake.Common.xml": {},
+          "tools/netcoreapp2.1/any/Cake.Core.dll": {},
+          "tools/netcoreapp2.1/any/Cake.Core.pdb": {},
+          "tools/netcoreapp2.1/any/Cake.Core.xml": {},
+          "tools/netcoreapp2.1/any/Cake.NuGet.dll": {},
+          "tools/netcoreapp2.1/any/Cake.NuGet.pdb": {},
+          "tools/netcoreapp2.1/any/Cake.NuGet.xml": {},
+          "tools/netcoreapp2.1/any/Cake.deps.json": {},
+          "tools/netcoreapp2.1/any/Cake.dll": {},
+          "tools/netcoreapp2.1/any/Cake.pdb": {},
+          "tools/netcoreapp2.1/any/Cake.runtimeconfig.json": {},
+          "tools/netcoreapp2.1/any/Cake.xml": {},
+          "tools/netcoreapp2.1/any/DotnetToolSettings.xml": {},
+          "tools/netcoreapp2.1/any/Microsoft.CodeAnalysis.CSharp.Scripting.dll": {},
+          "tools/netcoreapp2.1/any/Microsoft.CodeAnalysis.CSharp.dll": {},
+          "tools/netcoreapp2.1/any/Microsoft.CodeAnalysis.Scripting.dll": {},
+          "tools/netcoreapp2.1/any/Microsoft.CodeAnalysis.dll": {},
+          "tools/netcoreapp2.1/any/Microsoft.DotNet.PlatformAbstractions.dll": {},
+          "tools/netcoreapp2.1/any/Microsoft.Extensions.DependencyModel.dll": {},
+          "tools/netcoreapp2.1/any/Newtonsoft.Json.dll": {},
+          "tools/netcoreapp2.1/any/NuGet.Commands.dll": {},
+          "tools/netcoreapp2.1/any/NuGet.Common.dll": {},
+          "tools/netcoreapp2.1/any/NuGet.Configuration.dll": {},
+          "tools/netcoreapp2.1/any/NuGet.Credentials.dll": {},
+          "tools/netcoreapp2.1/any/NuGet.DependencyResolver.Core.dll": {},
+          "tools/netcoreapp2.1/any/NuGet.Frameworks.dll": {},
+          "tools/netcoreapp2.1/any/NuGet.LibraryModel.dll": {},
+          "tools/netcoreapp2.1/any/NuGet.PackageManagement.dll": {},
+          "tools/netcoreapp2.1/any/NuGet.Packaging.Core.dll": {},
+          "tools/netcoreapp2.1/any/NuGet.Packaging.dll": {},
+          "tools/netcoreapp2.1/any/NuGet.ProjectModel.dll": {},
+          "tools/netcoreapp2.1/any/NuGet.Protocol.dll": {},
+          "tools/netcoreapp2.1/any/NuGet.Resolver.dll": {},
+          "tools/netcoreapp2.1/any/NuGet.Versioning.dll": {},
+          "tools/netcoreapp2.1/any/runtimes/unix/lib/netstandard1.3/System.Security.Cryptography.ProtectedData.dll": {},
+          "tools/netcoreapp2.1/any/runtimes/unix/lib/netstandard1.3/System.Text.Encoding.CodePages.dll": {},
+          "tools/netcoreapp2.1/any/runtimes/win/lib/netstandard1.3/System.Security.Cryptography.ProtectedData.dll": {},
+          "tools/netcoreapp2.1/any/runtimes/win/lib/netstandard1.3/System.Text.Encoding.CodePages.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Cake.Tool/0.30.0": {
+      "sha512": "gAqo8dDc6f8YuaDB/mG5cEd6bGoatgbKi7tKkbgIoeM+hluPztiWPc41wbgT+zVH/CtKBzxkJ22nP+kHepL4aQ==",
+      "type": "package",
+      "path": "cake.tool/0.30.0",
+      "files": [
+        ".signature.p7s",
+        "cake.tool.0.30.0.nupkg.sha512",
+        "cake.tool.nuspec",
+        "tools/netcoreapp2.1/any/Autofac.dll",
+        "tools/netcoreapp2.1/any/Cake.Common.dll",
+        "tools/netcoreapp2.1/any/Cake.Common.pdb",
+        "tools/netcoreapp2.1/any/Cake.Common.xml",
+        "tools/netcoreapp2.1/any/Cake.Core.dll",
+        "tools/netcoreapp2.1/any/Cake.Core.pdb",
+        "tools/netcoreapp2.1/any/Cake.Core.xml",
+        "tools/netcoreapp2.1/any/Cake.NuGet.dll",
+        "tools/netcoreapp2.1/any/Cake.NuGet.pdb",
+        "tools/netcoreapp2.1/any/Cake.NuGet.xml",
+        "tools/netcoreapp2.1/any/Cake.deps.json",
+        "tools/netcoreapp2.1/any/Cake.dll",
+        "tools/netcoreapp2.1/any/Cake.pdb",
+        "tools/netcoreapp2.1/any/Cake.runtimeconfig.json",
+        "tools/netcoreapp2.1/any/Cake.xml",
+        "tools/netcoreapp2.1/any/DotnetToolSettings.xml",
+        "tools/netcoreapp2.1/any/Microsoft.CodeAnalysis.CSharp.Scripting.dll",
+        "tools/netcoreapp2.1/any/Microsoft.CodeAnalysis.CSharp.dll",
+        "tools/netcoreapp2.1/any/Microsoft.CodeAnalysis.Scripting.dll",
+        "tools/netcoreapp2.1/any/Microsoft.CodeAnalysis.dll",
+        "tools/netcoreapp2.1/any/Microsoft.DotNet.PlatformAbstractions.dll",
+        "tools/netcoreapp2.1/any/Microsoft.Extensions.DependencyModel.dll",
+        "tools/netcoreapp2.1/any/Newtonsoft.Json.dll",
+        "tools/netcoreapp2.1/any/NuGet.Commands.dll",
+        "tools/netcoreapp2.1/any/NuGet.Common.dll",
+        "tools/netcoreapp2.1/any/NuGet.Configuration.dll",
+        "tools/netcoreapp2.1/any/NuGet.Credentials.dll",
+        "tools/netcoreapp2.1/any/NuGet.DependencyResolver.Core.dll",
+        "tools/netcoreapp2.1/any/NuGet.Frameworks.dll",
+        "tools/netcoreapp2.1/any/NuGet.LibraryModel.dll",
+        "tools/netcoreapp2.1/any/NuGet.PackageManagement.dll",
+        "tools/netcoreapp2.1/any/NuGet.Packaging.Core.dll",
+        "tools/netcoreapp2.1/any/NuGet.Packaging.dll",
+        "tools/netcoreapp2.1/any/NuGet.ProjectModel.dll",
+        "tools/netcoreapp2.1/any/NuGet.Protocol.dll",
+        "tools/netcoreapp2.1/any/NuGet.Resolver.dll",
+        "tools/netcoreapp2.1/any/NuGet.Versioning.dll",
+        "tools/netcoreapp2.1/any/runtimes/unix/lib/netstandard1.3/System.Security.Cryptography.ProtectedData.dll",
+        "tools/netcoreapp2.1/any/runtimes/unix/lib/netstandard1.3/System.Text.Encoding.CodePages.dll",
+        "tools/netcoreapp2.1/any/runtimes/win/lib/netstandard1.3/System.Security.Cryptography.ProtectedData.dll",
+        "tools/netcoreapp2.1/any/runtimes/win/lib/netstandard1.3/System.Text.Encoding.CodePages.dll"
+      ]
+    }
+  },
+  "projectFileDependencyGroups": {
+    ".NETCoreApp,Version=v2.1": [
+      "cake.tool >= 0.30.0"
+    ]
+  },
+  "packageFolders": {
+    "C:\\local\\identity\\model\\OidcClient2\\tools\\.store\\.stage\\epuox3ta.alg": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "C:\\Users\\dominick\\AppData\\Local\\Temp\\vpcwxsen.do0\\restore.csproj",
+      "projectName": "restore",
+      "projectPath": "C:\\Users\\dominick\\AppData\\Local\\Temp\\vpcwxsen.do0\\restore.csproj",
+      "packagesPath": "C:\\local\\identity\\model\\OidcClient2\\tools\\.store\\.stage\\epuox3ta.alg",
+      "outputPath": "C:\\local\\identity\\model\\OidcClient2\\tools\\.store\\.stage\\epuox3ta.alg\\",
+      "projectStyle": "DotnetToolReference",
+      "configFilePaths": [
+        "C:\\Users\\dominick\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "originalTargetFrameworks": [
+        "netcoreapp2.1"
+      ],
+      "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {},
+        "C:\\local\\nuget": {},
+        "https://api.nuget.org/v3/index.json": {},
+        "https://www.myget.org/F/identity/": {}
+      },
+      "frameworks": {
+        "netcoreapp2.1": {
+          "projectReferences": {}
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      }
+    },
+    "frameworks": {
+      "netcoreapp2.1": {
+        "dependencies": {
+          "cake.tool": {
+            "target": "Package",
+            "version": "[0.30.0, )"
+          }
+        },
+        "imports": [
+          "net461"
+        ],
+        "assetTargetFallback": true,
+        "warn": true
+      }
+    },
+    "runtimes": {
+      "any": {
+        "#import": []
+      }
+    }
+  }
+}

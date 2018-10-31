@@ -1,0 +1,132 @@
+{
+  "version": 3,
+  "targets": {
+    ".NETCoreApp,Version=v2.1": {
+      "SignClient/1.0.82": {
+        "type": "package"
+      }
+    },
+    ".NETCoreApp,Version=v2.1/any": {
+      "SignClient/1.0.82": {
+        "type": "package",
+        "tools": {
+          "tools/netcoreapp2.1/any/DotnetToolSettings.xml": {},
+          "tools/netcoreapp2.1/any/Microsoft.Extensions.CommandLineUtils.dll": {},
+          "tools/netcoreapp2.1/any/Microsoft.Extensions.Configuration.Abstractions.dll": {},
+          "tools/netcoreapp2.1/any/Microsoft.Extensions.Configuration.EnvironmentVariables.dll": {},
+          "tools/netcoreapp2.1/any/Microsoft.Extensions.Configuration.FileExtensions.dll": {},
+          "tools/netcoreapp2.1/any/Microsoft.Extensions.Configuration.Json.dll": {},
+          "tools/netcoreapp2.1/any/Microsoft.Extensions.Configuration.dll": {},
+          "tools/netcoreapp2.1/any/Microsoft.Extensions.FileProviders.Abstractions.dll": {},
+          "tools/netcoreapp2.1/any/Microsoft.Extensions.FileProviders.Physical.dll": {},
+          "tools/netcoreapp2.1/any/Microsoft.Extensions.FileSystemGlobbing.dll": {},
+          "tools/netcoreapp2.1/any/Microsoft.Extensions.Primitives.dll": {},
+          "tools/netcoreapp2.1/any/Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.dll": {},
+          "tools/netcoreapp2.1/any/Microsoft.IdentityModel.Clients.ActiveDirectory.dll": {},
+          "tools/netcoreapp2.1/any/Newtonsoft.Json.dll": {},
+          "tools/netcoreapp2.1/any/Refit.dll": {},
+          "tools/netcoreapp2.1/any/SignClient.deps.json": {},
+          "tools/netcoreapp2.1/any/SignClient.dll": {},
+          "tools/netcoreapp2.1/any/SignClient.pdb": {},
+          "tools/netcoreapp2.1/any/SignClient.runtimeconfig.json": {},
+          "tools/netcoreapp2.1/any/System.Runtime.CompilerServices.Unsafe.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "SignClient/1.0.82": {
+      "sha512": "FoPqES1+HMw5rWiBbQt1A8pF+uRHf5B0Pna4hnIcGFg1UDdgx9xzx6h5ZDXqYdjdcX9Nd2lkj53mlVhUC5j77Q==",
+      "type": "package",
+      "path": "signclient/1.0.82",
+      "files": [
+        ".signature.p7s",
+        "signclient.1.0.82.nupkg.sha512",
+        "signclient.nuspec",
+        "tools/netcoreapp2.1/any/DotnetToolSettings.xml",
+        "tools/netcoreapp2.1/any/Microsoft.Extensions.CommandLineUtils.dll",
+        "tools/netcoreapp2.1/any/Microsoft.Extensions.Configuration.Abstractions.dll",
+        "tools/netcoreapp2.1/any/Microsoft.Extensions.Configuration.EnvironmentVariables.dll",
+        "tools/netcoreapp2.1/any/Microsoft.Extensions.Configuration.FileExtensions.dll",
+        "tools/netcoreapp2.1/any/Microsoft.Extensions.Configuration.Json.dll",
+        "tools/netcoreapp2.1/any/Microsoft.Extensions.Configuration.dll",
+        "tools/netcoreapp2.1/any/Microsoft.Extensions.FileProviders.Abstractions.dll",
+        "tools/netcoreapp2.1/any/Microsoft.Extensions.FileProviders.Physical.dll",
+        "tools/netcoreapp2.1/any/Microsoft.Extensions.FileSystemGlobbing.dll",
+        "tools/netcoreapp2.1/any/Microsoft.Extensions.Primitives.dll",
+        "tools/netcoreapp2.1/any/Microsoft.IdentityModel.Clients.ActiveDirectory.Platform.dll",
+        "tools/netcoreapp2.1/any/Microsoft.IdentityModel.Clients.ActiveDirectory.dll",
+        "tools/netcoreapp2.1/any/Newtonsoft.Json.dll",
+        "tools/netcoreapp2.1/any/Refit.dll",
+        "tools/netcoreapp2.1/any/SignClient.deps.json",
+        "tools/netcoreapp2.1/any/SignClient.dll",
+        "tools/netcoreapp2.1/any/SignClient.pdb",
+        "tools/netcoreapp2.1/any/SignClient.runtimeconfig.json",
+        "tools/netcoreapp2.1/any/System.Runtime.CompilerServices.Unsafe.dll"
+      ]
+    }
+  },
+  "projectFileDependencyGroups": {
+    ".NETCoreApp,Version=v2.1": [
+      "signclient"
+    ]
+  },
+  "packageFolders": {
+    "C:\\local\\identity\\model\\OidcClient2\\tools\\.store\\.stage\\qn1cbbgj.t4l": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "C:\\Users\\dominick\\AppData\\Local\\Temp\\5b3auglp.4jt\\restore.csproj",
+      "projectName": "restore",
+      "projectPath": "C:\\Users\\dominick\\AppData\\Local\\Temp\\5b3auglp.4jt\\restore.csproj",
+      "packagesPath": "C:\\local\\identity\\model\\OidcClient2\\tools\\.store\\.stage\\qn1cbbgj.t4l",
+      "outputPath": "C:\\local\\identity\\model\\OidcClient2\\tools\\.store\\.stage\\qn1cbbgj.t4l\\",
+      "projectStyle": "DotnetToolReference",
+      "configFilePaths": [
+        "C:\\Users\\dominick\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "originalTargetFrameworks": [
+        "netcoreapp2.1"
+      ],
+      "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {},
+        "C:\\local\\nuget": {},
+        "https://api.nuget.org/v3/index.json": {},
+        "https://www.myget.org/F/identity/": {}
+      },
+      "frameworks": {
+        "netcoreapp2.1": {
+          "projectReferences": {}
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      }
+    },
+    "frameworks": {
+      "netcoreapp2.1": {
+        "dependencies": {
+          "signclient": {
+            "target": "Package",
+            "version": "(, )"
+          }
+        },
+        "imports": [
+          "net461"
+        ],
+        "assetTargetFallback": true,
+        "warn": true
+      }
+    },
+    "runtimes": {
+      "any": {
+        "#import": []
+      }
+    }
+  }
+}

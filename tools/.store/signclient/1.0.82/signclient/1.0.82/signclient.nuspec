@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>SignClient</id>
+    <version>1.0.82</version>
+    <authors>SignClient</authors>
+    <owners>SignClient</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Client-side tools for Sign Service</description>
+    <packageTypes>
+      <packageType name="DotnetTool" />
+    </packageTypes>
+    <repository type="git" url="https://github.com/onovotny/SignService" commit="8ff84025c389e8ff097355a3a469a868c0e844b2" />
+  </metadata>
+</package>

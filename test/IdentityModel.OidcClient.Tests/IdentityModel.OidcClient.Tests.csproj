@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\IdentityModel.OidcClient\IdentityModel.OidcClient.csproj" />
+    <ProjectReference Include="..\..\src\IdentityModel.OidcClient.csproj" />
   </ItemGroup>
 
   <ItemGroup>

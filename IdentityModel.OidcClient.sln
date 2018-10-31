@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{3DEB81D4-5
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "clients", "clients", "{A4154BEB-4B4A-4A48-B75D-B52432304F36}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityModel.OidcClient", "src\IdentityModel.OidcClient\IdentityModel.OidcClient.csproj", "{BE059A81-6F97-4345-9A70-A9B278D86213}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityModel.OidcClient", "src\IdentityModel.OidcClient.csproj", "{BE059A81-6F97-4345-9A70-A9B278D86213}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityModel.OidcClient.Tests", "test\IdentityModel.OidcClient.Tests\IdentityModel.OidcClient.Tests.csproj", "{B3874074-52B5-4319-B1F4-6896E8DC51B4}"
 EndProject
