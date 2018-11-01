@@ -110,8 +110,8 @@ namespace ConsoleClientWithBrowser
                         currentAccessToken = refreshResult.AccessToken;
 
                         Console.WriteLine("\n\n");
-                        Console.WriteLine($"access token:   {result.AccessToken}");
-                        Console.WriteLine($"refresh token:  {result?.RefreshToken ?? "none"}");
+                        Console.WriteLine($"access token:   {currentAccessToken}");
+                        Console.WriteLine($"refresh token:  {currentRefreshToken ?? "none"}");
                     }
                 }
             }
