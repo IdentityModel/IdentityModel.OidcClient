@@ -39,7 +39,7 @@ namespace ConsoleClientWithBrowser
             var options = new OidcClientOptions
             {
                 Authority = _authority,
-                ClientId = "native.hybrid",
+                ClientId = "native.code",
                 RedirectUri = redirectUri,
                 Scope = "openid profile api",
                 FilterClaims = false,
