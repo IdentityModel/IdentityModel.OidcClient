@@ -10,7 +10,7 @@ namespace ConsoleClientWithBrowser
     public class Program
     {
         static string _authority = "https://demo.identityserver.io";
-        static string _api = "https://api.identityserver.io/identity";
+        static string _api = "https://demo.identityserver.io/api/test";
 
         static OidcClient _oidcClient;
         static HttpClient _apiClient = new HttpClient { BaseAddress = new Uri(_api) };
