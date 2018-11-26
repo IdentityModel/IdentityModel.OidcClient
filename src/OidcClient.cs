@@ -62,24 +62,6 @@ namespace IdentityModel.OidcClient
         /// <summary>
         /// Starts a login.
         /// </summary>
-        /// <param name="displayMode">The browser display mode.</param>
-        /// <param name="timeout">The browser timeout.</param>
-        /// <param name="extraParameters">The extra parameters.</param>
-        /// <returns></returns>
-        [Obsolete("This method will be removed in a future version. Please change your code to use LoginRequest")]
-        public virtual async Task<LoginResult> LoginAsync(DisplayMode displayMode = DisplayMode.Visible, int timeout = 300, object extraParameters = null)
-        {
-            return await LoginAsync(new LoginRequest
-            {
-                BrowserDisplayMode = displayMode,
-                BrowserTimeout = timeout,
-                FrontChannelExtraParameters = extraParameters
-            });
-        }
-
-        /// <summary>
-        /// Starts a login.
-        /// </summary>
         /// <param name="request">The login request.</param>
         /// <returns></returns>
         public virtual async Task<LoginResult> LoginAsync(LoginRequest request)
