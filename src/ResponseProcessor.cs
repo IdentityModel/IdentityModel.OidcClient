@@ -3,6 +3,8 @@ using IdentityModel.OidcClient.Infrastructure;
 using IdentityModel.OidcClient.Results;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -11,7 +13,6 @@ namespace IdentityModel.OidcClient
     internal class ResponseProcessor
     {
         private readonly OidcClientOptions _options;
-        private TokenClient _tokenClient;
         private ILogger<ResponseProcessor> _logger;
         private readonly IdentityTokenValidator _tokenValidator;
         private readonly CryptoHelper _crypto;
@@ -27,7 +28,7 @@ namespace IdentityModel.OidcClient
             _crypto = new CryptoHelper(options);
         }
 
-        public async Task<ResponseValidationResult> ProcessResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state, object extraParameters)
+        public async Task<ResponseValidationResult> ProcessResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state, IDictionary<string, string> extraParameters)
         {
             _logger.LogTrace("ProcessResponseAsync");
 
@@ -61,7 +62,7 @@ namespace IdentityModel.OidcClient
             }
         }
 
-        private async Task<ResponseValidationResult> ProcessHybridFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state, object extraParameters = null)
+        private async Task<ResponseValidationResult> ProcessHybridFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state, IDictionary<string, string> extraParameters = null)
         {
             _logger.LogTrace("ProcessHybridFlowResponseAsync");
 
@@ -140,7 +141,7 @@ namespace IdentityModel.OidcClient
             };
         }
 
-        private async Task<ResponseValidationResult> ProcessCodeFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state, object extraParameters)
+        private async Task<ResponseValidationResult> ProcessCodeFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state, IDictionary<string, string> extraParameters)
         {
             _logger.LogTrace("ProcessCodeFlowResponseAsync");
             
@@ -245,29 +246,31 @@ namespace IdentityModel.OidcClient
             return match;
         }
 
-        private async Task<TokenResponse> RedeemCodeAsync(string code, AuthorizeState state, object extraParameters)
+        private async Task<TokenResponse> RedeemCodeAsync(string code, AuthorizeState state, IDictionary<string, string> extraParameters)
         {
             _logger.LogTrace("RedeemCodeAsync");
 
-            var client = GetTokenClient();
+            var client = new HttpClient(_options.BackchannelHandler)
+            {
+                Timeout = _options.BackchannelTimeout
+            };
 
-            var tokenResult = await client.RequestAuthorizationCodeAsync(
-                code,
-                state.RedirectUri,
-                codeVerifier: state.CodeVerifier,
-                extra: extraParameters);
+            if (extraParameters == null) extraParameters = new Dictionary<string, string>();
+
+            var tokenResult = await client.RequestAuthorizationCodeTokenAsync(new AuthorizationCodeTokenRequest
+            {
+                Address = _options.ProviderInformation.TokenEndpoint,
+
+                ClientId = _options.ClientId,
+                ClientSecret = _options.ClientSecret,
+
+                Code = code,
+                RedirectUri = state.RedirectUri,
+                CodeVerifier = state.CodeVerifier,
+                Parameters = extraParameters
+            }).ConfigureAwait(false);
 
             return tokenResult;
-        }
-
-        private TokenClient GetTokenClient()
-        {
-            if (_tokenClient == null)
-            {
-                _tokenClient = TokenClientFactory.Create(_options);
-            }
-
-            return _tokenClient;
         }
     }
 }

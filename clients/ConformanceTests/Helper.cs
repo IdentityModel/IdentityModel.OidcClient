@@ -92,7 +92,7 @@ namespace ConformanceTests
                 RedirectUri = "http://localhost:7890",
                 ClientId = registration.ClientId,
                 ClientSecret = registration.ClientSecret,
-                TokenClientAuthenticationStyle = AuthenticationStyle.BasicAuthentication,
+                TokenClientCredentialStyle = ClientCredentialStyle.AuthorizationHeader,
                 Browser = new SystemBrowser(port: 7890),
                 FilterClaims = false
             };
@@ -122,7 +122,7 @@ namespace ConformanceTests
                 RedirectUri = "http://localhost:7890",
                 ClientId = registration.ClientId,
                 ClientSecret = registration.ClientSecret,
-                TokenClientAuthenticationStyle = AuthenticationStyle.BasicAuthentication,
+                TokenClientCredentialStyle = ClientCredentialStyle.AuthorizationHeader,
                 Browser = new SystemBrowser(port: 7890),
                 FilterClaims = false
             };

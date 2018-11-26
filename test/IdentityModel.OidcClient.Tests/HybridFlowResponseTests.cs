@@ -116,10 +116,10 @@ namespace IdentityModel.OidcClient.Tests
             var handler = new NetworkHandler(JsonConvert.SerializeObject(tokenResponse), HttpStatusCode.OK);
             _options.BackchannelHandler = handler;
 
-            var extra = new
+            var extra = new Dictionary<string, string>
             {
-                foo = "foo",
-                bar = "bar"
+                { "foo", "foo" },
+                { "bar", "bar" }
             };
 
             var result = await client.ProcessResponseAsync(url, state, extra);

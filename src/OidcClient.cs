@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -138,7 +139,7 @@ namespace IdentityModel.OidcClient
         /// <returns>
         /// Result of the login response validation
         /// </returns>
-        public virtual async Task<LoginResult> ProcessResponseAsync(string data, AuthorizeState state, object extraParameters = null)
+        public virtual async Task<LoginResult> ProcessResponseAsync(string data, AuthorizeState state, IDictionary<string, string> extraParameters = null)
         {
             _logger.LogTrace("ProcessResponseAsync");
             _logger.LogInformation("Processing response.");
@@ -205,14 +206,15 @@ namespace IdentityModel.OidcClient
                 AuthenticationTime = DateTime.Now
             };
 
-            if (!string.IsNullOrWhiteSpace(loginResult.RefreshToken))
-            {
-                loginResult.RefreshTokenHandler = new RefreshTokenHandler(
-                    TokenClientFactory.Create(Options),
-                    loginResult.RefreshToken,
-                    loginResult.AccessToken,
-                    Options.RefreshTokenInnerHttpHandler);
-            }
+            // TODO
+            //if (!string.IsNullOrWhiteSpace(loginResult.RefreshToken))
+            //{
+            //    loginResult.RefreshTokenHandler = new RefreshTokenHandler(
+            //        TokenClientFactory.Create(Options),
+            //        loginResult.RefreshToken,
+            //        loginResult.AccessToken,
+            //        Options.RefreshTokenInnerHttpHandler);
+            //}
 
             return loginResult;
         }
@@ -230,12 +232,17 @@ namespace IdentityModel.OidcClient
             if (accessToken.IsMissing()) throw new ArgumentNullException(nameof(accessToken));
             if (!Options.ProviderInformation.SupportsUserInfo) throw new InvalidOperationException("No userinfo endpoint specified");
 
-            var userInfoClient = new UserInfoClient(Options.ProviderInformation.UserInfoEndpoint, Options.BackchannelHandler)
+            var userInfoClient = new HttpClient(Options.BackchannelHandler)
             {
                 Timeout = Options.BackchannelTimeout
             };
 
-            var userInfoResponse = await userInfoClient.GetAsync(accessToken);
+            var userInfoResponse = await userInfoClient.GetUserInfoAsync(new UserInfoRequest
+            {
+                Address = Options.ProviderInformation.UserInfoEndpoint,
+                Token = accessToken
+            }).ConfigureAwait(false);
+
             if (userInfoResponse.IsError)
             {
                 return new UserInfoResult
@@ -258,13 +265,25 @@ namespace IdentityModel.OidcClient
         /// <returns>
         /// A token response.
         /// </returns>
-        public virtual async Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken, object extraParameters = null)
+        public virtual async Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken, IDictionary<string, string> extraParameters = null)
         {
             _logger.LogTrace("RefreshTokenAsync");
 
             await EnsureConfigurationAsync();
-            var client = TokenClientFactory.Create(Options);
-            var response = await client.RequestRefreshTokenAsync(refreshToken, extra: extraParameters);
+            var client = new HttpClient(Options.BackchannelHandler)
+            {
+                Timeout = Options.BackchannelTimeout
+            };
+
+            var response = await client.RequestRefreshTokenAsync(new RefreshTokenRequest
+            {
+                Address = Options.ProviderInformation.TokenEndpoint,
+                ClientId = Options.ClientId,
+                ClientSecret = Options.ClientSecret,
+                ClientCredentialStyle = Options.TokenClientCredentialStyle,
+                RefreshToken = refreshToken, 
+                Parameters = extraParameters
+            }).ConfigureAwait(false);
 
             if (response.IsError)
             {
@@ -321,14 +340,17 @@ namespace IdentityModel.OidcClient
                     }
                 }
 
-                var client = new DiscoveryClient(Options.Authority, Options.BackchannelHandler)
+                var discoveryClient = new HttpClient(Options.BackchannelHandler)
                 {
-                    Policy = Options.Policy.Discovery,
                     Timeout = Options.BackchannelTimeout
                 };
 
-                var disco = await client.GetAsync().ConfigureAwait(false);
-                
+                var disco = await discoveryClient.GetDiscoveryDocumentAsync(new DiscoveryDocumentRequest
+                {
+                    Address = Options.Authority,
+                    Policy = Options.Policy.Discovery
+                }).ConfigureAwait(false);
+               
                 if (disco.IsError)
                 {
                     _logger.LogError("Error loading discovery document: {errorType} - {error}", disco.ErrorType.ToString(), disco.Error);

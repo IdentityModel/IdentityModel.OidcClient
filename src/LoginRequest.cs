@@ -3,6 +3,7 @@
 
 
 using IdentityModel.OidcClient.Browser;
+using System.Collections.Generic;
 
 namespace IdentityModel.OidcClient
 {
@@ -33,7 +34,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The front channel extra parameters.
         /// </value>
-        public object FrontChannelExtraParameters { get; set; }
+        public IDictionary<string, string> FrontChannelExtraParameters { get; set; }
 
         /// <summary>
         /// Gets or sets the back channel extra parameters.
@@ -41,6 +42,6 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The back channel extra parameters.
         /// </value>
-        public object BackChannelExtraParameters { get; set; }
+        public IDictionary<string, string> BackChannelExtraParameters { get; set; }
     }
 }

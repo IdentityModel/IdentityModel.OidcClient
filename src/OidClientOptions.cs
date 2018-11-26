@@ -177,7 +177,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The token client authentication style.
         /// </value>
-        public Client.AuthenticationStyle TokenClientAuthenticationStyle { get; set; } = Client.AuthenticationStyle.PostValues;
+        public Client.ClientCredentialStyle TokenClientCredentialStyle { get; set; } = Client.ClientCredentialStyle.PostBody;
 
         /// <summary>
         /// Gets or sets the policy.
