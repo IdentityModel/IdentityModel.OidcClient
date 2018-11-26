@@ -1,3 +1,5 @@
+next-version: 3.0
+
 mode: ContinuousDelivery
 branches:
   master:
