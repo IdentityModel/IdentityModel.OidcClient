@@ -287,7 +287,7 @@ namespace IdentityModel.OidcClient.Tests
             var result = await client.ProcessResponseAsync(url, state);
 
             result.IsError.Should().BeTrue();
-            result.Error.Should().Contain("IDX12709: JWT is not well formed");
+            result.Error.Should().Contain("IDX12709");
         }
 
         [Fact]
@@ -310,7 +310,7 @@ namespace IdentityModel.OidcClient.Tests
             var result = await client.ProcessResponseAsync(url, state);
 
             result.IsError.Should().BeTrue();
-            result.Error.Should().StartWith("Error validating token response: Error validating identity token: Microsoft.IdentityModel.Tokens.SecurityTokenInvalidSignatureException: IDX10500: Signature validation failed. No security keys were provided to validate the signature");
+            result.Error.Should().Contain("IDX10501");
         }
 
         [Fact]
