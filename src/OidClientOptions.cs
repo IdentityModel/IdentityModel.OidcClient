@@ -242,7 +242,7 @@ namespace IdentityModel.OidcClient
             /// </summary>
             FormPost,
             /// <summary>
-            /// redirect
+            /// redirect (only allowed for authorization code flow)
             /// </summary>
             Redirect
         }
