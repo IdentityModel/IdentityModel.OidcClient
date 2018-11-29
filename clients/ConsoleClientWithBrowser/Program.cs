@@ -47,7 +47,7 @@ namespace ConsoleClientWithBrowser
             };
 
             var serilog = new LoggerConfiguration()
-                .MinimumLevel.Error()
+                .MinimumLevel.Debug()
                 .Enrich.FromLogContext()
                 .WriteTo.LiterateConsole(outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message}{NewLine}{Exception}{NewLine}")
                 .CreateLogger();
