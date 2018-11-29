@@ -153,7 +153,7 @@ namespace IdentityModel.OidcClient
         /// The handler.
         /// </value>
         [JsonIgnore]
-        public HttpMessageHandler RefreshTokenInnerHttpHandler { get; set; } = new HttpClientHandler();
+        public HttpMessageHandler RefreshTokenInnerHttpHandler { get; set; }
 
         /// <summary>
         /// Gets or sets the HTTP handler used for back-channel communication (token and userinfo endpoint).
@@ -162,7 +162,7 @@ namespace IdentityModel.OidcClient
         /// The backchannel handler.
         /// </value>
         [JsonIgnore]
-        public HttpMessageHandler BackchannelHandler { get; set; } = new HttpClientHandler();
+        public HttpMessageHandler BackchannelHandler { get; set; }
 
         /// <summary>
         /// Gets or sets the backchannel timeout.

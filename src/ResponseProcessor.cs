@@ -250,13 +250,7 @@ namespace IdentityModel.OidcClient
         {
             _logger.LogTrace("RedeemCodeAsync");
 
-            var client = new HttpClient(_options.BackchannelHandler)
-            {
-                Timeout = _options.BackchannelTimeout
-            };
-
-            if (extraParameters == null) extraParameters = new Dictionary<string, string>();
-
+            var client = _options.CreateClient();
             var tokenResult = await client.RequestAuthorizationCodeTokenAsync(new AuthorizationCodeTokenRequest
             {
                 Address = _options.ProviderInformation.TokenEndpoint,
@@ -267,8 +261,8 @@ namespace IdentityModel.OidcClient
                 Code = code,
                 RedirectUri = state.RedirectUri,
                 CodeVerifier = state.CodeVerifier,
-                Parameters = extraParameters
-            }).ConfigureAwait(false);
+                Parameters = extraParameters ?? new Dictionary<string, string>()
+        }).ConfigureAwait(false);
 
             return tokenResult;
         }
