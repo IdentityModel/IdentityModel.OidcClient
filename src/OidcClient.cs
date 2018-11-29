@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace IdentityModel.OidcClient
@@ -206,15 +207,14 @@ namespace IdentityModel.OidcClient
                 AuthenticationTime = DateTime.Now
             };
 
-            // TODO
-            //if (!string.IsNullOrWhiteSpace(loginResult.RefreshToken))
-            //{
-            //    loginResult.RefreshTokenHandler = new RefreshTokenHandler(
-            //        TokenClientFactory.Create(Options),
-            //        loginResult.RefreshToken,
-            //        loginResult.AccessToken,
-            //        Options.RefreshTokenInnerHttpHandler);
-            //}
+            if (loginResult.RefreshToken.IsPresent())
+            {
+                loginResult.RefreshTokenHandler = new RefreshTokenDelegatingHandler(
+                    this,
+                    loginResult.AccessToken,
+                    loginResult.RefreshToken,
+                    Options.RefreshTokenInnerHttpHandler);
+            }
 
             return loginResult;
         }
@@ -232,10 +232,7 @@ namespace IdentityModel.OidcClient
             if (accessToken.IsMissing()) throw new ArgumentNullException(nameof(accessToken));
             if (!Options.ProviderInformation.SupportsUserInfo) throw new InvalidOperationException("No userinfo endpoint specified");
 
-            var userInfoClient = new HttpClient(Options.BackchannelHandler)
-            {
-                Timeout = Options.BackchannelTimeout
-            };
+            var userInfoClient = Options.CreateClient();
 
             var userInfoResponse = await userInfoClient.GetUserInfoAsync(new UserInfoRequest
             {
@@ -262,19 +259,17 @@ namespace IdentityModel.OidcClient
         /// </summary>
         /// <param name="refreshToken">The refresh token.</param>
         /// <param name="extraParameters">The extra parameters.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// A token response.
         /// </returns>
-        public virtual async Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken, IDictionary<string, string> extraParameters = null)
+        public virtual async Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken, IDictionary<string, string> extraParameters = null, CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("RefreshTokenAsync");
 
             await EnsureConfigurationAsync();
-            var client = new HttpClient(Options.BackchannelHandler)
-            {
-                Timeout = Options.BackchannelTimeout
-            };
-
+            var client = Options.CreateClient();
+            
             var response = await client.RequestRefreshTokenAsync(new RefreshTokenRequest
             {
                 Address = Options.ProviderInformation.TokenEndpoint,
@@ -282,8 +277,8 @@ namespace IdentityModel.OidcClient
                 ClientSecret = Options.ClientSecret,
                 ClientCredentialStyle = Options.TokenClientCredentialStyle,
                 RefreshToken = refreshToken, 
-                Parameters = extraParameters
-            }).ConfigureAwait(false);
+                Parameters = extraParameters ?? new Dictionary<string, string>()
+            }, cancellationToken).ConfigureAwait(false);
 
             if (response.IsError)
             {
@@ -340,11 +335,7 @@ namespace IdentityModel.OidcClient
                     }
                 }
 
-                var discoveryClient = new HttpClient(Options.BackchannelHandler)
-                {
-                    Timeout = Options.BackchannelTimeout
-                };
-
+                var discoveryClient = Options.CreateClient();
                 var disco = await discoveryClient.GetDiscoveryDocumentAsync(new DiscoveryDocumentRequest
                 {
                     Address = Options.Authority,
