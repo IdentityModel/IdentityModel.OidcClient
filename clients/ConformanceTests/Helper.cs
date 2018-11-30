@@ -139,15 +139,16 @@ namespace ConformanceTests
         {
             var discoUrl = string.Format(_discoEndpoint, RpId, TestName);
 
-            var client = new DiscoveryClient(discoUrl)
+            var client = new HttpClient();
+            var disco = await client.GetDiscoveryDocumentAsync(new DiscoveryDocumentRequest
             {
+                Address = discoUrl,
                 Policy =
                 {
                     ValidateEndpoints = false
                 }
-            };
+            });
 
-            var disco = await client.GetAsync();
             if (disco.IsError) throw new Exception(disco.Error);
 
             return disco;
@@ -155,7 +156,7 @@ namespace ConformanceTests
 
         public async Task<RegistrationResponse> RegisterClientForCode(string address, string redirectUri)
         {
-            var client = new DynamicRegistrationClient(address);
+            var client = new HttpClient();
 
             var request = new RegistrationRequest
             {
@@ -163,7 +164,12 @@ namespace ConformanceTests
                 ApplicationType = "native"
             };
 
-            var response = await client.RegisterAsync(request);
+            var response = await client.RegisterClientAsync(new DynamicClientRegistrationRequest
+            {
+                Address = address,
+                RegistrationRequest = request
+            });
+
             if (response.IsError) throw new Exception(response.ErrorDescription);
 
             return response;
@@ -171,7 +177,7 @@ namespace ConformanceTests
 
         public async Task<RegistrationResponse> RegisterClientForHybrid(string address, string redirectUri)
         {
-            var client = new DynamicRegistrationClient(address);
+            var client = new HttpClient();
 
             var request = new RegistrationRequest
             {
@@ -181,7 +187,12 @@ namespace ConformanceTests
                 GrantTypes = { "authorization_code", "implicit" }
             };
 
-            var response = await client.RegisterAsync(request);
+            var response = await client.RegisterClientAsync(new DynamicClientRegistrationRequest
+            {
+                Address = address,
+                RegistrationRequest = request
+            });
+
             if (response.IsError) throw new Exception(response.ErrorDescription);
 
             return response;
