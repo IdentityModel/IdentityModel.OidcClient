@@ -69,8 +69,14 @@ namespace IdentityModel.OidcClient
             if (request == null) throw new ArgumentNullException(nameof(request));
 
             await EnsureConfigurationAsync();
-            var authorizeResult = await _authorizeClient.AuthorizeAsync(request.BrowserDisplayMode, request.BrowserTimeout, request.FrontChannelExtraParameters);
 
+            var authorizeResult = await _authorizeClient.AuthorizeAsync(new AuthorizeRequest
+            {
+                DisplayMode = request.BrowserDisplayMode,
+                Timeout = request.BrowserTimeout,
+                ExtraParameters = request.FrontChannelExtraParameters
+            });
+            
             if (authorizeResult.IsError)
             {
                 return new LoginResult(authorizeResult.Error);
@@ -91,9 +97,8 @@ namespace IdentityModel.OidcClient
         /// </summary>
         /// <param name="request">The logout request.</param>
         /// <returns></returns>
-        public virtual async Task<string> PrepareLogoutAsync(LogoutRequest request = null)
+        public virtual async Task<string> PrepareLogoutAsync(LogoutRequest request = default)
         {
-            if (request == null) request = new LogoutRequest();
             await EnsureConfigurationAsync();
 
             var endpoint = Options.ProviderInformation.EndSessionEndpoint;
@@ -110,9 +115,8 @@ namespace IdentityModel.OidcClient
         /// </summary>
         /// <param name="request">The logout request.</param>
         /// <returns></returns>
-        public virtual async Task LogoutAsync(LogoutRequest request = null)
+        public virtual async Task LogoutAsync(LogoutRequest request = default)
         {
-            if (request == null) request = new LogoutRequest();
             await EnsureConfigurationAsync();
 
             await _authorizeClient.EndSessionAsync(request);
@@ -123,7 +127,7 @@ namespace IdentityModel.OidcClient
         /// </summary>
         /// <param name="extraParameters">extra parameters to send to the authorize endpoint.</param>
         /// <returns>State for initiating the authorize request and processing the response</returns>
-        public virtual async Task<AuthorizeState> PrepareLoginAsync(object extraParameters = null)
+        public virtual async Task<AuthorizeState> PrepareLoginAsync(IDictionary<string, string> extraParameters = null)
         {
             _logger.LogTrace("PrepareLoginAsync");
 

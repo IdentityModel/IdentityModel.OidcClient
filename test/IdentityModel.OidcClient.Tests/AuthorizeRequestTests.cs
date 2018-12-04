@@ -3,6 +3,7 @@
 
 
 using FluentAssertions;
+using System.Collections.Generic;
 using Xunit;
 
 namespace IdentityModel.OidcClient.Tests
@@ -50,11 +51,11 @@ namespace IdentityModel.OidcClient.Tests
                 Flow = OidcClientOptions.AuthenticationFlow.Hybrid
             };
 
-            var extra = new
+            var extra = new Dictionary<string, string>
             {
-                client_id = "client_id2",
-                scope = "openid extra",
-                redirect_uri = "http://redirect2"
+                { "client_id", "client_id2" },
+                { "scope", "openid extra" },
+                { "redirect_uri", "http://redirect2" }
             };
 
             var client = new AuthorizeClient(options);
@@ -81,11 +82,11 @@ namespace IdentityModel.OidcClient.Tests
                 Flow = OidcClientOptions.AuthenticationFlow.Hybrid
             };
 
-            var extra = new
+            var extra = new Dictionary<string, string>
             {
-                client_id = "client_id2",
-                scope = "openid extra",
-                redirect_uri = "http://redirect2"
+                { "client_id", "client_id2" },
+                { "scope", "openid extra" },
+                { "redirect_uri", "http://redirect2" }
             };
 
             var client = new AuthorizeClient(options);
