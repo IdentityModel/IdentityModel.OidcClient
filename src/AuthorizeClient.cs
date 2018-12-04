@@ -67,7 +67,7 @@ namespace IdentityModel.OidcClient
             return result;
         }
 
-        public async Task EndSessionAsync(LogoutRequest request)
+        public async Task<BrowserResult> EndSessionAsync(LogoutRequest request)
         {
             var endpoint = _options.ProviderInformation.EndSessionEndpoint;
             if (endpoint.IsMissing())
@@ -83,7 +83,7 @@ namespace IdentityModel.OidcClient
                 DisplayMode = request.BrowserDisplayMode
             };
 
-            var browserResult = await _options.Browser.InvokeAsync(browserOptions);
+            return await _options.Browser.InvokeAsync(browserOptions);
         }
 
         public AuthorizeState CreateAuthorizeState(IDictionary<string, string> extraParameters = default)

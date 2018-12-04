@@ -114,11 +114,26 @@ namespace IdentityModel.OidcClient
         /// </summary>
         /// <param name="request">The logout request.</param>
         /// <returns></returns>
-        public virtual async Task LogoutAsync(LogoutRequest request = default)
+        public virtual async Task<LogoutResult> LogoutAsync(LogoutRequest request = default)
         {
             await EnsureConfigurationAsync();
 
-            await _authorizeClient.EndSessionAsync(request);
+            var result = await _authorizeClient.EndSessionAsync(request);
+
+            if (result.ResultType != Browser.BrowserResultType.Success)
+            {
+                return new LogoutResult(result.ResultType.ToString())
+                {
+                    Response = result.Response
+                };
+            }
+            else
+            {
+                return new LogoutResult
+                {
+                    Response = result.Response
+                };
+            }
         }
 
         /// <summary>
