@@ -37,7 +37,7 @@ namespace IdentityModel.OidcClient.Tests
         };
 
         [Fact]
-        public async Task valid_response_should_succeed()
+        public async Task Valid_response_should_succeed()
         {
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
@@ -69,7 +69,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public async Task multi_tenant_token_issuer_name_should_succeed_by_policy_option()
+        public async Task Multi_tenant_token_issuer_name_should_succeed_by_policy_option()
         {
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
@@ -104,7 +104,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public async Task extra_parameters_on_backchannel_should_be_sent()
+        public async Task Extra_parameters_on_backchannel_should_be_sent()
         {
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
@@ -147,7 +147,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public async Task invalid_nonce_should_fail()
+        public async Task Invalid_nonce_should_fail()
         {
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
@@ -177,7 +177,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public async Task missing_nonce_should_fail()
+        public async Task Missing_nonce_should_fail()
         {
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
@@ -207,7 +207,7 @@ namespace IdentityModel.OidcClient.Tests
 
 
         [Fact]
-        public async Task error_redeeming_code_should_fail()
+        public async Task Error_redeeming_code_should_fail()
         {
             _options.BackchannelHandler = new NetworkHandler(new Exception("error"));
 
@@ -222,7 +222,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public async Task missing_access_token_on_token_response_should_fail()
+        public async Task Missing_access_token_on_token_response_should_fail()
         {
             var tokenResponse = new Dictionary<string, object>
             {
@@ -245,7 +245,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public async Task missing_identity_token_on_token_response_should_fail()
+        public async Task Missing_identity_token_on_token_response_should_fail()
         {
             var tokenResponse = new Dictionary<string, object>
             {
@@ -268,7 +268,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public async Task malformed_identity_token_on_token_response_should_fail()
+        public async Task Malformed_identity_token_on_token_response_should_fail()
         {
             var tokenResponse = new Dictionary<string, object>
             {
@@ -291,7 +291,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public async Task no_keyset_for_identity_token_should_fail()
+        public async Task No_keyset_for_identity_token_should_fail()
         {
             var tokenResponse = new Dictionary<string, object>
             {
@@ -314,7 +314,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public async Task untrusted_identity_token_should_fail()
+        public async Task Untrusted_identity_token_should_fail()
         {
             var tokenResponse = new Dictionary<string, object>
             {
@@ -340,7 +340,7 @@ namespace IdentityModel.OidcClient.Tests
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async Task at_hash_policy_should_be_enforced(bool atHashRequired)
+        public async Task At_hash_policy_should_be_enforced(bool atHashRequired)
         {
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
@@ -382,7 +382,7 @@ namespace IdentityModel.OidcClient.Tests
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async Task invalid_at_hash_should_fail(bool atHashRequired)
+        public async Task Invalid_at_hash_should_fail(bool atHashRequired)
         {
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
@@ -413,7 +413,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public async Task invalid_signing_algorithm_should_fail()
+        public async Task Invalid_signing_algorithm_should_fail()
         {
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();

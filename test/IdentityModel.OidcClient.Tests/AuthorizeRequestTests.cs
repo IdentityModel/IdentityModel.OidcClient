@@ -11,7 +11,7 @@ namespace IdentityModel.OidcClient.Tests
     public class AuthorizeRequestTests
     {
         [Fact]
-        public void default_parameters_should_be_used_for_authorize_request()
+        public void Default_parameters_should_be_used_for_authorize_request()
         {
             var options = new OidcClientOptions
             {
@@ -39,7 +39,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public void extra_parameters_should_override_default_parameters()
+        public void Extra_parameters_should_override_default_parameters()
         {
             var options = new OidcClientOptions
             {
@@ -74,7 +74,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public void missing_default_parameters_can_be_set_by_extra_parameters()
+        public void Missing_default_parameters_can_be_set_by_extra_parameters()
         {
             var options = new OidcClientOptions
             {

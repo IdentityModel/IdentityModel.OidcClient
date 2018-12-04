@@ -10,7 +10,7 @@ namespace IdentityModel.OidcClient.Tests
     public class EndSessionUrlTests
     {
         [Fact]
-        public void default_parameters_should_create_expected_end_session_url()
+        public void Default_parameters_should_create_expected_end_session_url()
         {
             var options = new OidcClientOptions();
             var client = new AuthorizeClient(options);
@@ -21,7 +21,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public void post_logout_redirect_parameter_should_create_expected_end_session_url()
+        public void Post_logout_redirect_parameter_should_create_expected_end_session_url()
         {
             var options = new OidcClientOptions
             {
@@ -35,7 +35,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public void post_logout_redirect_parameter_and_id_token_hint_should_create_expected_end_session_url()
+        public void Post_logout_redirect_parameter_and_id_token_hint_should_create_expected_end_session_url()
         {
             var options = new OidcClientOptions
             {
@@ -49,7 +49,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public void id_token_hint_should_create_expected_end_session_url()
+        public void Id_token_hint_should_create_expected_end_session_url()
         {
             var options = new OidcClientOptions();
             var client = new AuthorizeClient(options);
