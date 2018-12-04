@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -228,7 +227,7 @@ namespace IdentityModel.OidcClient
         /// </summary>
         /// <param name="accessToken">The access token.</param>
         /// <returns>User claims</returns>
-        public virtual async Task<UserInfoResult> GetUserInfoAsync(string accessToken)
+        public virtual async Task<UserInfoResult> GetUserInfoAsync(string accessToken, CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("GetUserInfoAsync");
 
@@ -242,7 +241,7 @@ namespace IdentityModel.OidcClient
             {
                 Address = Options.ProviderInformation.UserInfoEndpoint,
                 Token = accessToken
-            }).ConfigureAwait(false);
+            }, cancellationToken).ConfigureAwait(false);
 
             if (userInfoResponse.IsError)
             {
