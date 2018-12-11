@@ -182,7 +182,7 @@ namespace IdentityModel.OidcClient
                             {
                                 try
                                 {
-                                    del(this, new TokenRefreshedEventArgs(response.AccessToken, response.RefreshToken, (int)response.ExpiresIn));
+                                    del(this, new TokenRefreshedEventArgs(response.AccessToken, response.RefreshToken, response.ExpiresIn));
                                 }
                                 catch { }
                             }

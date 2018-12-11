@@ -42,7 +42,7 @@ namespace IdentityModel.OidcClient.Results
         /// <value>
         /// The expires in.
         /// </value>
-        public virtual int ExpiresIn { get; internal set; }
+        public virtual TimeSpan ExpiresIn { get; internal set; }
         
         /// <summary>
         /// Gets or sets the access token expiration.
