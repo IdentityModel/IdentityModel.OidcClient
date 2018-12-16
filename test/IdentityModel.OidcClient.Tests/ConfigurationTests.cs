@@ -153,7 +153,7 @@ namespace IdentityModel.OidcClient.Tests
 
             Func<Task> act = async () => { await client.EnsureProviderInformationAsync(); };
 
-            act.Should().Throw<InvalidOperationException>().Where(e => e.Message.Equals("Error loading discovery document: Error connecting to https://authority/.well-known/openid-configuration: error"));
+            act.Should().Throw<InvalidOperationException>().Where(e => e.Message.Equals("Error loading discovery document: Error connecting to https://authority/.well-known/openid-configuration. error."));
         }
 
         [Fact]

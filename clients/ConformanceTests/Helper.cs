@@ -135,7 +135,7 @@ namespace ConformanceTests
             return options;
         }
 
-        public async Task<DiscoveryResponse> GetDiscoveryDocument()
+        public async Task<DiscoveryDocumentResponse> GetDiscoveryDocument()
         {
             var discoUrl = string.Format(_discoEndpoint, RpId, TestName);
 
@@ -154,11 +154,11 @@ namespace ConformanceTests
             return disco;
         }
 
-        public async Task<RegistrationResponse> RegisterClientForCode(string address, string redirectUri)
+        public async Task<DynamicClientRegistrationResponse> RegisterClientForCode(string address, string redirectUri)
         {
             var client = new HttpClient();
 
-            var request = new RegistrationRequest
+            var document = new DynamicClientRegistrationDocument
             {
                 RedirectUris = { redirectUri },
                 ApplicationType = "native"
@@ -167,7 +167,7 @@ namespace ConformanceTests
             var response = await client.RegisterClientAsync(new DynamicClientRegistrationRequest
             {
                 Address = address,
-                RegistrationRequest = request
+                Document = document
             });
 
             if (response.IsError) throw new Exception(response.ErrorDescription);
@@ -175,11 +175,11 @@ namespace ConformanceTests
             return response;
         }
 
-        public async Task<RegistrationResponse> RegisterClientForHybrid(string address, string redirectUri)
+        public async Task<DynamicClientRegistrationResponse> RegisterClientForHybrid(string address, string redirectUri)
         {
             var client = new HttpClient();
 
-            var request = new RegistrationRequest
+            var document = new DynamicClientRegistrationDocument
             {
                 RedirectUris = { redirectUri },
                 ApplicationType = "native",
@@ -190,7 +190,7 @@ namespace ConformanceTests
             var response = await client.RegisterClientAsync(new DynamicClientRegistrationRequest
             {
                 Address = address,
-                RegistrationRequest = request
+                Document = document
             });
 
             if (response.IsError) throw new Exception(response.ErrorDescription);
