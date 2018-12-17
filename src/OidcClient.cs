@@ -241,7 +241,12 @@ namespace IdentityModel.OidcClient
         /// Gets the user claims from the userinfo endpoint.
         /// </summary>
         /// <param name="accessToken">The access token.</param>
-        /// <returns>User claims</returns>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// User claims
+        /// </returns>
+        /// <exception cref="ArgumentNullException">accessToken</exception>
+        /// <exception cref="InvalidOperationException">No userinfo endpoint specified</exception>
         public virtual async Task<UserInfoResult> GetUserInfoAsync(string accessToken, CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("GetUserInfoAsync");
