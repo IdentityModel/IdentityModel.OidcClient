@@ -5,9 +5,11 @@
 using FluentAssertions;
 using IdentityModel.Jwk;
 using IdentityModel.OidcClient.Tests.Infrastructure;
+using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
@@ -66,6 +68,80 @@ namespace IdentityModel.OidcClient.Tests
             result.AccessToken.Should().Be("token");
             result.IdentityToken.Should().NotBeNull();
             result.User.Should().NotBeNull();
+        }
+
+        [Fact]
+        public async Task Sending_authorization_header_should_succeed()
+        {
+            _options.ClientSecret = "secret";
+            _options.TokenClientCredentialStyle = Client.ClientCredentialStyle.AuthorizationHeader;
+
+            var client = new OidcClient(_options);
+            var state = await client.PrepareLoginAsync();
+
+            var url = $"?state={state.State}&nonce={state.Nonce}&code=bar";
+            var key = Crypto.CreateKey();
+            var idToken = Crypto.CreateJwt(key, "https://authority", "client",
+                new Claim("at_hash", Crypto.HashData("token")),
+                new Claim("sub", "123"),
+                new Claim("nonce", state.Nonce));
+
+            var tokenResponse = new Dictionary<string, object>
+            {
+                { "access_token", "token" },
+                { "expires_in", 300 },
+                { "id_token", idToken },
+                { "refresh_token", "refresh_token" }
+            };
+
+            _options.ProviderInformation.KeySet = Crypto.CreateKeySet(key);
+
+            var backChannelHandler = new NetworkHandler(JsonConvert.SerializeObject(tokenResponse), HttpStatusCode.OK);
+            _options.BackchannelHandler = backChannelHandler;
+
+            var result = await client.ProcessResponseAsync(url, state);
+
+            var request = backChannelHandler.Request;
+
+            request.Headers.Authorization.Should().NotBeNull();
+            request.Headers.Authorization.Scheme.Should().Be("Basic");
+            request.Headers.Authorization.Parameter.Should().Be(BasicAuthenticationOAuthHeaderValue.EncodeCredential("client", "secret"));
+        }
+
+        [Fact]
+        public async Task Sending_client_credentials_in_body_should_succeed()
+        {
+            _options.ClientSecret = "secret";
+            _options.TokenClientCredentialStyle = Client.ClientCredentialStyle.PostBody;
+
+            var client = new OidcClient(_options);
+            var state = await client.PrepareLoginAsync();
+
+            var url = $"?state={state.State}&nonce={state.Nonce}&code=bar";
+            var key = Crypto.CreateKey();
+            var idToken = Crypto.CreateJwt(key, "https://authority", "client",
+                new Claim("at_hash", Crypto.HashData("token")),
+                new Claim("sub", "123"),
+                new Claim("nonce", state.Nonce));
+
+            var tokenResponse = new Dictionary<string, object>
+            {
+                { "access_token", "token" },
+                { "expires_in", 300 },
+                { "id_token", idToken },
+                { "refresh_token", "refresh_token" }
+            };
+
+            _options.ProviderInformation.KeySet = Crypto.CreateKeySet(key);
+
+            var backChannelHandler = new NetworkHandler(JsonConvert.SerializeObject(tokenResponse), HttpStatusCode.OK);
+            _options.BackchannelHandler = backChannelHandler;
+
+            var result = await client.ProcessResponseAsync(url, state);
+
+            var fields = QueryHelpers.ParseQuery(backChannelHandler.Body);
+            fields["client_id"].First().Should().Be("client");
+            fields["client_secret"].First().Should().Be("secret");
         }
 
         [Fact]

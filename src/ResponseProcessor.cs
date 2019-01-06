@@ -256,6 +256,7 @@ namespace IdentityModel.OidcClient
 
                 ClientId = _options.ClientId,
                 ClientSecret = _options.ClientSecret,
+                ClientCredentialStyle = _options.TokenClientCredentialStyle,
 
                 Code = code,
                 RedirectUri = state.RedirectUri,
