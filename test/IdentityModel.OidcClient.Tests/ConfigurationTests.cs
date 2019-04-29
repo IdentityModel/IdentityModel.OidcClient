@@ -15,7 +15,7 @@ namespace IdentityModel.OidcClient.Tests
     public class ConfigurationTests
     {
         [Fact]
-        public void null_options_should_throw_exception()
+        public void Null_options_should_throw_exception()
         {
             OidcClientOptions options = null;
 
@@ -25,7 +25,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public void no_authority_and_no_static_config_should_throw_exception()
+        public void No_authority_and_no_static_config_should_throw_exception()
         {
             var options = new OidcClientOptions();
 
@@ -35,7 +35,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public void providing_required_provider_information_should_not_throw()
+        public void Providing_required_provider_information_should_not_throw()
         {
             var options = new OidcClientOptions
             {
@@ -56,7 +56,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public void missing_issuer_should_throw()
+        public void Missing_issuer_should_throw()
         {
             var options = new OidcClientOptions
             {
@@ -77,7 +77,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public void missing_authorize_endpoint_should_throw()
+        public void Missing_authorize_endpoint_should_throw()
         {
             var options = new OidcClientOptions
             {
@@ -98,7 +98,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public void missing_token_endpoint_should_throw()
+        public void Missing_token_endpoint_should_throw()
         {
             var options = new OidcClientOptions
             {
@@ -119,7 +119,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public void missing_keyset_should_throw()
+        public void Missing_keyset_should_throw()
         {
             var options = new OidcClientOptions
             {
@@ -140,7 +140,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public void exception_while_loading_discovery_document_should_throw()
+        public void Exception_while_loading_discovery_document_should_throw()
         {
             var options = new OidcClientOptions
             {
@@ -153,11 +153,11 @@ namespace IdentityModel.OidcClient.Tests
 
             Func<Task> act = async () => { await client.EnsureProviderInformationAsync(); };
 
-            act.Should().Throw<InvalidOperationException>().Where(e => e.Message.Equals("Error loading discovery document: Error connecting to https://authority/.well-known/openid-configuration: error"));
+            act.Should().Throw<InvalidOperationException>().Where(e => e.Message.Equals("Error loading discovery document: Error connecting to https://authority/.well-known/openid-configuration. error."));
         }
 
         [Fact]
-        public void error401_while_loading_discovery_document_should_throw()
+        public void Error401_while_loading_discovery_document_should_throw()
         {
             var options = new OidcClientOptions
             {

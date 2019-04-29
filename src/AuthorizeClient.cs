@@ -5,7 +5,6 @@ using IdentityModel.OidcClient.Results;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace IdentityModel.OidcClient
@@ -27,7 +26,7 @@ namespace IdentityModel.OidcClient
             _crypto = new CryptoHelper(options);
         }
 
-        public async Task<AuthorizeResult> AuthorizeAsync(DisplayMode displayMode = DisplayMode.Visible, int timeout = 300, object extraParameters = null)
+        public async Task<AuthorizeResult> AuthorizeAsync(AuthorizeRequest request)
         {
             _logger.LogTrace("AuthorizeAsync");
 
@@ -38,13 +37,13 @@ namespace IdentityModel.OidcClient
 
             AuthorizeResult result = new AuthorizeResult
             {
-                State = CreateAuthorizeState(extraParameters)
+                State = CreateAuthorizeState(request.ExtraParameters)
             };
 
             var browserOptions = new BrowserOptions(result.State.StartUrl, _options.RedirectUri)
             {
-                Timeout = TimeSpan.FromSeconds(timeout),
-                DisplayMode = displayMode
+                Timeout = TimeSpan.FromSeconds(request.Timeout),
+                DisplayMode = request.DisplayMode
             };
 
             if (_options.ResponseMode == OidcClientOptions.AuthorizeResponseMode.FormPost)
@@ -68,7 +67,7 @@ namespace IdentityModel.OidcClient
             return result;
         }
 
-        public async Task EndSessionAsync(LogoutRequest request)
+        public async Task<BrowserResult> EndSessionAsync(LogoutRequest request)
         {
             var endpoint = _options.ProviderInformation.EndSessionEndpoint;
             if (endpoint.IsMissing())
@@ -84,10 +83,10 @@ namespace IdentityModel.OidcClient
                 DisplayMode = request.BrowserDisplayMode
             };
 
-            var browserResult = await _options.Browser.InvokeAsync(browserOptions);
+            return await _options.Browser.InvokeAsync(browserOptions);
         }
 
-        public AuthorizeState CreateAuthorizeState(object extraParameters = null)
+        public AuthorizeState CreateAuthorizeState(IDictionary<string, string> extraParameters = default)
         {
             _logger.LogTrace("CreateAuthorizeStateAsync");
 
@@ -108,7 +107,7 @@ namespace IdentityModel.OidcClient
             return state;
         }
 
-        internal string CreateAuthorizeUrl(string state, string nonce, string codeChallenge, object extraParameters)
+        internal string CreateAuthorizeUrl(string state, string nonce, string codeChallenge, IDictionary<string, string> extraParameters)
         {
             _logger.LogTrace("CreateAuthorizeUrl");
 
@@ -127,7 +126,7 @@ namespace IdentityModel.OidcClient
                 postLogoutRedirectUri: _options.PostLogoutRedirectUri);
         }
 
-        internal Dictionary<string, string> CreateAuthorizeParameters(string state, string nonce, string codeChallenge, object extraParameters)
+        internal Dictionary<string, string> CreateAuthorizeParameters(string state, string nonce, string codeChallenge, IDictionary<string, string> extraParameters)
         {
             _logger.LogTrace("CreateAuthorizeParameters");
 
@@ -170,10 +169,9 @@ namespace IdentityModel.OidcClient
                 parameters.Add(OidcConstants.AuthorizeRequest.ResponseMode, OidcConstants.ResponseModes.FormPost);
             }
 
-            var extraDictionary = ObjectToDictionary(extraParameters);
-            if (extraDictionary != null)
+            if (extraParameters != null)
             {
-                foreach (var entry in extraDictionary)
+                foreach (var entry in extraParameters)
                 {
                     if (!string.IsNullOrWhiteSpace(entry.Value))
                     {
@@ -190,34 +188,6 @@ namespace IdentityModel.OidcClient
             }
 
             return parameters;
-        }
-
-        private Dictionary<string, string> ObjectToDictionary(object values)
-        {
-            _logger.LogTrace("ObjectToDictionary");
-
-            if (values == null)
-            {
-                return null;
-            }
-
-            if (values is Dictionary<string, string> dictionary)
-            {
-                return dictionary;
-            }
-
-            dictionary = new Dictionary<string, string>();
-
-            foreach (var prop in values.GetType().GetRuntimeProperties())
-            {
-                var value = prop.GetValue(values) as string;
-                if (!string.IsNullOrEmpty(value))
-                {
-                    dictionary.Add(prop.Name, value);
-                }
-            }
-
-            return dictionary;
         }
     }
 }

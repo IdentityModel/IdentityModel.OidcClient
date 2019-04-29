@@ -35,7 +35,7 @@ namespace IdentityModel.OidcClient.Tests
         };
 
         [Fact]
-        public async Task missing_identity_token_should_be_rejected()
+        public async Task Missing_identity_token_should_be_rejected()
         {
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
@@ -48,7 +48,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public async Task valid_response_should_succeed()
+        public async Task Valid_response_should_succeed()
         {
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
@@ -86,7 +86,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public async Task extra_parameters_on_backchannel_should_be_sent()
+        public async Task Extra_parameters_on_backchannel_should_be_sent()
         {
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
@@ -116,10 +116,10 @@ namespace IdentityModel.OidcClient.Tests
             var handler = new NetworkHandler(JsonConvert.SerializeObject(tokenResponse), HttpStatusCode.OK);
             _options.BackchannelHandler = handler;
 
-            var extra = new
+            var extra = new Dictionary<string, string>
             {
-                foo = "foo",
-                bar = "bar"
+                { "foo", "foo" },
+                { "bar", "bar" }
             };
 
             var result = await client.ProcessResponseAsync(url, state, extra);
@@ -136,7 +136,7 @@ namespace IdentityModel.OidcClient.Tests
 
 
         [Fact]
-        public async Task invalid_nonce_should_fail()
+        public async Task Invalid_nonce_should_fail()
         {
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
@@ -158,7 +158,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public async Task missing_nonce_should_fail()
+        public async Task Missing_nonce_should_fail()
         {
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
@@ -179,7 +179,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public async Task invalid_cHash_should_fail()
+        public async Task Invalid_cHash_should_fail()
         {
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
@@ -203,7 +203,7 @@ namespace IdentityModel.OidcClient.Tests
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async Task cHash_policy_should_be_enforced(bool requireCHash)
+        public async Task CHash_policy_should_be_enforced(bool requireCHash)
         {
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
@@ -249,7 +249,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public async Task non_matching_subs_should_fail()
+        public async Task Non_matching_subs_should_fail()
         {
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();

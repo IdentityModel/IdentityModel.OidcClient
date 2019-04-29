@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using IdentityModel.Client;
 using IdentityModel.OidcClient.Browser;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -114,12 +115,12 @@ namespace IdentityModel.OidcClient
         public bool RefreshDiscoveryOnSignatureFailure { get; set; } = false;
 
         /// <summary>
-        /// Gets or sets a value indicating whether a response_mode of form_post will be used.
+        /// Gets or sets a value indicating whether which response_mode to use (form_post vs redirect). Defaults to redirect.
         /// </summary>
         /// <value>
-        ///   <c>true</c> for using form_post; otherwise, <c>false</c>.
+        /// The response mode.
         /// </value>
-        public AuthorizeResponseMode ResponseMode { get; set; } = AuthorizeResponseMode.FormPost;
+        public AuthorizeResponseMode ResponseMode { get; set; } = AuthorizeResponseMode.Redirect;
 
         /// <summary>
         /// Gets or sets a value indicating whether claims are loaded from the userinfo endpoint
@@ -138,12 +139,12 @@ namespace IdentityModel.OidcClient
         public bool FilterClaims { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets the flow used for authentication (defaults to hybrid).
+        /// Gets or sets the flow used for authentication (defaults to code).
         /// </summary>
         /// <value>
         /// The flow.
         /// </value>
-        public AuthenticationFlow Flow { get; set; } = AuthenticationFlow.Hybrid;
+        public AuthenticationFlow Flow { get; set; } = AuthenticationFlow.AuthorizationCode;
 
         /// <summary>
         /// Gets or sets the inner HTTP handler used with RefreshTokenHandler.
@@ -152,7 +153,7 @@ namespace IdentityModel.OidcClient
         /// The handler.
         /// </value>
         [JsonIgnore]
-        public HttpMessageHandler RefreshTokenInnerHttpHandler { get; set; } = new HttpClientHandler();
+        public HttpMessageHandler RefreshTokenInnerHttpHandler { get; set; }
 
         /// <summary>
         /// Gets or sets the HTTP handler used for back-channel communication (token and userinfo endpoint).
@@ -161,7 +162,7 @@ namespace IdentityModel.OidcClient
         /// The backchannel handler.
         /// </value>
         [JsonIgnore]
-        public HttpMessageHandler BackchannelHandler { get; set; } = new HttpClientHandler();
+        public HttpMessageHandler BackchannelHandler { get; set; }
 
         /// <summary>
         /// Gets or sets the backchannel timeout.
@@ -177,7 +178,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The token client authentication style.
         /// </value>
-        public Client.AuthenticationStyle TokenClientAuthenticationStyle { get; set; } = Client.AuthenticationStyle.PostValues;
+        public ClientCredentialStyle TokenClientCredentialStyle { get; set; } = ClientCredentialStyle.PostBody;
 
         /// <summary>
         /// Gets or sets the policy.
@@ -241,7 +242,7 @@ namespace IdentityModel.OidcClient
             /// </summary>
             FormPost,
             /// <summary>
-            /// redirect
+            /// redirect (only allowed for authorization code flow)
             /// </summary>
             Redirect
         }

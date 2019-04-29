@@ -3,15 +3,15 @@
 
 
 using IdentityModel.Client;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using IdentityModel.OidcClient.Infrastructure;
-using System.Security.Claims;
-using System.Collections.Generic;
-using Microsoft.Extensions.Logging;
 using IdentityModel.OidcClient.Results;
-using IdentityModel.OidcClient.Browser;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace IdentityModel.OidcClient
 {
@@ -20,7 +20,6 @@ namespace IdentityModel.OidcClient
     /// </summary>
     public class OidcClient
     {
-        private readonly OidcClientOptions _options;
         private readonly ILogger _logger;
         private readonly AuthorizeClient _authorizeClient;
 
@@ -33,10 +32,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The options.
         /// </value>
-        public OidcClientOptions Options
-        {
-            get { return _options; }
-        }
+        public OidcClientOptions Options { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OidcClient"/> class.
@@ -49,32 +45,14 @@ namespace IdentityModel.OidcClient
 
             if (options.ProviderInformation == null)
             {
-                if (options.Authority.IsMissing()) throw new ArgumentException("No authority specified", nameof(_options.Authority));
+                if (options.Authority.IsMissing()) throw new ArgumentException("No authority specified", nameof(Options.Authority));
                 useDiscovery = true;
             }
 
-            _options = options;
+            Options = options;
             _logger = options.LoggerFactory.CreateLogger<OidcClient>();
             _authorizeClient = new AuthorizeClient(options);
             _processor = new ResponseProcessor(options, EnsureProviderInformationAsync);
-        }
-
-        /// <summary>
-        /// Starts a login.
-        /// </summary>
-        /// <param name="displayMode">The browser display mode.</param>
-        /// <param name="timeout">The browser timeout.</param>
-        /// <param name="extraParameters">The extra parameters.</param>
-        /// <returns></returns>
-        [Obsolete("This method will be removed in a future version. Please change your code to use LoginRequest")]
-        public virtual async Task<LoginResult> LoginAsync(DisplayMode displayMode = DisplayMode.Visible, int timeout = 300, object extraParameters = null)
-        {
-            return await LoginAsync(new LoginRequest
-            {
-                BrowserDisplayMode = displayMode,
-                BrowserTimeout = timeout,
-                FrontChannelExtraParameters = extraParameters
-            });
         }
 
         /// <summary>
@@ -87,12 +65,17 @@ namespace IdentityModel.OidcClient
             _logger.LogTrace("LoginAsync");
             _logger.LogInformation("Starting authentication request.");
 
-            // fallback to defaults 
-            if (request == null) request = new LoginRequest();
+            if (request == null) throw new ArgumentNullException(nameof(request));
 
             await EnsureConfigurationAsync();
-            var authorizeResult = await _authorizeClient.AuthorizeAsync(request.BrowserDisplayMode, request.BrowserTimeout, request.FrontChannelExtraParameters);
 
+            var authorizeResult = await _authorizeClient.AuthorizeAsync(new AuthorizeRequest
+            {
+                DisplayMode = request.BrowserDisplayMode,
+                Timeout = request.BrowserTimeout,
+                ExtraParameters = request.FrontChannelExtraParameters
+            });
+            
             if (authorizeResult.IsError)
             {
                 return new LoginResult(authorizeResult.Error);
@@ -113,12 +96,11 @@ namespace IdentityModel.OidcClient
         /// </summary>
         /// <param name="request">The logout request.</param>
         /// <returns></returns>
-        public virtual async Task<string> PrepareLogoutAsync(LogoutRequest request = null)
+        public virtual async Task<string> PrepareLogoutAsync(LogoutRequest request = default)
         {
-            if (request == null) request = new LogoutRequest();
             await EnsureConfigurationAsync();
 
-            var endpoint = _options.ProviderInformation.EndSessionEndpoint;
+            var endpoint = Options.ProviderInformation.EndSessionEndpoint;
             if (endpoint.IsMissing())
             {
                 throw new InvalidOperationException("Discovery document has no end session endpoint");
@@ -132,12 +114,26 @@ namespace IdentityModel.OidcClient
         /// </summary>
         /// <param name="request">The logout request.</param>
         /// <returns></returns>
-        public virtual async Task LogoutAsync(LogoutRequest request = null)
+        public virtual async Task<LogoutResult> LogoutAsync(LogoutRequest request = default)
         {
-            if (request == null) request = new LogoutRequest();
             await EnsureConfigurationAsync();
 
-            await _authorizeClient.EndSessionAsync(request);
+            var result = await _authorizeClient.EndSessionAsync(request);
+
+            if (result.ResultType != Browser.BrowserResultType.Success)
+            {
+                return new LogoutResult(result.ResultType.ToString())
+                {
+                    Response = result.Response
+                };
+            }
+            else
+            {
+                return new LogoutResult
+                {
+                    Response = result.Response
+                };
+            }
         }
 
         /// <summary>
@@ -145,7 +141,7 @@ namespace IdentityModel.OidcClient
         /// </summary>
         /// <param name="extraParameters">extra parameters to send to the authorize endpoint.</param>
         /// <returns>State for initiating the authorize request and processing the response</returns>
-        public virtual async Task<AuthorizeState> PrepareLoginAsync(object extraParameters = null)
+        public virtual async Task<AuthorizeState> PrepareLoginAsync(IDictionary<string, string> extraParameters = null)
         {
             _logger.LogTrace("PrepareLoginAsync");
 
@@ -162,7 +158,7 @@ namespace IdentityModel.OidcClient
         /// <returns>
         /// Result of the login response validation
         /// </returns>
-        public virtual async Task<LoginResult> ProcessResponseAsync(string data, AuthorizeState state, object extraParameters = null)
+        public virtual async Task<LoginResult> ProcessResponseAsync(string data, AuthorizeState state, IDictionary<string, string> extraParameters = null)
         {
             _logger.LogTrace("ProcessResponseAsync");
             _logger.LogInformation("Processing response.");
@@ -186,7 +182,7 @@ namespace IdentityModel.OidcClient
             }
 
             var userInfoClaims = Enumerable.Empty<Claim>();
-            if (_options.LoadProfile)
+            if (Options.LoadProfile)
             {
                 var userInfoResult = await GetUserInfoAsync(result.TokenResponse.AccessToken);
                 if (userInfoResult.IsError)
@@ -229,13 +225,13 @@ namespace IdentityModel.OidcClient
                 AuthenticationTime = DateTime.Now
             };
 
-            if (!string.IsNullOrWhiteSpace(loginResult.RefreshToken))
+            if (loginResult.RefreshToken.IsPresent())
             {
-                loginResult.RefreshTokenHandler = new RefreshTokenHandler(
-                    TokenClientFactory.Create(_options),
-                    loginResult.RefreshToken,
+                loginResult.RefreshTokenHandler = new RefreshTokenDelegatingHandler(
+                    this,
                     loginResult.AccessToken,
-                    _options.RefreshTokenInnerHttpHandler);
+                    loginResult.RefreshToken,
+                    Options.RefreshTokenInnerHttpHandler);
             }
 
             return loginResult;
@@ -245,21 +241,28 @@ namespace IdentityModel.OidcClient
         /// Gets the user claims from the userinfo endpoint.
         /// </summary>
         /// <param name="accessToken">The access token.</param>
-        /// <returns>User claims</returns>
-        public virtual async Task<UserInfoResult> GetUserInfoAsync(string accessToken)
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// User claims
+        /// </returns>
+        /// <exception cref="ArgumentNullException">accessToken</exception>
+        /// <exception cref="InvalidOperationException">No userinfo endpoint specified</exception>
+        public virtual async Task<UserInfoResult> GetUserInfoAsync(string accessToken, CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("GetUserInfoAsync");
 
             await EnsureConfigurationAsync();
             if (accessToken.IsMissing()) throw new ArgumentNullException(nameof(accessToken));
-            if (!_options.ProviderInformation.SupportsUserInfo) throw new InvalidOperationException("No userinfo endpoint specified");
+            if (!Options.ProviderInformation.SupportsUserInfo) throw new InvalidOperationException("No userinfo endpoint specified");
 
-            var userInfoClient = new UserInfoClient(_options.ProviderInformation.UserInfoEndpoint, _options.BackchannelHandler)
+            var userInfoClient = Options.CreateClient();
+
+            var userInfoResponse = await userInfoClient.GetUserInfoAsync(new UserInfoRequest
             {
-                Timeout = _options.BackchannelTimeout
-            };
+                Address = Options.ProviderInformation.UserInfoEndpoint,
+                Token = accessToken
+            }, cancellationToken).ConfigureAwait(false);
 
-            var userInfoResponse = await userInfoClient.GetAsync(accessToken);
             if (userInfoResponse.IsError)
             {
                 return new UserInfoResult
@@ -279,16 +282,26 @@ namespace IdentityModel.OidcClient
         /// </summary>
         /// <param name="refreshToken">The refresh token.</param>
         /// <param name="extraParameters">The extra parameters.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// A token response.
         /// </returns>
-        public virtual async Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken, object extraParameters = null)
+        public virtual async Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken, IDictionary<string, string> extraParameters = null, CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("RefreshTokenAsync");
 
             await EnsureConfigurationAsync();
-            var client = TokenClientFactory.Create(_options);
-            var response = await client.RequestRefreshTokenAsync(refreshToken, extra: extraParameters);
+            var client = Options.CreateClient();
+            
+            var response = await client.RequestRefreshTokenAsync(new RefreshTokenRequest
+            {
+                Address = Options.ProviderInformation.TokenEndpoint,
+                ClientId = Options.ClientId,
+                ClientSecret = Options.ClientSecret,
+                ClientCredentialStyle = Options.TokenClientCredentialStyle,
+                RefreshToken = refreshToken, 
+                Parameters = extraParameters ?? new Dictionary<string, string>()
+            }, cancellationToken).ConfigureAwait(false);
 
             if (response.IsError)
             {
@@ -296,7 +309,7 @@ namespace IdentityModel.OidcClient
             }
 
             // validate token response
-            var validationResult = await _processor.ValidateTokenResponseAsync(response, null, requireIdentityToken: _options.Policy.RequireIdentityTokenOnRefreshTokenResponse);
+            var validationResult = await _processor.ValidateTokenResponseAsync(response, null, requireIdentityToken: Options.Policy.RequireIdentityTokenOnRefreshTokenResponse);
             if (validationResult.IsError)
             {
                 return new RefreshTokenResult { Error = validationResult.Error };
@@ -314,7 +327,7 @@ namespace IdentityModel.OidcClient
 
         internal async Task EnsureConfigurationAsync()
         {
-            if (_options.Flow == OidcClientOptions.AuthenticationFlow.Hybrid && _options.Policy.RequireIdentityTokenSignature == false)
+            if (Options.Flow == OidcClientOptions.AuthenticationFlow.Hybrid && Options.Policy.RequireIdentityTokenSignature == false)
             {
                 var error = "Allowing unsigned identity tokens is not allowed for hybrid flow";
                 _logger.LogError(error);
@@ -325,7 +338,7 @@ namespace IdentityModel.OidcClient
             await EnsureProviderInformationAsync();
 
             _logger.LogTrace("Effective options:");
-            _logger.LogTrace(LogSerializer.Serialize(_options));
+            _logger.LogTrace(LogSerializer.Serialize(Options));
         }
 
         internal async Task EnsureProviderInformationAsync()
@@ -334,10 +347,10 @@ namespace IdentityModel.OidcClient
 
             if (useDiscovery)
             {
-                if (_options.RefreshDiscoveryDocumentForLogin == false)
+                if (Options.RefreshDiscoveryDocumentForLogin == false)
                 {
                     // discovery document has been loaded before - skip reload
-                    if (_options.ProviderInformation != null)
+                    if (Options.ProviderInformation != null)
                     {
                         _logger.LogDebug("Skipping refresh of discovery document.");
 
@@ -345,14 +358,13 @@ namespace IdentityModel.OidcClient
                     }
                 }
 
-                var client = new DiscoveryClient(_options.Authority, _options.BackchannelHandler)
+                var discoveryClient = Options.CreateClient();
+                var disco = await discoveryClient.GetDiscoveryDocumentAsync(new DiscoveryDocumentRequest
                 {
-                    Policy = _options.Policy.Discovery,
-                    Timeout = _options.BackchannelTimeout
-                };
-
-                var disco = await client.GetAsync().ConfigureAwait(false);
-                
+                    Address = Options.Authority,
+                    Policy = Options.Policy.Discovery
+                }).ConfigureAwait(false);
+               
                 if (disco.IsError)
                 {
                     _logger.LogError("Error loading discovery document: {errorType} - {error}", disco.ErrorType.ToString(), disco.Error);
@@ -369,7 +381,7 @@ namespace IdentityModel.OidcClient
                 _logger.LogDebug("Loaded keyset from {jwks_uri}", disco.JwksUri);
                 _logger.LogDebug("Keyset contains the following kids: {kids}", from k in disco.KeySet.Keys select k.Kid ?? "unspecified");
 
-                _options.ProviderInformation = new ProviderInformation
+                Options.ProviderInformation = new ProviderInformation
                 {
                     IssuerName = disco.Issuer,
                     KeySet = disco.KeySet,
@@ -382,7 +394,7 @@ namespace IdentityModel.OidcClient
                 };
             }
 
-            if (_options.ProviderInformation.IssuerName.IsMissing())
+            if (Options.ProviderInformation.IssuerName.IsMissing())
             {
                 var error = "Issuer name is missing in provider information";
 
@@ -390,7 +402,7 @@ namespace IdentityModel.OidcClient
                 throw new InvalidOperationException(error);
             }
 
-            if (_options.ProviderInformation.AuthorizeEndpoint.IsMissing())
+            if (Options.ProviderInformation.AuthorizeEndpoint.IsMissing())
             {
                 var error = "Authorize endpoint is missing in provider information";
 
@@ -398,7 +410,7 @@ namespace IdentityModel.OidcClient
                 throw new InvalidOperationException(error);
             }
 
-            if (_options.ProviderInformation.TokenEndpoint.IsMissing())
+            if (Options.ProviderInformation.TokenEndpoint.IsMissing())
             {
                 var error = "Token endpoint is missing in provider information";
 
@@ -406,7 +418,7 @@ namespace IdentityModel.OidcClient
                 throw new InvalidOperationException(error);
             }
 
-            if (_options.ProviderInformation.KeySet == null)
+            if (Options.ProviderInformation.KeySet == null)
             {
                 var error = "Key set is missing in provider information";
 
@@ -425,9 +437,9 @@ namespace IdentityModel.OidcClient
             userInfoClaims.ToList().ForEach(c => combinedClaims.Add(c));
 
             var userClaims = new List<Claim>();
-            if (_options.FilterClaims)
+            if (Options.FilterClaims)
             {
-                userClaims = combinedClaims.Where(c => !_options.FilteredClaims.Contains(c.Type)).ToList();
+                userClaims = combinedClaims.Where(c => !Options.FilteredClaims.Contains(c.Type)).ToList();
             }
             else
             {

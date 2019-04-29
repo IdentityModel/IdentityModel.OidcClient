@@ -10,7 +10,7 @@ namespace ConsoleClientWithBrowser
     public class Program
     {
         static string _authority = "https://demo.identityserver.io";
-        static string _api = "https://api.identityserver.io/identity";
+        static string _api = "https://demo.identityserver.io/api/test";
 
         static OidcClient _oidcClient;
         static HttpClient _apiClient = new HttpClient { BaseAddress = new Uri(_api) };
@@ -39,15 +39,17 @@ namespace ConsoleClientWithBrowser
             var options = new OidcClientOptions
             {
                 Authority = _authority,
-                ClientId = "native.hybrid",
+                ClientId = "native.code",
                 RedirectUri = redirectUri,
-                Scope = "openid profile api",
+                Scope = "openid profile api offline_access",
                 FilterClaims = false,
-                Browser = browser
+
+                Browser = browser,
+                RefreshTokenInnerHttpHandler = new HttpClientHandler()
             };
 
             var serilog = new LoggerConfiguration()
-                .MinimumLevel.Error()
+                .MinimumLevel.Debug()
                 .Enrich.FromLogContext()
                 .WriteTo.LiterateConsole(outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message}{NewLine}{Exception}{NewLine}")
                 .CreateLogger();
@@ -56,6 +58,11 @@ namespace ConsoleClientWithBrowser
 
             _oidcClient = new OidcClient(options);
             var result = await _oidcClient.LoginAsync(new LoginRequest());
+
+            _apiClient = new HttpClient(result.RefreshTokenHandler)
+            {
+                BaseAddress = new Uri(_api)
+            };
 
             ShowResult(result);
             await NextSteps(result);
@@ -96,7 +103,7 @@ namespace ConsoleClientWithBrowser
                 var key = Console.ReadKey();
 
                 if (key.Key == ConsoleKey.X) return;
-                if (key.Key == ConsoleKey.C) await CallApi(currentAccessToken);
+                if (key.Key == ConsoleKey.C) await CallApi();
                 if (key.Key == ConsoleKey.R)
                 {
                     var refreshResult = await _oidcClient.RefreshTokenAsync(currentRefreshToken);
@@ -117,9 +124,8 @@ namespace ConsoleClientWithBrowser
             }
         }
 
-        private static async Task CallApi(string currentAccessToken)
+        private static async Task CallApi()
         {
-            _apiClient.SetBearerToken(currentAccessToken);
             var response = await _apiClient.GetAsync("");
 
             if (response.IsSuccessStatusCode)

@@ -11,7 +11,7 @@ namespace IdentityModel.OidcClient.Tests
 {
     public class CommonResponseTests
     {
-        OidcClientOptions _options = new OidcClientOptions
+        readonly OidcClientOptions _options = new OidcClientOptions
         {
             ProviderInformation = new ProviderInformation
             {
@@ -23,7 +23,7 @@ namespace IdentityModel.OidcClient.Tests
         };
 
         [Fact]
-        public async Task missing_code_should_be_rejected()
+        public async Task Missing_code_should_be_rejected()
         {
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
@@ -36,7 +36,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public async Task missing_state_should_be_rejected()
+        public async Task Missing_state_should_be_rejected()
         {
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
@@ -49,7 +49,7 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public async Task invalid_state_should_be_rejected()
+        public async Task Invalid_state_should_be_rejected()
         {
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();

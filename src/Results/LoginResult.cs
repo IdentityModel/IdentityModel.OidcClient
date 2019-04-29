@@ -84,6 +84,6 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The refresh token handler.
         /// </value>
-        public virtual HttpMessageHandler RefreshTokenHandler { get; internal set; }
+        public virtual DelegatingHandler RefreshTokenHandler { get; internal set; }
     }
 }
