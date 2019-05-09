@@ -33,7 +33,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="IdentityModel" Version="4.0.0-preview.2" />
+    <PackageReference Include="IdentityModel" Version="4.0.0-preview.2.6" />
     <PackageReference Include="minver" Version="1.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
