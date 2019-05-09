@@ -33,7 +33,7 @@ namespace build
 
                     if (sign.HasValue())
                     {
-                        Sign("IdentityModel.dll", "./src/bin/release");
+                        Sign("IdentityModel.OidcClient.dll", "./src/bin/release");
                     }
                 });
 
