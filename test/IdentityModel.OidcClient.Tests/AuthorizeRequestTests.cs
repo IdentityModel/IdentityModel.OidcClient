@@ -3,7 +3,9 @@
 
 
 using FluentAssertions;
+using IdentityModel.OidcClient.Browser;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace IdentityModel.OidcClient.Tests
@@ -102,6 +104,33 @@ namespace IdentityModel.OidcClient.Tests
             parameters.Should().Contain("state", "state");
             parameters.Should().Contain("nonce", "nonce");
             parameters.Should().Contain("code_challenge", "code_challenge");
+        }
+
+        [Fact]
+        public async Task Browser_error_is_surfaced_in_authorize_response()
+        {
+            var options = new OidcClientOptions
+            {
+                ClientId = "client_id",
+                Scope = "openid",
+                RedirectUri = "http://redirect",
+                ProviderInformation = new ProviderInformation
+                {
+                    AuthorizeEndpoint = "https://authority/authorize"
+                },
+
+                Browser = new TestBrowser(_ => Task.FromResult(new BrowserResult
+                {
+                    ResultType = BrowserResultType.HttpError,
+                    Error = "Something terrible happened"
+                }))
+            };
+
+            var client = new AuthorizeClient(options);
+
+            var response = await client.AuthorizeAsync(new AuthorizeRequest());
+
+            response.Error.Should().Be("Something terrible happened");
         }
     }
 }
