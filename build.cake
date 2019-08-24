@@ -1,4 +1,4 @@
-#tool "nuget:https://api.nuget.org/v3/index.json?package=GitVersion.CommandLine&version=3.6.5"
+#tool "nuget:https://api.nuget.org/v3/index.json?package=GitVersion.CommandLine&version=5.0.1"
 
 var target          = Argument("target", "Default");
 var configuration   = Argument<string>("configuration", "Release");
@@ -216,11 +216,11 @@ private bool SkipPack()
         return true;
     }
     
-    if (String.IsNullOrEmpty(versions.PreReleaseLabel) && versions.BranchName != "master") 
-    {
-        Information("Skipping pack of release version, because not on master.");
-        return true;
-    }
+    // if (String.IsNullOrEmpty(versions.PreReleaseLabel) && versions.BranchName != "master") 
+    // {
+    //     Information("Skipping pack of release version, because not on master.");
+    //     return true;
+    // }
 
     if (versions.PreReleaseLabel == "PullRequest")
     {
