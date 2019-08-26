@@ -1,7 +1,9 @@
 ﻿using IdentityModel.Client;
 using IdentityModel.OidcClient;
+using Newtonsoft.Json;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -72,6 +74,14 @@ namespace ConformanceTests
                 {
                     Console.WriteLine($"\nRefresh token:\n{result.RefreshToken}");
                 }
+
+                Console.WriteLine($"Logging Raw TokenResponse...");
+                var values = JsonConvert.DeserializeObject<Dictionary<string, string>>(result.TokenResponse.Raw);
+                foreach (var item in values)
+                {
+                    Console.WriteLine($"{item.Key}: {item.Value}");
+                }
+
             }
         }
 

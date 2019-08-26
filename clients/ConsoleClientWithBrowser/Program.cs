@@ -1,7 +1,9 @@
 ﻿using IdentityModel.OidcClient;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -85,6 +87,14 @@ namespace ConsoleClientWithBrowser
             Console.WriteLine($"\nidentity token: {result.IdentityToken}");
             Console.WriteLine($"access token:   {result.AccessToken}");
             Console.WriteLine($"refresh token:  {result?.RefreshToken ?? "none"}");
+
+            var values = JsonConvert.DeserializeObject<Dictionary<string, string>>(result.TokenResponse.Raw);
+
+            Console.WriteLine($"Raw TokenResponse ...");
+            foreach (var item in values)
+            {
+                Console.WriteLine($"{item.Key}: {item.Value}");
+            }
         }
 
         private static async Task NextSteps(LoginResult result)
