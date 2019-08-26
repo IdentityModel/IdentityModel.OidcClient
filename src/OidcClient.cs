@@ -222,7 +222,8 @@ namespace IdentityModel.OidcClient
                 RefreshToken = result.TokenResponse.RefreshToken,
                 AccessTokenExpiration = DateTime.Now.AddSeconds(result.TokenResponse.ExpiresIn),
                 IdentityToken = result.TokenResponse.IdentityToken,
-                AuthenticationTime = DateTime.Now
+                AuthenticationTime = DateTime.Now,
+                TokenResponse = result.TokenResponse // In some cases there is additional custom response data that clients need access to
             };
 
             if (loginResult.RefreshToken.IsPresent())

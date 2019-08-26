@@ -83,6 +83,7 @@ namespace IdentityModel.OidcClient.Tests
             result.AccessToken.Should().Be("token");
             result.IdentityToken.Should().NotBeNull();
             result.User.Should().NotBeNull();
+            result.TokenResponse.Should().NotBeNull();
         }
 
         [Fact]
@@ -128,6 +129,8 @@ namespace IdentityModel.OidcClient.Tests
             result.AccessToken.Should().Be("token");
             result.IdentityToken.Should().NotBeNull();
             result.User.Should().NotBeNull();
+            result.TokenResponse.Should().NotBeNull();
+
 
             var body = handler.Body;
             body.Should().Contain("foo=foo");
@@ -245,6 +248,8 @@ namespace IdentityModel.OidcClient.Tests
                 result.AccessToken.Should().Be("token");
                 result.IdentityToken.Should().NotBeNull();
                 result.User.Should().NotBeNull();
+                result.TokenResponse.Should().NotBeNull();
+
             }
         }
 
