@@ -432,7 +432,7 @@ namespace IdentityModel.OidcClient
         {
             _logger.LogTrace("ProcessClaims");
 
-            var combinedClaims = new HashSet<Claim>(new ClaimComparer(compareValueAndTypeOnly: true));
+            var combinedClaims = new HashSet<Claim>(new ClaimComparer());
 
             user.Claims.ToList().ForEach(c => combinedClaims.Add(c));
             userInfoClaims.ToList().ForEach(c => combinedClaims.Add(c));
