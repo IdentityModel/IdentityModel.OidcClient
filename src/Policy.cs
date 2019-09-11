@@ -6,6 +6,7 @@ using System;
 using IdentityModel.Client;
 using System.Collections.Generic;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 
 namespace IdentityModel.OidcClient
 {
@@ -63,6 +64,7 @@ namespace IdentityModel.OidcClient
         /// <summary>
         /// Gets or sets a callback to configure token validation parameters
         /// </summary>
+        [JsonIgnore]
         public Action<TokenValidationParameters> ConfigureTokenValidation { get; set; } = tokenParams => { };
 
         /// <summary>
