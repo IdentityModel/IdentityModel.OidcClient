@@ -46,6 +46,8 @@ namespace IdentityModel.OidcClient
 
                 ClockSkew = _options.ClockSkew
             };
+            
+            _options.Policy.ConfigureTokenValidation(parameters);
 
             // read the token signing algorithm
             JwtSecurityToken jwt;

@@ -2,8 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System;
 using IdentityModel.Client;
 using System.Collections.Generic;
+using Microsoft.IdentityModel.Tokens;
 
 namespace IdentityModel.OidcClient
 {
@@ -57,6 +59,11 @@ namespace IdentityModel.OidcClient
         /// </summary>
         /// <value><c>true</c> if identity token issuer name should match; otherwise, <c>false</c>.</value>
         public bool ValidateTokenIssuerName { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a callback to configure token validation parameters
+        /// </summary>
+        public Action<TokenValidationParameters> ConfigureTokenValidation { get; set; } = tokenParams => { };
 
         /// <summary>
         /// Gets or sets the supported identity token signing algorithms.

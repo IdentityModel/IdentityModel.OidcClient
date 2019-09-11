@@ -35,6 +35,11 @@ namespace IdentityModel.OidcClient.Tests
                 AuthorizeEndpoint = "https://authority/authorize",
                 TokenEndpoint = "https://authority/token",
                 KeySet = new JsonWebKeySet()
+            },
+            
+            Policy = new Policy()
+            {
+                ConfigureTokenValidation = p => p.ValidIssuers = new[] { "https://IssuerAddedInConfigCallback" }
             }
         };
 
@@ -518,6 +523,38 @@ namespace IdentityModel.OidcClient.Tests
 
             result.IsError.Should().BeTrue();
             result.Error.Should().Be("Error validating token response: Identity token uses invalid algorithm: RS256");
+        }
+
+        [Fact]
+        public async Task IssuerNameSetInConfiguratorShouldSucceed()
+        {
+            var client = new OidcClient(_options);
+            var state = await client.PrepareLoginAsync();
+
+            var url = $"?state={state.State}&nonce={state.Nonce}&code=bar";
+            var key = Crypto.CreateKey();
+            var idToken = Crypto.CreateJwt(key, "https://IssuerAddedInConfigCallback", "client",
+                new Claim("at_hash", Crypto.HashData("token")),
+                new Claim("sub", "123"),
+                new Claim("nonce", state.Nonce));
+
+            var tokenResponse = new Dictionary<string, object>
+            {
+                { "access_token", "token" },
+                { "expires_in", 300 },
+                { "id_token", idToken },
+                { "refresh_token", "refresh_token" }
+            };
+
+            _options.ProviderInformation.KeySet = Crypto.CreateKeySet(key);
+            _options.BackchannelHandler = new NetworkHandler(JsonConvert.SerializeObject(tokenResponse), HttpStatusCode.OK);
+
+            var result = await client.ProcessResponseAsync(url, state);
+
+            result.IsError.Should().BeFalse();
+            result.AccessToken.Should().Be("token");
+            result.IdentityToken.Should().NotBeNull();
+            result.User.Should().NotBeNull();
         }
     }
 }
