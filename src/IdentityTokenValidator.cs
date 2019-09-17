@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace IdentityModel.OidcClient
@@ -14,9 +15,9 @@ namespace IdentityModel.OidcClient
     {
         private readonly ILogger _logger;
         private readonly OidcClientOptions _options;
-        private readonly Func<Task> _refreshKeysAsync;
+        private readonly Func<CancellationToken, Task> _refreshKeysAsync;
 
-        public IdentityTokenValidator(OidcClientOptions options, Func<Task> refreshKeysAsync)
+        public IdentityTokenValidator(OidcClientOptions options, Func<CancellationToken, Task> refreshKeysAsync)
         {
             _options = options;
             _logger = options.LoggerFactory.CreateLogger<IdentityTokenValidator>();
@@ -27,8 +28,9 @@ namespace IdentityModel.OidcClient
         /// Validates the specified identity token.
         /// </summary>
         /// <param name="identityToken">The identity token.</param>
+        /// <param name="cancellationToken">A token that can be used to cancel the request</param>
         /// <returns>The validation result</returns>
-        public async Task<IdentityTokenValidationResult> ValidateAsync(string identityToken)
+        public async Task<IdentityTokenValidationResult> ValidateAsync(string identityToken, CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("Validate");
 
@@ -104,7 +106,7 @@ namespace IdentityModel.OidcClient
                     _logger.LogWarning("Key for validating token signature cannot be found. Refreshing keyset.");
 
                     // try to refresh the key set and try again
-                    await _refreshKeysAsync();
+                    await _refreshKeysAsync(cancellationToken);
 
                     try
                     {

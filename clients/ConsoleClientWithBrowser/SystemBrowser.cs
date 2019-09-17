@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ConsoleClientWithBrowser
@@ -41,7 +42,7 @@ namespace ConsoleClientWithBrowser
             return port;
         }
 
-        public async Task<BrowserResult> InvokeAsync(BrowserOptions options)
+        public async Task<BrowserResult> InvokeAsync(BrowserOptions options, CancellationToken cancellationToken)
         {
             using (var listener = new LoopbackHttpListener(Port, _path))
             {
