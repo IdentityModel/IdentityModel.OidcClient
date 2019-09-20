@@ -61,12 +61,12 @@ namespace IdentityModel.OidcClient
         /// <param name="request">The login request.</param>
         /// <param name="cancellationToken">A token that can be used to cancel the request</param>
         /// <returns></returns>
-        public virtual async Task<LoginResult> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)
+        public virtual async Task<LoginResult> LoginAsync(LoginRequest request = null, CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("LoginAsync");
             _logger.LogInformation("Starting authentication request.");
 
-            if (request == null) throw new ArgumentNullException(nameof(request));
+            if (request == null) request = new LoginRequest();
 
             await EnsureConfigurationAsync(cancellationToken);
 
@@ -82,8 +82,11 @@ namespace IdentityModel.OidcClient
                 return new LoginResult(authorizeResult.Error);
             }
 
-            var result = await ProcessResponseAsync(authorizeResult.Data, authorizeResult.State,
-                request.BackChannelExtraParameters, cancellationToken);
+            var result = await ProcessResponseAsync(
+                authorizeResult.Data,
+                authorizeResult.State,
+                request.BackChannelExtraParameters,
+                cancellationToken);
 
             if (!result.IsError)
             {
@@ -118,8 +121,10 @@ namespace IdentityModel.OidcClient
         /// <param name="request">The logout request.</param>
         /// <param name="cancellationToken">A token that can be used to cancel the request</param>
         /// <returns></returns>
-        public virtual async Task<LogoutResult> LogoutAsync(LogoutRequest request = default, CancellationToken cancellationToken = default)
+        public virtual async Task<LogoutResult> LogoutAsync(LogoutRequest request = null, CancellationToken cancellationToken = default)
         {
+            if (request == null) request = new LogoutRequest();
+
             await EnsureConfigurationAsync(cancellationToken);
 
             var result = await _authorizeClient.EndSessionAsync(request, cancellationToken);

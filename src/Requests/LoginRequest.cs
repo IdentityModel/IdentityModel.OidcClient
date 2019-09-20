@@ -34,7 +34,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The front channel extra parameters.
         /// </value>
-        public IDictionary<string, string> FrontChannelExtraParameters { get; set; }
+        public IDictionary<string, string> FrontChannelExtraParameters { get; set; } = new Dictionary<string, string>();
 
         /// <summary>
         /// Gets or sets the back channel extra parameters.
@@ -42,6 +42,6 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The back channel extra parameters.
         /// </value>
-        public IDictionary<string, string> BackChannelExtraParameters { get; set; }
+        public IDictionary<string, string> BackChannelExtraParameters { get; set; } = new Dictionary<string, string>();
     }
 }
