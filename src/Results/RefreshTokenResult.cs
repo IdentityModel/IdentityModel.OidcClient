@@ -37,7 +37,7 @@ namespace IdentityModel.OidcClient.Results
         public virtual string RefreshToken { get; internal set; }
 
         /// <summary>
-        /// Gets or sets the expires in.
+        /// Gets or sets the expires in (seconds).
         /// </summary>
         /// <value>
         /// The expires in.
