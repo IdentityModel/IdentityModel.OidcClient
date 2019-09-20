@@ -29,12 +29,12 @@ namespace IdentityModel.OidcClient
         public bool RequireAuthorizationCodeHash { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets a value indicating whether at_hash is required (defaults to true).
+        /// Gets or sets a value indicating whether at_hash is required (defaults to false).
         /// </summary>
         /// <value>
         /// <c>true</c> if at_hash is required; otherwise, <c>false</c>.
         /// </value>
-        public bool RequireAccessTokenHash { get; set; } = true;
+        public bool RequireAccessTokenHash { get; set; } = false;
 
         /// <summary>
         /// Gets or sets a value indicating whether an identity token is required on refresh token responses (defaults to false).
