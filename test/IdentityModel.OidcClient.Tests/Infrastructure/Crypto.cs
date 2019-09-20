@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,11 @@ namespace IdentityModel.OidcClient.Tests.Infrastructure
 {
     public static class Crypto
     {
+        static Crypto()
+        {
+            IdentityModelEventSource.ShowPII = true;
+        }
+
         public static string UntrustedIdentityToken = "eyJhbGciOiJSUzI1NiIsImtpZCI6Ijk4RDNBQ0YwNTcyOTlDMzc0NTA0NEJFOTE4OTg2QUQ3RUQwQUQ0QTIiLCJ0eXAiOiJKV1QiLCJ4NXQiOiJtTk9zOEZjcG5EZEZCRXZwR0pocTEtMEsxS0kifQ.eyJuYmYiOjE0ODQyOTc1MjksImV4cCI6MTQ4NDI5NzgyOSwiaXNzIjoiaHR0cHM6Ly9kZW1vLmlkZW50aXR5c2VydmVyLmlvIiwiYXVkIjoibmF0aXZlLmh5YnJpZCIsIm5vbmNlIjoiMjcwODQ5YjYwZjllZTJhOTA4NjAwZTdkZmIyMzE5NTUiLCJpYXQiOjE0ODQyOTc1MjksImF0X2hhc2giOiJRMmV5b3BkbktIc1QxY0VTbHdscTNRIiwic2lkIjoiOWZkYzRiMmJkNGMwY2M5MDE2NmRkMzZmYmZhMGY0MWYiLCJzdWIiOiI4ODQyMTExMyIsImF1dGhfdGltZSI6MTQ4NDI5NzUyOCwiaWRwIjoibG9jYWwiLCJhbXIiOlsicHdkIl19.jlGE9Lh5ZpU2Kne5-l9bMpJpUMUBUBDukKcIfK62h24ArI4QxVlG5mQPG0_vRRZYMtZDtkk78NDTttH5k0o21igvWAtoApxHGZv4NvnriVEWOFTidlPSRrcB77o__Gv0fnngSIJ03bENxRkZHEcTBP312kJk2khy-8kSvykYNhh0HFvkCKa8oGHu0Q_DJQH1xZIKqoTbPCzGQSLuqObNmg6Xkvg4h38MHOh1LIEt1PPhYkCJSBA6fceqtmv95hXwPTi4DY4-OwRpvm-_FHQvnjEfRPyltus_fJKijWIVSNWKqvZxxGG2hvBFsBgnvLu6L5mqfqQiOJYQDWhtenuMjg";
 
         public static RsaSecurityKey CreateKey()
