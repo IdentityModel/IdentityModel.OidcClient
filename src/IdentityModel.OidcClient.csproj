@@ -16,6 +16,7 @@
     <PackageProjectUrl>https://github.com/IdentityModel/IdentityModel.OidcClient2</PackageProjectUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <LangVersion>latest</LangVersion>
     
     <!-- Declare that the Repository URL can be published to NuSpec -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
