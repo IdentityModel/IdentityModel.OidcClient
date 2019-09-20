@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace IdentityModel.OidcClient.Browser
@@ -15,7 +16,8 @@ namespace IdentityModel.OidcClient.Browser
         /// Invokes the browser.
         /// </summary>
         /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">A token that can be used to cancel the request</param>
         /// <returns></returns>
-        Task<BrowserResult> InvokeAsync(BrowserOptions options);
+        Task<BrowserResult> InvokeAsync(BrowserOptions options, CancellationToken cancellationToken = default);
     }
 }

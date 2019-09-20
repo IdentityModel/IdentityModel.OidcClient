@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace IdentityModel.OidcClient
@@ -22,7 +23,7 @@ namespace IdentityModel.OidcClient
             _path = path;
         }
 
-        public async Task<BrowserResult> InvokeAsync(BrowserOptions options)
+        public async Task<BrowserResult> InvokeAsync(BrowserOptions options, CancellationToken cancellationToken)
         {
             using (var listener = new LoopbackHttpListener(_port, _path))
             {

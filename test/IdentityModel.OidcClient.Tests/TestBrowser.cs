@@ -3,6 +3,7 @@
 
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using IdentityModel.OidcClient.Browser;
 
@@ -17,6 +18,7 @@ namespace IdentityModel.OidcClient.Tests
             _browserResultFactory = browserResultFactory;
         }
 
-        public Task<BrowserResult> InvokeAsync(BrowserOptions options) => _browserResultFactory(options);
+        public Task<BrowserResult> InvokeAsync(BrowserOptions options, CancellationToken cancellationToken) => 
+            _browserResultFactory(options);
     }
 }

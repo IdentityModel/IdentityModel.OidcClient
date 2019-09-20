@@ -5,6 +5,7 @@ using IdentityModel.OidcClient.Results;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace IdentityModel.OidcClient
@@ -26,7 +27,7 @@ namespace IdentityModel.OidcClient
             _crypto = new CryptoHelper(options);
         }
 
-        public async Task<AuthorizeResult> AuthorizeAsync(AuthorizeRequest request)
+        public async Task<AuthorizeResult> AuthorizeAsync(AuthorizeRequest request, CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("AuthorizeAsync");
 
@@ -55,7 +56,7 @@ namespace IdentityModel.OidcClient
                 browserOptions.ResponseMode = OidcClientOptions.AuthorizeResponseMode.Redirect;
             }
 
-            var browserResult = await _options.Browser.InvokeAsync(browserOptions);
+            var browserResult = await _options.Browser.InvokeAsync(browserOptions, cancellationToken);
 
             if (browserResult.ResultType == BrowserResultType.Success)
             {
@@ -67,7 +68,7 @@ namespace IdentityModel.OidcClient
             return result;
         }
 
-        public async Task<BrowserResult> EndSessionAsync(LogoutRequest request)
+        public async Task<BrowserResult> EndSessionAsync(LogoutRequest request, CancellationToken cancellationToken = default)
         {
             var endpoint = _options.ProviderInformation.EndSessionEndpoint;
             if (endpoint.IsMissing())
@@ -83,7 +84,7 @@ namespace IdentityModel.OidcClient
                 DisplayMode = request.BrowserDisplayMode
             };
 
-            return await _options.Browser.InvokeAsync(browserOptions);
+            return await _options.Browser.InvokeAsync(browserOptions, cancellationToken);
         }
 
         public AuthorizeState CreateAuthorizeState(IDictionary<string, string> extraParameters = default)
