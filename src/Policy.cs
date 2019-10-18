@@ -68,7 +68,15 @@ namespace IdentityModel.OidcClient
         {
             OidcConstants.Algorithms.Asymmetric.RS256,
             OidcConstants.Algorithms.Asymmetric.RS384,
-            OidcConstants.Algorithms.Asymmetric.RS512
+            OidcConstants.Algorithms.Asymmetric.RS512,
+
+            OidcConstants.Algorithms.Asymmetric.PS256,
+            OidcConstants.Algorithms.Asymmetric.PS384,
+            OidcConstants.Algorithms.Asymmetric.PS512,
+
+            OidcConstants.Algorithms.Asymmetric.ES256,
+            OidcConstants.Algorithms.Asymmetric.PS384,
+            OidcConstants.Algorithms.Asymmetric.PS512
         };
     }
 }

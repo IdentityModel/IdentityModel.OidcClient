@@ -165,7 +165,6 @@ namespace IdentityModel.OidcClient
 
                 foreach (var webKey in _options.ProviderInformation.KeySet.Keys)
                 {
-                    // todo: only supports RSA keys right now
                     if (webKey.E.IsPresent() && webKey.N.IsPresent())
                     {
                         // only add keys used for signatures
@@ -181,6 +180,27 @@ namespace IdentityModel.OidcClient
 
                             _logger.LogDebug("Added signing key with kid: {kid}", key?.KeyId ?? "not set");
                         }
+                    }
+                    else if (webKey.X.IsPresent() && webKey.Y.IsPresent() && webKey.Crv.IsPresent())
+                    {
+#if NETSTANDARD2_0
+                        var ec = ECDsa.Create(new ECParameters
+                        {
+                            Curve = GetCurveFromCrvValue(webKey.Crv),
+                            Q = new ECPoint
+                            {
+                                X = Base64Url.Decode(webKey.X),
+                                Y = Base64Url.Decode(webKey.Y)
+                            }
+                        });
+
+                        var key = new ECDsaSecurityKey(ec);
+                        key.KeyId = webKey.Kid;
+
+                        keys.Add(key);
+#else
+                        _logger.LogDebug("Found an EC key with kid: {kid}, but .NET Framework 4.6.1 does not support that.", webKey.Kid ?? "not set");
+#endif
                     }
                     else
                     {
@@ -217,5 +237,22 @@ namespace IdentityModel.OidcClient
 
             return null;
         }
+
+#if NETSTANDARD2_0
+        internal static ECCurve GetCurveFromCrvValue(string crv)
+        {
+            switch (crv)
+            {
+                case JsonWebKeyECTypes.P256:
+                    return ECCurve.NamedCurves.nistP256;
+                case JsonWebKeyECTypes.P384:
+                    return ECCurve.NamedCurves.nistP384;
+                case JsonWebKeyECTypes.P521:
+                    return ECCurve.NamedCurves.nistP521;
+                default:
+                    throw new InvalidOperationException($"Unsupported curve type of {crv}");
+            }
+        }
+#endif
     }
 }
