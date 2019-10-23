@@ -68,7 +68,7 @@ namespace IdentityModel.OidcClient
                 return result;
             }
 
-            result.Error = browserResult.Error;
+            result.Error = browserResult.Error ?? browserResult.ResultType.ToString();
             return result;
         }
 
