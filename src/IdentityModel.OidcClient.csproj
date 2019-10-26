@@ -1,15 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
- <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
-      <TargetFrameworks>netstandard2.0</TargetFrameworks>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
-      <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
-  </PropertyGroup>
-
   <PropertyGroup>
-    <Authors>Dominick Baier;Brock Allen</Authors>
     <AssemblyName>IdentityModel.OidcClient</AssemblyName>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>Dominick Baier;Brock Allen</Authors>
     <PackageId>IdentityModel.OidcClient</PackageId>
     <PackageTags>OAuth2;OAuth 2.0;OpenID Connect;Security;Identity;IdentityServer</PackageTags>
     <PackageIcon>icon.jpg</PackageIcon>
