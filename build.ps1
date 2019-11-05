@@ -1,4 +1,4 @@
-dotnet tool install --tool-path tools SignClient
-
 $ErrorActionPreference = "Stop";
+dotnet tool restore
+
 dotnet run --project build -- $args
