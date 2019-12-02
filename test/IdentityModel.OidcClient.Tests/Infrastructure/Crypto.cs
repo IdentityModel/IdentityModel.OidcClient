@@ -26,7 +26,7 @@ namespace IdentityModel.OidcClient.Tests.Infrastructure
         {
             var rsa = RSA.Create();
 
-#if NET452 || NET461 || NET472
+#if NET472
             if (rsa.KeySize < 2048)
             {
                 rsa.Dispose();
@@ -34,7 +34,7 @@ namespace IdentityModel.OidcClient.Tests.Infrastructure
             }
 #endif
             RsaSecurityKey key = null;
-#if NET452 || NET461 || NET472
+#if NET472
             if (rsa is RSACryptoServiceProvider) 
             {
                 var parameters = rsa.ExportParameters(includePrivateParameters: true);

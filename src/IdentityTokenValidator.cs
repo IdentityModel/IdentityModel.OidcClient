@@ -183,7 +183,6 @@ namespace IdentityModel.OidcClient
                     }
                     else if (webKey.X.IsPresent() && webKey.Y.IsPresent() && webKey.Crv.IsPresent())
                     {
-#if NETSTANDARD2_0 || NET472
                         var ec = ECDsa.Create(new ECParameters
                         {
                             Curve = GetCurveFromCrvValue(webKey.Crv),
@@ -198,9 +197,6 @@ namespace IdentityModel.OidcClient
                         key.KeyId = webKey.Kid;
 
                         keys.Add(key);
-#else
-                        _logger.LogDebug("Found an EC key with kid: {kid}, but .NET Framework 4.6.1 does not support that.", webKey.Kid ?? "not set");
-#endif
                     }
                     else
                     {
@@ -238,7 +234,6 @@ namespace IdentityModel.OidcClient
             return null;
         }
 
-#if NETSTANDARD2_0 || NET472
         internal static ECCurve GetCurveFromCrvValue(string crv)
         {
             switch (crv)
@@ -253,6 +248,5 @@ namespace IdentityModel.OidcClient
                     throw new InvalidOperationException($"Unsupported curve type of {crv}");
             }
         }
-#endif
     }
 }
