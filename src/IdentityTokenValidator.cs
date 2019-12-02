@@ -183,7 +183,7 @@ namespace IdentityModel.OidcClient
                     }
                     else if (webKey.X.IsPresent() && webKey.Y.IsPresent() && webKey.Crv.IsPresent())
                     {
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0 || NET472
                         var ec = ECDsa.Create(new ECParameters
                         {
                             Curve = GetCurveFromCrvValue(webKey.Crv),
@@ -238,7 +238,7 @@ namespace IdentityModel.OidcClient
             return null;
         }
 
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0 || NET472
         internal static ECCurve GetCurveFromCrvValue(string crv)
         {
             switch (crv)
