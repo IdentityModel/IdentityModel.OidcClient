@@ -340,14 +340,6 @@ namespace IdentityModel.OidcClient
 
         internal async Task EnsureConfigurationAsync(CancellationToken cancellationToken)
         {
-            if (Options.Flow == OidcClientOptions.AuthenticationFlow.Hybrid && Options.Policy.RequireIdentityTokenSignature == false)
-            {
-                var error = "Allowing unsigned identity tokens is not allowed for hybrid flow";
-                _logger.LogError(error);
-
-                throw new InvalidOperationException(error);
-            }
-
             await EnsureProviderInformationAsync(cancellationToken);
 
             _logger.LogTrace("Effective options:");

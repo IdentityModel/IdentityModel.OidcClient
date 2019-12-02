@@ -19,10 +19,7 @@ namespace IdentityModel.OidcClient.Tests
             {
                 ClientId = "client_id",
                 Scope = "openid",
-                RedirectUri = "http://redirect",
-
-                ResponseMode = OidcClientOptions.AuthorizeResponseMode.FormPost,
-                Flow = OidcClientOptions.AuthenticationFlow.Hybrid
+                RedirectUri = "http://redirect"
             };
 
             var client = new AuthorizeClient(options);
@@ -31,10 +28,7 @@ namespace IdentityModel.OidcClient.Tests
             parameters.Should().Contain("client_id", "client_id");
             parameters.Should().Contain("scope", "openid");
             parameters.Should().Contain("redirect_uri", "http://redirect");
-
-            parameters.Should().Contain("response_type", "code id_token");
-            parameters.Should().Contain("response_mode", "form_post");
-
+            parameters.Should().Contain("response_type", "code");
             parameters.Should().Contain("state", "state");
             parameters.Should().Contain("nonce", "nonce");
             parameters.Should().Contain("code_challenge", "code_challenge");
@@ -47,10 +41,7 @@ namespace IdentityModel.OidcClient.Tests
             {
                 ClientId = "client_id",
                 Scope = "openid",
-                RedirectUri = "http://redirect",
-
-                ResponseMode = OidcClientOptions.AuthorizeResponseMode.FormPost,
-                Flow = OidcClientOptions.AuthenticationFlow.Hybrid
+                RedirectUri = "http://redirect"
             };
 
             var extra = new Dictionary<string, string>
@@ -66,10 +57,7 @@ namespace IdentityModel.OidcClient.Tests
             parameters.Should().Contain("client_id", "client_id2");
             parameters.Should().Contain("scope", "openid extra");
             parameters.Should().Contain("redirect_uri", "http://redirect2");
-
-            parameters.Should().Contain("response_type", "code id_token");
-            parameters.Should().Contain("response_mode", "form_post");
-
+            parameters.Should().Contain("response_type", "code");
             parameters.Should().Contain("state", "state");
             parameters.Should().Contain("nonce", "nonce");
             parameters.Should().Contain("code_challenge", "code_challenge");
@@ -78,11 +66,7 @@ namespace IdentityModel.OidcClient.Tests
         [Fact]
         public void Missing_default_parameters_can_be_set_by_extra_parameters()
         {
-            var options = new OidcClientOptions
-            {
-                ResponseMode = OidcClientOptions.AuthorizeResponseMode.FormPost,
-                Flow = OidcClientOptions.AuthenticationFlow.Hybrid
-            };
+            var options = new OidcClientOptions();
 
             var extra = new Dictionary<string, string>
             {
@@ -97,10 +81,7 @@ namespace IdentityModel.OidcClient.Tests
             parameters.Should().Contain("client_id", "client_id2");
             parameters.Should().Contain("scope", "openid extra");
             parameters.Should().Contain("redirect_uri", "http://redirect2");
-
-            parameters.Should().Contain("response_type", "code id_token");
-            parameters.Should().Contain("response_mode", "form_post");
-
+            parameters.Should().Contain("response_type", "code");
             parameters.Should().Contain("state", "state");
             parameters.Should().Contain("nonce", "nonce");
             parameters.Should().Contain("code_challenge", "code_challenge");

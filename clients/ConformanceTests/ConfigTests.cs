@@ -26,7 +26,6 @@ namespace ConformanceTests
             var options = await helper.RegisterForCode();
 
             options.Scope = "openid";
-            options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
             
             var client = new OidcClient(options);
             var result = await client.LoginAsync(new LoginRequest());
@@ -44,7 +43,6 @@ namespace ConformanceTests
             var options = await helper.RegisterForCode();
 
             options.Scope = "openid";
-            options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
 
             var client = new OidcClient(options);
             var result = await client.LoginAsync(new LoginRequest());
@@ -61,7 +59,6 @@ namespace ConformanceTests
             var options = await helper.RegisterForCode();
 
             options.Scope = "openid";
-            options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
 
             var client = new OidcClient(options);
             var result = await client.LoginAsync(new LoginRequest());
@@ -78,7 +75,6 @@ namespace ConformanceTests
             var options = await helper.RegisterForCode();
 
             options.Scope = "openid";
-            options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
 
             // disable signature requirement to make this test pass
             options.Policy.RequireIdentityTokenSignature = false;
@@ -98,7 +94,6 @@ namespace ConformanceTests
             var options = await helper.RegisterForCode();
 
             options.Scope = "openid";
-            options.Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode;
             options.RefreshDiscoveryOnSignatureFailure = true;
 
             await helper.ResetKeyRotation();

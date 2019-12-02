@@ -26,7 +26,6 @@ namespace IdentityModel.OidcClient.Tests
             Scope = "openid profile api",
             RedirectUri = "https://redirect",
 
-            Flow = OidcClientOptions.AuthenticationFlow.AuthorizationCode,
             LoadProfile = false,
 
             ProviderInformation = new ProviderInformation

@@ -51,15 +51,6 @@ namespace IdentityModel.OidcClient
                 DisplayMode = request.DisplayMode
             };
 
-            if (_options.ResponseMode == OidcClientOptions.AuthorizeResponseMode.FormPost)
-            {
-                browserOptions.ResponseMode = OidcClientOptions.AuthorizeResponseMode.FormPost;
-            }
-            else
-            {
-                browserOptions.ResponseMode = OidcClientOptions.AuthorizeResponseMode.Redirect;
-            }
-
             var browserResult = await _options.Browser.InvokeAsync(browserOptions, cancellationToken);
 
             if (browserResult.ResultType == BrowserResultType.Success)
@@ -135,22 +126,9 @@ namespace IdentityModel.OidcClient
         {
             _logger.LogTrace("CreateAuthorizeParameters");
 
-            string responseType = null;
-            switch (_options.Flow)
-            {
-                case OidcClientOptions.AuthenticationFlow.AuthorizationCode:
-                    responseType = OidcConstants.ResponseTypes.Code;
-                    break;
-                case OidcClientOptions.AuthenticationFlow.Hybrid:
-                    responseType = OidcConstants.ResponseTypes.CodeIdToken;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(_options.Flow), "Unsupported authentication flow");
-            }
-
             var parameters = new Dictionary<string, string>
             {
-                { OidcConstants.AuthorizeRequest.ResponseType, responseType },
+                { OidcConstants.AuthorizeRequest.ResponseType, OidcConstants.ResponseTypes.Code },
                 { OidcConstants.AuthorizeRequest.Nonce, nonce },
                 { OidcConstants.AuthorizeRequest.State, state },
                 { OidcConstants.AuthorizeRequest.CodeChallenge, codeChallenge },
@@ -168,10 +146,6 @@ namespace IdentityModel.OidcClient
             if (_options.RedirectUri.IsPresent())
             {
                 parameters.Add(OidcConstants.AuthorizeRequest.RedirectUri, _options.RedirectUri);
-            }
-            if (_options.ResponseMode == OidcClientOptions.AuthorizeResponseMode.FormPost)
-            {
-                parameters.Add(OidcConstants.AuthorizeRequest.ResponseMode, OidcConstants.ResponseModes.FormPost);
             }
 
             if (extraParameters != null)

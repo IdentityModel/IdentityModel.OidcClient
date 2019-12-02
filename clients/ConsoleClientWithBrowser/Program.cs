@@ -41,7 +41,7 @@ namespace ConsoleClientWithBrowser
             var options = new OidcClientOptions
             {
                 Authority = _authority,
-                ClientId = "native.code",
+                ClientId = "interactive.public",
                 RedirectUri = redirectUri,
                 Scope = "openid profile api offline_access",
                 FilterClaims = false,

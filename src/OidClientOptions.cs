@@ -115,14 +115,6 @@ namespace IdentityModel.OidcClient
         public bool RefreshDiscoveryOnSignatureFailure { get; set; } = false;
 
         /// <summary>
-        /// Gets or sets a value indicating whether which response_mode to use (form_post vs redirect). Defaults to redirect.
-        /// </summary>
-        /// <value>
-        /// The response mode.
-        /// </value>
-        public AuthorizeResponseMode ResponseMode { get; set; } = AuthorizeResponseMode.Redirect;
-
-        /// <summary>
         /// Gets or sets a value indicating whether claims are loaded from the userinfo endpoint
         /// </summary>
         /// <value>
@@ -137,14 +129,6 @@ namespace IdentityModel.OidcClient
         ///   <c>true</c> if claims are filtered; otherwise, <c>false</c>.
         /// </value>
         public bool FilterClaims { get; set; } = true;
-
-        /// <summary>
-        /// Gets or sets the flow used for authentication (defaults to code).
-        /// </summary>
-        /// <value>
-        /// The flow.
-        /// </value>
-        public AuthenticationFlow Flow { get; set; } = AuthenticationFlow.AuthorizationCode;
 
         /// <summary>
         /// Gets or sets the inner HTTP handler used with RefreshTokenHandler.
@@ -215,36 +199,5 @@ namespace IdentityModel.OidcClient
             JwtClaimTypes.AuthorizationCodeHash,
             JwtClaimTypes.AccessTokenHash
         };
-
-
-        /// <summary>
-        /// The authentication flows
-        /// </summary>
-        public enum AuthenticationFlow
-        {
-            /// <summary>
-            /// authorization code
-            /// </summary>
-            AuthorizationCode,
-            /// <summary>
-            /// hybrid
-            /// </summary>
-            Hybrid
-        }
-
-        /// <summary>
-        /// The response mode
-        /// </summary>
-        public enum AuthorizeResponseMode
-        {
-            /// <summary>
-            /// form post
-            /// </summary>
-            FormPost,
-            /// <summary>
-            /// redirect (only allowed for authorization code flow)
-            /// </summary>
-            Redirect
-        }
     }
 }

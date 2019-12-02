@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26228.4
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29519.87
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{0B7CC363-CF34-4B40-A769-7E928A6B25AF}"
 EndProject
@@ -14,8 +14,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityModel.OidcClient", "src\IdentityModel.OidcClient.csproj", "{BE059A81-6F97-4345-9A70-A9B278D86213}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityModel.OidcClient.Tests", "test\IdentityModel.OidcClient.Tests\IdentityModel.OidcClient.Tests.csproj", "{B3874074-52B5-4319-B1F4-6896E8DC51B4}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleClient", "clients\ConsoleClient\ConsoleClient.csproj", "{A17CE98F-4F71-4AA6-AB0A-EB6A04A2C8C4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleClientWithBrowser", "clients\ConsoleClientWithBrowser\ConsoleClientWithBrowser.csproj", "{D8307A14-403E-48A4-870F-88CF9FE8CACA}"
 EndProject
@@ -35,10 +33,6 @@ Global
 		{B3874074-52B5-4319-B1F4-6896E8DC51B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B3874074-52B5-4319-B1F4-6896E8DC51B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B3874074-52B5-4319-B1F4-6896E8DC51B4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A17CE98F-4F71-4AA6-AB0A-EB6A04A2C8C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A17CE98F-4F71-4AA6-AB0A-EB6A04A2C8C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A17CE98F-4F71-4AA6-AB0A-EB6A04A2C8C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A17CE98F-4F71-4AA6-AB0A-EB6A04A2C8C4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D8307A14-403E-48A4-870F-88CF9FE8CACA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D8307A14-403E-48A4-870F-88CF9FE8CACA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D8307A14-403E-48A4-870F-88CF9FE8CACA}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -54,8 +48,10 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{BE059A81-6F97-4345-9A70-A9B278D86213} = {0B7CC363-CF34-4B40-A769-7E928A6B25AF}
 		{B3874074-52B5-4319-B1F4-6896E8DC51B4} = {3DEB81D4-5B40-4D20-AC50-66D1CD6EA24A}
-		{A17CE98F-4F71-4AA6-AB0A-EB6A04A2C8C4} = {A4154BEB-4B4A-4A48-B75D-B52432304F36}
 		{D8307A14-403E-48A4-870F-88CF9FE8CACA} = {A4154BEB-4B4A-4A48-B75D-B52432304F36}
 		{EF53746C-0BCE-4E0D-8251-9FC973746C31} = {A4154BEB-4B4A-4A48-B75D-B52432304F36}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {66951C2E-691F-408C-9283-F2455F390A9A}
 	EndGlobalSection
 EndGlobal

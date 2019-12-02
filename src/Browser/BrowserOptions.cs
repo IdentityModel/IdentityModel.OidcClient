@@ -28,14 +28,6 @@ namespace IdentityModel.OidcClient.Browser
         public string EndUrl { get; }
 
         /// <summary>
-        /// Gets or sets the OpenID Connect response mode.
-        /// </summary>
-        /// <value>
-        /// The response mode.
-        /// </value>
-        public OidcClientOptions.AuthorizeResponseMode ResponseMode { get; set; } = OidcClientOptions.AuthorizeResponseMode.FormPost;
-
-        /// <summary>
         /// Gets or sets the browser display mode.
         /// </summary>
         /// <value>

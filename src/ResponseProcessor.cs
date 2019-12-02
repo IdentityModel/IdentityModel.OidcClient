@@ -32,7 +32,7 @@ namespace IdentityModel.OidcClient
             _crypto = new CryptoHelper(options);
         }
 
-        public async Task<ResponseValidationResult> ProcessResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state, 
+        public async Task<ResponseValidationResult> ProcessResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state,
             IDictionary<string, string> extraParameters, CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("ProcessResponseAsync");
@@ -56,101 +56,13 @@ namespace IdentityModel.OidcClient
                 return new ResponseValidationResult("Invalid state.");
             }
 
-            switch (_options.Flow)
-            {
-                case OidcClientOptions.AuthenticationFlow.AuthorizationCode:
-                    return await ProcessCodeFlowResponseAsync(authorizeResponse, state, extraParameters, cancellationToken);
-                case OidcClientOptions.AuthenticationFlow.Hybrid:
-                    return await ProcessHybridFlowResponseAsync(authorizeResponse, state, extraParameters, cancellationToken);
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(_options.Flow), "Invalid authentication style.");
-            }
-        }
-
-        private async Task<ResponseValidationResult> ProcessHybridFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state, IDictionary<string, string> extraParameters, CancellationToken cancellationToken)
-        {
-            _logger.LogTrace("ProcessHybridFlowResponseAsync");
-
-            //////////////////////////////////////////////////////
-            // validate front-channel response
-            //////////////////////////////////////////////////////
-
-            // id_token must be present
-            if (authorizeResponse.IdentityToken.IsMissing())
-            {
-                return new ResponseValidationResult("Missing identity token.");
-            }
-
-            // id_token must be valid
-            var frontChannelValidationResult = await _tokenValidator.ValidateAsync(authorizeResponse.IdentityToken, cancellationToken);
-            if (frontChannelValidationResult.IsError)
-            {
-                return new ResponseValidationResult(frontChannelValidationResult.Error ?? "Identity token validation error.");
-            }
-
-            // nonce must be valid
-            if (!ValidateNonce(state.Nonce, frontChannelValidationResult.User))
-            {
-                return new ResponseValidationResult("Invalid nonce.");
-            }
-
-            // validate c_hash
-            var cHash = frontChannelValidationResult.User.FindFirst(JwtClaimTypes.AuthorizationCodeHash);
-            if (cHash == null)
-            {
-                if (_options.Policy.RequireAuthorizationCodeHash)
-                {
-                    return new ResponseValidationResult("c_hash is missing.");
-                }
-            }
-            else
-            {
-                if (!_crypto.ValidateHash(authorizeResponse.Code, cHash.Value, frontChannelValidationResult.SignatureAlgorithm))
-                {
-                    return new ResponseValidationResult("Invalid c_hash.");
-                }
-            }
-
-            //////////////////////////////////////////////////////
-            // process back-channel response
-            //////////////////////////////////////////////////////
-
-            // redeem code for tokens
-            var tokenResponse = await RedeemCodeAsync(authorizeResponse.Code, state, extraParameters, cancellationToken);
-            if (tokenResponse.IsError)
-            {
-                return new ResponseValidationResult(tokenResponse.Error);
-            }
-
-            // validate token response
-            var tokenResponseValidationResult = await ValidateTokenResponseAsync(tokenResponse, state,
-                cancellationToken: cancellationToken);
-            if (tokenResponseValidationResult.IsError)
-            {
-                return new ResponseValidationResult(tokenResponseValidationResult.Error);
-            }
-
-            // compare front & back channel subs
-            var frontChannelSub = frontChannelValidationResult.User.FindFirst(JwtClaimTypes.Subject).Value;
-            var backChannelSub = tokenResponseValidationResult.IdentityTokenValidationResult.User.FindFirst(JwtClaimTypes.Subject).Value;
-
-            if (!string.Equals(frontChannelSub, backChannelSub, StringComparison.Ordinal))
-            {
-                return new ResponseValidationResult($"Subject on front-channel ({frontChannelSub}) does not match subject on back-channel ({backChannelSub}).");
-            }
-
-            return new ResponseValidationResult
-            {
-                AuthorizeResponse = authorizeResponse,
-                TokenResponse = tokenResponse,
-                User = tokenResponseValidationResult.IdentityTokenValidationResult.User
-            };
+            return await ProcessCodeFlowResponseAsync(authorizeResponse, state, extraParameters, cancellationToken);
         }
 
         private async Task<ResponseValidationResult> ProcessCodeFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state, IDictionary<string, string> extraParameters, CancellationToken cancellationToken)
         {
             _logger.LogTrace("ProcessCodeFlowResponseAsync");
-            
+
             //////////////////////////////////////////////////////
             // process back-channel response
             //////////////////////////////////////////////////////
@@ -163,7 +75,7 @@ namespace IdentityModel.OidcClient
             }
 
             // validate token response
-            var tokenResponseValidationResult = await ValidateTokenResponseAsync(tokenResponse, state, 
+            var tokenResponseValidationResult = await ValidateTokenResponseAsync(tokenResponse, state,
                 cancellationToken: cancellationToken);
             if (tokenResponseValidationResult.IsError)
             {
@@ -181,7 +93,7 @@ namespace IdentityModel.OidcClient
         internal async Task<TokenResponseValidationResult> ValidateTokenResponseAsync(TokenResponse response, AuthorizeState state, bool requireIdentityToken = true, CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("ValidateTokenResponse");
-            
+
             // token response must contain an access token
             if (response.AccessToken.IsMissing())
             {

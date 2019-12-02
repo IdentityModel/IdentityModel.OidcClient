@@ -49,12 +49,11 @@ namespace ConsoleClient
             var options = new OidcClientOptions
             {
                 Authority = _authority,
-                ClientId = "native.hybrid",
+                ClientId = "interactive.public",
                 RedirectUri = redirectUri,
                 Scope = "openid profile api",
                 FilterClaims = true,
-                LoadProfile = true,
-                Flow = OidcClientOptions.AuthenticationFlow.Hybrid
+                LoadProfile = true
             };
 
             var serilog = new LoggerConfiguration()
