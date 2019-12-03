@@ -75,8 +75,7 @@ namespace IdentityModel.OidcClient
             }
 
             // validate token response
-            var tokenResponseValidationResult = await ValidateTokenResponseAsync(tokenResponse, state,
-                cancellationToken: cancellationToken);
+            var tokenResponseValidationResult = await ValidateTokenResponseAsync(tokenResponse, state, requireIdentityToken:false, cancellationToken: cancellationToken);
             if (tokenResponseValidationResult.IsError)
             {
                 return new ResponseValidationResult($"Error validating token response: {tokenResponseValidationResult.Error}");
@@ -86,11 +85,11 @@ namespace IdentityModel.OidcClient
             {
                 AuthorizeResponse = authorizeResponse,
                 TokenResponse = tokenResponse,
-                User = tokenResponseValidationResult.IdentityTokenValidationResult.User
+                User = tokenResponseValidationResult?.IdentityTokenValidationResult?.User ?? Principal.Create(_options.Authority)
             };
         }
 
-        internal async Task<TokenResponseValidationResult> ValidateTokenResponseAsync(TokenResponse response, AuthorizeState state, bool requireIdentityToken = true, CancellationToken cancellationToken = default)
+        internal async Task<TokenResponseValidationResult> ValidateTokenResponseAsync(TokenResponse response, AuthorizeState state, bool requireIdentityToken, CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("ValidateTokenResponse");
 

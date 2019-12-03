@@ -389,13 +389,12 @@ namespace IdentityModel.OidcClient.Tests
         }
 
         [Fact]
-        public async Task Missing_identity_token_on_token_response_should_fail()
+        public async Task No_identity_token_on_token_response_and_no_profile_loading_should_succeed()
         {
             var tokenResponse = new Dictionary<string, object>
             {
                 { "access_token", "token" },
                 { "expires_in", 300 },
-                //{ "id_token", "id_token" },
                 { "refresh_token", "refresh_token" }
             };
 
@@ -407,8 +406,75 @@ namespace IdentityModel.OidcClient.Tests
             var url = $"?state={state.State}&code=bar";
             var result = await client.ProcessResponseAsync(url, state);
 
-            result.IsError.Should().BeTrue();
-            result.Error.Should().Be("Error validating token response: Identity token is missing on token response.");
+            result.IsError.Should().BeFalse();
+            result.AccessToken.Should().Be("token");
+            result.IdentityToken.Should().BeNull();
+            
+            result.User.Should().NotBeNull();
+            result.User.Claims.Count().Should().Be(0);
+        }
+
+        [Fact]
+        public async Task No_identity_token_on_token_response_with_profile_loading_should_succeed()
+        {
+            _options.LoadProfile = true;
+
+            var client = new OidcClient(_options);
+            var state = await client.PrepareLoginAsync();
+
+            var url = $"?state={state.State}&nonce={state.Nonce}&code=bar";
+            var key = Crypto.CreateKey();
+            var idToken = Crypto.CreateJwt(key, "https://authority", "client",
+                new Claim("at_hash", Crypto.HashData("token")),
+                new Claim("sub", "123"),
+                new Claim("nonce", state.Nonce));
+
+            var tokenResponse = new Dictionary<string, object>
+            {
+                { "access_token", "token" },
+                { "expires_in", 300 },
+                { "refresh_token", "refresh_token" }
+            };
+
+            var userinfoResponse = new Dictionary<string, object>
+            {
+                { "sub", "123" },
+                { "name", "Dominick" }
+            };
+
+            _options.ProviderInformation.KeySet = Crypto.CreateKeySet(key);
+
+            var networkHandler = new NetworkHandler(request =>
+            {
+                if (request.RequestUri.AbsoluteUri.EndsWith("token"))
+                {
+                    return JsonConvert.SerializeObject(tokenResponse);
+                }
+                else if (request.RequestUri.AbsoluteUri.EndsWith("userinfo"))
+                {
+                    return JsonConvert.SerializeObject(userinfoResponse);
+                }
+                else
+                {
+                    throw new InvalidOperationException("unknown netowrk request.");
+                }
+
+            }, HttpStatusCode.OK);
+
+            _options.BackchannelHandler = networkHandler;
+
+            var result = await client.ProcessResponseAsync(url, state);
+
+            result.IsError.Should().BeFalse();
+            result.AccessToken.Should().Be("token");
+            result.IdentityToken.Should().BeNull();
+            result.User.Should().NotBeNull();
+
+            result.User.Claims.Count().Should().Be(2);
+            result.User.Claims.First().Type.Should().Be("sub");
+            result.User.Claims.First().Value.Should().Be("123");
+            result.User.Claims.Skip(1).First().Type.Should().Be("name");
+            result.User.Claims.Skip(1).First().Value.Should().Be("Dominick");
         }
 
         [Fact]

@@ -215,12 +215,15 @@ namespace IdentityModel.OidcClient
                     return new LoginResult(error);
                 }
 
-                if (!string.Equals(userInfoSub.Value, result.User.FindFirst(JwtClaimTypes.Subject).Value))
+                if (result.TokenResponse.IdentityToken != null)
                 {
-                    var error = "sub claim from userinfo endpoint is different than sub claim from identity token.";
-                    _logger.LogError(error);
+                    if (!string.Equals(userInfoSub.Value, result.User.FindFirst(JwtClaimTypes.Subject).Value))
+                    {
+                        var error = "sub claim from userinfo endpoint is different than sub claim from identity token.";
+                        _logger.LogError(error);
 
-                    return new LoginResult(error);
+                        return new LoginResult(error);
+                    }
                 }
             }
 
