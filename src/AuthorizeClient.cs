@@ -119,7 +119,8 @@ namespace IdentityModel.OidcClient
 
             return new RequestUrl(endpoint).CreateEndSessionUrl(
                 idTokenHint: request.IdTokenHint,
-                postLogoutRedirectUri: _options.PostLogoutRedirectUri);
+                postLogoutRedirectUri: _options.PostLogoutRedirectUri,
+								state: request.State);
         }
 
         internal Dictionary<string, string> CreateAuthorizeParameters(string state, string nonce, string codeChallenge, IDictionary<string, string> extraParameters)
