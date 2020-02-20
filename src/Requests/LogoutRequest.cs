@@ -34,5 +34,13 @@ namespace IdentityModel.OidcClient
         /// The identifier token hint.
         /// </value>
         public string IdTokenHint { get; set; }
+
+        /// <summary>
+        /// Gets or sets the state.
+        /// </summary>
+        /// <value>
+        /// The state value passed back to client as query string on post_logout_redirect_uri
+        /// </value>
+        public string State { get; set; }
     }
 }
