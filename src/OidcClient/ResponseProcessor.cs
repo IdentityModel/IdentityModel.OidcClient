@@ -116,6 +116,12 @@ namespace IdentityModel.OidcClient
                 
                 var validationResult = await _options.IdentityTokenValidator.ValidateAsync(response.IdentityToken, _options, cancellationToken);
                 //var validationResult = await _tokenValidator.ValidateAsync(response.IdentityToken, cancellationToken);
+
+                if (validationResult.Error == "invalid_signature")
+                {
+                    await _refreshKeysAsync(cancellationToken);
+                    validationResult = await _options.IdentityTokenValidator.ValidateAsync(response.IdentityToken, _options, cancellationToken);
+                }
                 
                 // todo: handle invalid_signature response
                 if (validationResult.IsError)

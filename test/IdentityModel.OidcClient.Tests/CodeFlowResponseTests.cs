@@ -521,7 +521,7 @@ namespace IdentityModel.OidcClient.Tests
             var result = await client.ProcessResponseAsync(url, state);
 
             result.IsError.Should().BeTrue();
-            result.Error.Should().Contain("IDX10501");
+            result.Error.Should().Contain("invalid_signature");
         }
 
         [Fact]
@@ -545,7 +545,7 @@ namespace IdentityModel.OidcClient.Tests
             var result = await client.ProcessResponseAsync(url, state);
 
             result.IsError.Should().BeTrue();
-            result.Error.Should().Contain("IDX10501: Signature validation failed");
+            result.Error.Should().Contain("invalid_signature");
         }
 
         [Theory]

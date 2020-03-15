@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleClientWithBrowser", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConformanceTests", "clients\ConformanceTests\ConformanceTests.csproj", "{EF53746C-0BCE-4E0D-8251-9FC973746C31}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityModel.OidcClient.JwtHandlerIdentityTokenValidator", "src\JwtHandlerIdentityTokenValidator\IdentityModel.OidcClient.JwtHandlerIdentityTokenValidator\IdentityModel.OidcClient.JwtHandlerIdentityTokenValidator.csproj", "{B5E03BAE-BDB8-4516-AE1A-F9F262C87DE8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityModel.OidcClient.JwtHandlerIdentityTokenValidator", "src\JwtHandlerIdentityTokenValidator\IdentityModel.OidcClient.JwtHandlerIdentityTokenValidator.csproj", "{B5E03BAE-BDB8-4516-AE1A-F9F262C87DE8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

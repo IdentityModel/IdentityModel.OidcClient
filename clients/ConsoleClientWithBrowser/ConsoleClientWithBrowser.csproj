@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../../src/OidcClient/IdentityModel.OidcClient.csproj" />
-    <ProjectReference Include="..\..\src\JwtHandlerIdentityTokenValidator\IdentityModel.OidcClient.JwtHandlerIdentityTokenValidator\IdentityModel.OidcClient.JwtHandlerIdentityTokenValidator.csproj" />
+    <ProjectReference Include="..\..\src\JwtHandlerIdentityTokenValidator\IdentityModel.OidcClient.JwtHandlerIdentityTokenValidator.csproj" />
   </ItemGroup>
 
   <ItemGroup>
