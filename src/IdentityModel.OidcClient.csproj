@@ -2,13 +2,14 @@
 
   <PropertyGroup>
     <PackageId>IdentityModel.OidcClient</PackageId>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    
     <PackageTags>OAuth2;OAuth 2.0;OpenID Connect;Security;Identity;IdentityServer</PackageTags>
     <Description>RFC8252 compliant and certified OpenID Connect and OAuth 2.0 client library for native applications</Description>
     <Authors>Dominick Baier;Brock Allen</Authors>
     <AssemblyName>IdentityModel.OidcClient</AssemblyName>
     <PackageIcon>icon.jpg</PackageIcon>
-    <PackageProjectUrl>https://github.com/IdentityModel/IdentityModel.OidcClient2</PackageProjectUrl>
+    
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     
