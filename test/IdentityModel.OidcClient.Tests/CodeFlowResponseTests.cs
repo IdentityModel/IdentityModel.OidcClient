@@ -18,15 +18,16 @@ using Xunit;
 
 namespace IdentityModel.OidcClient.Tests
 {
-    public class CodeFlowResponseTests
+    public class CodeFlowResponseTestsWithJwtValidation
     {
-        OidcClientOptions _options = new OidcClientOptions
+        private readonly OidcClientOptions _options = new OidcClientOptions
         {
             ClientId = "client",
             Scope = "openid profile api",
             RedirectUri = "https://redirect",
 
             LoadProfile = false,
+            IdentityTokenValidator = new JwtHandlerIdentityTokenValidator(),
 
             ProviderInformation = new ProviderInformation
             {
