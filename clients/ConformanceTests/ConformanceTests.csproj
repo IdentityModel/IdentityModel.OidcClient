@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\IdentityModel.OidcClient.csproj" />
+    <ProjectReference Include="../../src/OidcClient/IdentityModel.OidcClient.csproj" />
   </ItemGroup>
 
   <ItemGroup>

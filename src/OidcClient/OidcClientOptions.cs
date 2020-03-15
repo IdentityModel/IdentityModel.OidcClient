@@ -180,6 +180,16 @@ namespace IdentityModel.OidcClient
         /// </value>
         [JsonIgnore]
         public ILoggerFactory LoggerFactory { get; set; } = new LoggerFactory();
+        
+        /// <summary>
+        /// Gets or sets the identity token validator.
+        /// </summary>
+        /// <value>
+        /// The logger factory.
+        /// </value>
+        // todo: default value handling?
+        [JsonIgnore]
+        public IIdentityTokenValidator IdentityTokenValidator { get; set; }
 
         /// <summary>
         /// Gets or sets the claims types that should be filtered.

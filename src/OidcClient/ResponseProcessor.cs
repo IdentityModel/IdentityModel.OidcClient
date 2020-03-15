@@ -17,8 +17,7 @@ namespace IdentityModel.OidcClient
     internal class ResponseProcessor
     {
         private readonly OidcClientOptions _options;
-        private ILogger<ResponseProcessor> _logger;
-        private readonly IdentityTokenValidator _tokenValidator;
+        private readonly ILogger<ResponseProcessor> _logger;
         private readonly CryptoHelper _crypto;
         private readonly Func<CancellationToken, Task> _refreshKeysAsync;
 
@@ -27,8 +26,7 @@ namespace IdentityModel.OidcClient
             _options = options;
             _refreshKeysAsync = refreshKeysAsync;
             _logger = options.LoggerFactory.CreateLogger<ResponseProcessor>();
-
-            _tokenValidator = new IdentityTokenValidator(options, refreshKeysAsync);
+            
             _crypto = new CryptoHelper(options);
         }
 
@@ -111,7 +109,15 @@ namespace IdentityModel.OidcClient
             if (response.IdentityToken.IsPresent())
             {
                 // if identity token is present, it must be valid
-                var validationResult = await _tokenValidator.ValidateAsync(response.IdentityToken, cancellationToken);
+                if (_options.IdentityTokenValidator is null)
+                {
+                    throw new Exception("No IIdentityTokenValidator set");
+                }
+                
+                var validationResult = await _options.IdentityTokenValidator.ValidateAsync(response.IdentityToken, _options, cancellationToken);
+                //var validationResult = await _tokenValidator.ValidateAsync(response.IdentityToken, cancellationToken);
+                
+                // todo: handle invalid_signature response
                 if (validationResult.IsError)
                 {
                     return new TokenResponseValidationResult(validationResult.Error ?? "Identity token validation error");
@@ -127,22 +133,26 @@ namespace IdentityModel.OidcClient
                 }
 
                 // validate at_hash
-                var atHash = validationResult.User.FindFirst(JwtClaimTypes.AccessTokenHash);
-                if (atHash == null)
+                // todo: validate approach / configuration etc
+                if (validationResult.SignatureAlgorithm != "none")
                 {
-                    if (_options.Policy.RequireAccessTokenHash)
+                    var atHash = validationResult.User.FindFirst(JwtClaimTypes.AccessTokenHash);
+                    if (atHash == null)
                     {
-                        return new TokenResponseValidationResult("at_hash is missing.");
+                        if (_options.Policy.RequireAccessTokenHash)
+                        {
+                            return new TokenResponseValidationResult("at_hash is missing.");
+                        }
                     }
-                }
-                else
-                {
-                    if (!_crypto.ValidateHash(response.AccessToken, atHash.Value, validationResult.SignatureAlgorithm))
+                    else
                     {
-                        return new TokenResponseValidationResult("Invalid access token hash.");
-                    }
+                        if (!_crypto.ValidateHash(response.AccessToken, atHash.Value, validationResult.SignatureAlgorithm))
+                        {
+                            return new TokenResponseValidationResult("Invalid access token hash.");
+                        }
+                    }    
                 }
-
+                
                 return new TokenResponseValidationResult(validationResult);
             }
 

@@ -48,6 +48,7 @@ namespace ConsoleClientWithBrowser
                 FilterClaims = false,
 
                 Browser = browser,
+                IdentityTokenValidator = new JwtHandlerIdentityTokenValidator(),
                 RefreshTokenInnerHttpHandler = new HttpClientHandler()
             };
 

@@ -1,10 +1,3 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
-
-using IdentityModel.OidcClient.Results;
-using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -12,31 +5,19 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using IdentityModel.OidcClient.Results;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace IdentityModel.OidcClient
 {
-    internal class IdentityTokenValidator
+    public class JwtHandlerIdentityTokenValidator : IIdentityTokenValidator
     {
-        private readonly ILogger _logger;
-        private readonly OidcClientOptions _options;
-        private readonly Func<CancellationToken, Task> _refreshKeysAsync;
-
-        public IdentityTokenValidator(OidcClientOptions options, Func<CancellationToken, Task> refreshKeysAsync)
+        public async Task<IdentityTokenValidationResult> ValidateAsync(string identityToken, OidcClientOptions options, CancellationToken cancellationToken = default)
         {
-            _options = options;
-            _logger = options.LoggerFactory.CreateLogger<IdentityTokenValidator>();
-            _refreshKeysAsync = refreshKeysAsync;
-        }
-
-        /// <summary>
-        /// Validates the specified identity token.
-        /// </summary>
-        /// <param name="identityToken">The identity token.</param>
-        /// <param name="cancellationToken">A token that can be used to cancel the request</param>
-        /// <returns>The validation result</returns>
-        public async Task<IdentityTokenValidationResult> ValidateAsync(string identityToken, CancellationToken cancellationToken = default)
-        {
-            _logger.LogTrace("Validate");
+            var logger = options.LoggerFactory.CreateLogger<JwtHandlerIdentityTokenValidator>();
+         
+            logger.LogTrace("Validate");
 
             var handler = new JwtSecurityTokenHandler();
             handler.InboundClaimTypeMap.Clear();
@@ -44,13 +25,13 @@ namespace IdentityModel.OidcClient
             // setup general validation parameters
             var parameters = new TokenValidationParameters
             {
-                ValidIssuer = _options.ProviderInformation.IssuerName,
-                ValidAudience = _options.ClientId,
-                ValidateIssuer = _options.Policy.ValidateTokenIssuerName,
+                ValidIssuer = options.ProviderInformation.IssuerName,
+                ValidAudience = options.ClientId,
+                ValidateIssuer = options.Policy.ValidateTokenIssuerName,
                 NameClaimType = JwtClaimTypes.Name,
                 RoleClaimType = JwtClaimTypes.Role,
 
-                ClockSkew = _options.ClockSkew
+                ClockSkew = options.ClockSkew
             };
 
             // read the token signing algorithm
@@ -73,7 +54,7 @@ namespace IdentityModel.OidcClient
             // if token is unsigned, and this is allowed, skip signature validation
             if (string.Equals(algorithm, "none"))
             {
-                if (_options.Policy.RequireIdentityTokenSignature)
+                if (options.Policy.RequireIdentityTokenSignature)
                 {
                     return new IdentityTokenValidationResult
                     {
@@ -82,14 +63,14 @@ namespace IdentityModel.OidcClient
                 }
                 else
                 {
-                    _logger.LogInformation("Identity token is not signed. This is allowed by configuration.");
+                    logger.LogInformation("Identity token is not signed. This is allowed by configuration.");
                     parameters.RequireSignedTokens = false;
                 }
             }
             else
             {
                 // check if signature algorithm is allowed by policy
-                if (!_options.Policy.ValidSignatureAlgorithms.Contains(algorithm))
+                if (!options.Policy.ValidSignatureAlgorithms.Contains(algorithm))
                 {
                     return new IdentityTokenValidationResult
                     {
@@ -101,45 +82,18 @@ namespace IdentityModel.OidcClient
             ClaimsPrincipal user;
             try
             {
-                user = ValidateSignature(identityToken, handler, parameters);
+                user = ValidateSignature(identityToken, handler, parameters, options, logger);
             }
             catch (SecurityTokenSignatureKeyNotFoundException sigEx)
             {
-                if (_options.RefreshDiscoveryOnSignatureFailure)
-                {
-                    _logger.LogWarning("Key for validating token signature cannot be found. Refreshing keyset.");
-
-                    // try to refresh the key set and try again
-                    await _refreshKeysAsync(cancellationToken);
-
-                    try
-                    {
-                        user = ValidateSignature(identityToken, handler, parameters);
-                    }
-                    catch (Exception ex)
-                    {
-                        return new IdentityTokenValidationResult
-                        {
-                            Error = $"Error validating identity token: {ex.ToString()}"
-                        };
-                    }
-                }
-                else
-                {
-                    return new IdentityTokenValidationResult
-                    {
-                        Error = $"Error validating identity token: {sigEx.ToString()}"
-                    };
-                }
-            }
-            catch (Exception ex)
-            {
+                logger.LogWarning("Key for validating token signature cannot be found. Refreshing keyset.");
+                
                 return new IdentityTokenValidationResult
                 {
-                    Error = $"Error validating identity token: {ex.ToString()}"
+                    Error = "invalid_signature"
                 };
             }
-
+            
             var error = CheckRequiredClaim(user);
             if (error.IsPresent())
             {
@@ -156,14 +110,14 @@ namespace IdentityModel.OidcClient
             };
         }
 
-        private ClaimsPrincipal ValidateSignature(string identityToken, JwtSecurityTokenHandler handler, TokenValidationParameters parameters)
+        private ClaimsPrincipal ValidateSignature(string identityToken, JwtSecurityTokenHandler handler, TokenValidationParameters parameters, OidcClientOptions options, ILogger logger)
         {
             if (parameters.RequireSignedTokens)
             {
                 // read keys from provider information
                 var keys = new List<SecurityKey>();
 
-                foreach (var webKey in _options.ProviderInformation.KeySet.Keys)
+                foreach (var webKey in options.ProviderInformation.KeySet.Keys)
                 {
                     if (webKey.E.IsPresent() && webKey.N.IsPresent())
                     {
@@ -178,7 +132,7 @@ namespace IdentityModel.OidcClient
 
                             keys.Add(key);
 
-                            _logger.LogDebug("Added signing key with kid: {kid}", key?.KeyId ?? "not set");
+                            logger.LogDebug("Added signing key with kid: {kid}", key?.KeyId ?? "not set");
                         }
                     }
                     else if (webKey.X.IsPresent() && webKey.Y.IsPresent() && webKey.Crv.IsPresent())
@@ -200,15 +154,14 @@ namespace IdentityModel.OidcClient
                     }
                     else
                     {
-                        _logger.LogDebug("Signing key with kid: {kid} currently not supported", webKey.Kid ?? "not set");
+                        logger.LogDebug("Signing key with kid: {kid} currently not supported", webKey.Kid ?? "not set");
                     }
                 }
 
                 parameters.IssuerSigningKeys = keys;
             }
-
-            SecurityToken token;
-            return handler.ValidateToken(identityToken, parameters, out token);
+            
+            return handler.ValidateToken(identityToken, parameters, out _);
         }
 
         private string CheckRequiredClaim(ClaimsPrincipal user)
@@ -247,6 +200,7 @@ namespace IdentityModel.OidcClient
                 default:
                     throw new InvalidOperationException($"Unsupported curve type of {crv}");
             }
+        
         }
     }
 }
