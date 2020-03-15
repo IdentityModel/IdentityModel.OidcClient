@@ -179,7 +179,7 @@ namespace IdentityModel.OidcClient
         /// The logger factory.
         /// </value>
         [JsonIgnore]
-        public ILoggerFactory LoggerFactory { get; } = new LoggerFactory();
+        public ILoggerFactory LoggerFactory { get; set; } = new LoggerFactory();
 
         /// <summary>
         /// Gets or sets the claims types that should be filtered.
