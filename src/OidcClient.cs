@@ -320,7 +320,11 @@ namespace IdentityModel.OidcClient
 
             if (response.IsError)
             {
-                return new RefreshTokenResult { Error = response.Error };
+                return new RefreshTokenResult
+                {
+                    Error = response.Error,
+                    ErrorDescription = response.ErrorDescription,
+                };
             }
 
             // validate token response
