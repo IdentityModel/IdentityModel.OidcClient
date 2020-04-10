@@ -8,8 +8,10 @@ using IdentityModel.OidcClient.Results;
 
 namespace IdentityModel.OidcClient
 {
+    /// <inheritdoc />
     public class NoValidationIdentityTokenValidator : IIdentityTokenValidator
     {
+        /// <inheritdoc />
         public Task<IdentityTokenValidationResult> ValidateAsync(string identityToken, OidcClientOptions options, CancellationToken cancellationToken = default)
         {
             var parts = identityToken.Split('.');

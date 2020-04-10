@@ -9,15 +9,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{3DEB81D4-5
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "clients", "clients", "{A4154BEB-4B4A-4A48-B75D-B52432304F36}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityModel.OidcClient", "src\OidcClient\IdentityModel.OidcClient.csproj", "{BE059A81-6F97-4345-9A70-A9B278D86213}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OidcClient", "src\OidcClient\OidcClient.csproj", "{BE059A81-6F97-4345-9A70-A9B278D86213}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityModel.OidcClient.Tests", "test\IdentityModel.OidcClient.Tests\IdentityModel.OidcClient.Tests.csproj", "{B3874074-52B5-4319-B1F4-6896E8DC51B4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OidcClient.Tests", "test\OidcClient.Tests\OidcClient.Tests.csproj", "{B3874074-52B5-4319-B1F4-6896E8DC51B4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleClientWithBrowser", "clients\ConsoleClientWithBrowser\ConsoleClientWithBrowser.csproj", "{D8307A14-403E-48A4-870F-88CF9FE8CACA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConformanceTests", "clients\ConformanceTests\ConformanceTests.csproj", "{EF53746C-0BCE-4E0D-8251-9FC973746C31}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityModel.OidcClient.JwtHandlerIdentityTokenValidator", "src\JwtHandlerIdentityTokenValidator\IdentityModel.OidcClient.JwtHandlerIdentityTokenValidator.csproj", "{B5E03BAE-BDB8-4516-AE1A-F9F262C87DE8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JwtHandlerIdentityTokenValidator", "src\JwtHandlerIdentityTokenValidator\JwtHandlerIdentityTokenValidator.csproj", "{B5E03BAE-BDB8-4516-AE1A-F9F262C87DE8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

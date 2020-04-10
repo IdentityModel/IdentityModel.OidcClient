@@ -6,14 +6,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../src/OidcClient/IdentityModel.OidcClient.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Serilog.Extensions.Logging" Version="1.4.0" />
     <PackageReference Include="Serilog.Sinks.Literate" Version="2.1.0" />
     <PackageReference Include="FluentAssertions" Version="5.10.2" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="1.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\OidcClient\OidcClient.csproj" />
   </ItemGroup>
 
 </Project>

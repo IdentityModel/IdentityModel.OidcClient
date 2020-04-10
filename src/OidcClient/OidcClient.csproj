@@ -2,12 +2,14 @@
 
   <PropertyGroup>
     <PackageId>IdentityModel.OidcClient</PackageId>
+    <RootNamespace>IdentityModel.OidcClient</RootNamespace>
+    <AssemblyName>IdentityModel.OidcClient</AssemblyName>
+    
     <TargetFramework>netstandard2.0</TargetFramework>
     
     <PackageTags>OAuth2;OAuth 2.0;OpenID Connect;Security;Identity;IdentityServer</PackageTags>
     <Description>RFC8252 compliant and certified OpenID Connect and OAuth 2.0 client library for native applications</Description>
     <Authors>Dominick Baier;Brock Allen</Authors>
-    <AssemblyName>IdentityModel.OidcClient</AssemblyName>
     <PackageIcon>icon.jpg</PackageIcon>
     
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
@@ -23,6 +25,7 @@
     <AssemblyOriginatorKeyFile>../../key.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
+    
   </PropertyGroup>
 
    <ItemGroup>
