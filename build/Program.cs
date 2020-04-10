@@ -15,8 +15,6 @@ namespace build
             public const string Test = "test";
             public const string Pack = "pack";
         }
-
-        static string BinaryToSign = "IdentityModel.OidcClient.dll";
         
         static void Main(string[] args)
         {
@@ -45,8 +43,8 @@ namespace build
                 
                 Target(Targets.Pack, DependsOn(Targets.Test), () => 
                 {
-                    Run("dotnet", $"pack ./src/OidcClient/IdentityModel.OidcClient.csproj -c Release -o ./artifacts --no-build");
-                    Run("dotnet", $"pack ./src/JwtHandlerIdentityTokenValidator/IdentityModel.OidcClient.JwtHandlerIdentityTokenValidator.csproj -c Release -o ./artifacts --no-build");
+                    Run("dotnet", $"pack ./src/OidcClient/OidcClient.csproj -c Release -o ./artifacts --no-build");
+                    Run("dotnet", $"pack ./src/JwtHandlerIdentityTokenValidator/JwtHandlerIdentityTokenValidator.csproj -c Release -o ./artifacts --no-build");
                     
                     if (sign.HasValue())
                     {
