@@ -18,9 +18,7 @@ namespace ConsoleClientWithBrowser
         static OidcClient _oidcClient;
         static HttpClient _apiClient = new HttpClient { BaseAddress = new Uri(_api) };
 
-        public static void Main(string[] args) => MainAsync().GetAwaiter().GetResult();
-
-        public static async Task MainAsync()
+        public static async Task Main()
         {
             Console.WriteLine("+-----------------------+");
             Console.WriteLine("|  Sign in with OIDC    |");
