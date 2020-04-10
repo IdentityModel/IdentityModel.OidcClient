@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
         <PackageId>IdentityModel.OidcClient.JwtHandlerIdentityTokenValidator</PackageId>
-        <RootNamespace>IdentityModel.OidcClient.JwtHandlerIdentityTokenValidator</RootNamespace>
+        <RootNamespace>IdentityModel.OidcClient</RootNamespace>
+        <AssemblyName>IdentityModel.OidcClient.JwtHandlerIdentityTokenValidator</AssemblyName>
         
         <TargetFramework>netstandard2.0</TargetFramework>
     
@@ -29,7 +29,7 @@
     <ItemGroup>
         <PackageReference Include="minver" Version="2.2.0" PrivateAssets="All" />
 
-        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.6.0" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.5.0" />
         <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     </ItemGroup>

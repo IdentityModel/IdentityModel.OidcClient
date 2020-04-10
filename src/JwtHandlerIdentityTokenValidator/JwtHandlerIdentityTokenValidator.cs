@@ -11,9 +11,13 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace IdentityModel.OidcClient
 {
+    /// <inheritdoc />
     public class JwtHandlerIdentityTokenValidator : IIdentityTokenValidator
     {
+        /// <inheritdoc />
+#pragma warning disable 1998
         public async Task<IdentityTokenValidationResult> ValidateAsync(string identityToken, OidcClientOptions options, CancellationToken cancellationToken = default)
+#pragma warning restore 1998
         {
             var logger = options.LoggerFactory.CreateLogger<JwtHandlerIdentityTokenValidator>();
          
@@ -84,7 +88,7 @@ namespace IdentityModel.OidcClient
             {
                 user = ValidateSignature(identityToken, handler, parameters, options, logger);
             }
-            catch (SecurityTokenSignatureKeyNotFoundException sigEx)
+            catch (SecurityTokenSignatureKeyNotFoundException)
             {
                 logger.LogWarning("Key for validating token signature cannot be found. Refreshing keyset.");
                 
@@ -164,7 +168,7 @@ namespace IdentityModel.OidcClient
             return handler.ValidateToken(identityToken, parameters, out _);
         }
 
-        private string CheckRequiredClaim(ClaimsPrincipal user)
+        private static string CheckRequiredClaim(ClaimsPrincipal user)
         {
             var requiredClaims = new List<string>
             {
@@ -200,7 +204,6 @@ namespace IdentityModel.OidcClient
                 default:
                     throw new InvalidOperationException($"Unsupported curve type of {crv}");
             }
-        
         }
     }
 }
