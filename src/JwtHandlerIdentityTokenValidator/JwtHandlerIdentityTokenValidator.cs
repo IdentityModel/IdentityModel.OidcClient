@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using IdentityModel.OidcClient.Results;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
 namespace IdentityModel.OidcClient
@@ -23,8 +24,9 @@ namespace IdentityModel.OidcClient
          
             logger.LogTrace("Validate");
 
-            var handler = new JwtSecurityTokenHandler();
-            handler.InboundClaimTypeMap.Clear();
+            //var handler = new JwtSecurityTokenHandler();
+            var handler = new JsonWebTokenHandler();
+            //handler.InboundClaimTypeMap.Clear();
 
             // setup general validation parameters
             var parameters = new TokenValidationParameters
@@ -39,11 +41,11 @@ namespace IdentityModel.OidcClient
             };
 
             // read the token signing algorithm
-            JwtSecurityToken jwt;
+            JsonWebToken jwt;
 
             try
             {
-                jwt = handler.ReadJwtToken(identityToken);
+                jwt = handler.ReadJsonWebToken(identityToken);
             }
             catch (Exception ex)
             {
@@ -53,8 +55,8 @@ namespace IdentityModel.OidcClient
                 };
             }
 
-            var algorithm = jwt.Header.Alg;
-
+            var algorithm = jwt.Alg;
+            
             // if token is unsigned, and this is allowed, skip signature validation
             if (string.Equals(algorithm, "none"))
             {
@@ -83,20 +85,23 @@ namespace IdentityModel.OidcClient
                 };
             }
 
-            ClaimsPrincipal user;
-            try
+            var result = ValidateSignature(identityToken, handler, parameters, options, logger);
+            if (result.IsValid == false)
             {
-                user = ValidateSignature(identityToken, handler, parameters, options, logger);
-            }
-            catch (SecurityTokenSignatureKeyNotFoundException)
-            {
-                logger.LogWarning("Key for validating token signature cannot be found. Refreshing keyset.");
-                
-                return new IdentityTokenValidationResult
+                if (result.Exception is SecurityTokenSignatureKeyNotFoundException)
                 {
-                    Error = "invalid_signature"
-                };
+                    logger.LogWarning("Key for validating token signature cannot be found. Refreshing keyset.");
+
+                    return new IdentityTokenValidationResult
+                    {
+                        Error = "invalid_signature"
+                    };
+                }
+
+                throw result.Exception;
             }
+
+            var user = new ClaimsPrincipal(result.ClaimsIdentity);
             
             var error = CheckRequiredClaim(user);
             if (error.IsPresent())
@@ -114,7 +119,7 @@ namespace IdentityModel.OidcClient
             };
         }
 
-        private ClaimsPrincipal ValidateSignature(string identityToken, JwtSecurityTokenHandler handler, TokenValidationParameters parameters, OidcClientOptions options, ILogger logger)
+        private TokenValidationResult ValidateSignature(string identityToken, JsonWebTokenHandler handler, TokenValidationParameters parameters, OidcClientOptions options, ILogger logger)
         {
             if (parameters.RequireSignedTokens)
             {
@@ -165,7 +170,7 @@ namespace IdentityModel.OidcClient
                 parameters.IssuerSigningKeys = keys;
             }
             
-            return handler.ValidateToken(identityToken, parameters, out _);
+            return handler.ValidateToken(identityToken, parameters);
         }
 
         private static string CheckRequiredClaim(ClaimsPrincipal user)

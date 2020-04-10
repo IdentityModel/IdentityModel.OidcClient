@@ -498,7 +498,7 @@ namespace IdentityModel.OidcClient.Tests
             var result = await client.ProcessResponseAsync(url, state);
 
             result.IsError.Should().BeTrue();
-            result.Error.Should().Contain("IDX12709");
+            result.Error.Should().Contain("IDX14100");
         }
 
         [Fact]
