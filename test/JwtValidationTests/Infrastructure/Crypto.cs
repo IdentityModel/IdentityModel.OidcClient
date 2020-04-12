@@ -2,16 +2,19 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using Microsoft.IdentityModel.Logging;
-using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
+using IdentityModel;
+using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Logging;
+using Microsoft.IdentityModel.Tokens;
 
-namespace IdentityModel.OidcClient.Tests.Infrastructure
+namespace JwtValidationTests.Infrastructure
 {
     public static class Crypto
     {
@@ -76,6 +79,10 @@ namespace IdentityModel.OidcClient.Tests.Infrastructure
         {
             var jwtClaims = new List<Claim>(claims);
             jwtClaims.Add(new Claim(JwtClaimTypes.IssuedAt, "now"));
+
+
+            
+            
 
             var jwt = new JwtSecurityToken(
                 issuer,

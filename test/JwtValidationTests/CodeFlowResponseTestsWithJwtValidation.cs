@@ -14,6 +14,7 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using JwtValidationTests.Infrastructure;
 using Xunit;
 
 namespace IdentityModel.OidcClient.Tests

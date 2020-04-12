@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading;
@@ -23,11 +22,7 @@ namespace IdentityModel.OidcClient
             var logger = options.LoggerFactory.CreateLogger<JwtHandlerIdentityTokenValidator>();
          
             logger.LogTrace("Validate");
-
-            //var handler = new JwtSecurityTokenHandler();
-            var handler = new JsonWebTokenHandler();
-            //handler.InboundClaimTypeMap.Clear();
-
+            
             // setup general validation parameters
             var parameters = new TokenValidationParameters
             {
@@ -41,6 +36,7 @@ namespace IdentityModel.OidcClient
             };
 
             // read the token signing algorithm
+            var handler = new JsonWebTokenHandler();
             JsonWebToken jwt;
 
             try
@@ -64,7 +60,7 @@ namespace IdentityModel.OidcClient
                 {
                     return new IdentityTokenValidationResult
                     {
-                        Error = $"Identity token is not singed. Signatures are required by policy"
+                        Error = $"Identity token is not signed. Signatures are required by policy"
                     };
                 }
                 else

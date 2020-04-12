@@ -1,10 +1,9 @@
 ﻿using IdentityModel.OidcClient;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Serilog.Sinks.SystemConsole.Themes;
 
@@ -46,7 +45,7 @@ namespace ConsoleClientWithBrowser
                 FilterClaims = false,
 
                 Browser = browser,
-                IdentityTokenValidator = new NoValidationIdentityTokenValidator(),
+                IdentityTokenValidator = new JwtHandlerIdentityTokenValidator(),
                 RefreshTokenInnerHttpHandler = new HttpClientHandler()
             };
 
@@ -84,13 +83,9 @@ namespace ConsoleClientWithBrowser
                 Console.WriteLine("{0}: {1}", claim.Type, claim.Value);
             }
 
-            Console.WriteLine($"\nidentity token: {result.IdentityToken}");
-            Console.WriteLine($"access token:   {result.AccessToken}");
-            Console.WriteLine($"refresh token:  {result?.RefreshToken ?? "none"}");
+            var values = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(result.TokenResponse.Raw);
 
-            var values = JsonConvert.DeserializeObject<Dictionary<string, string>>(result.TokenResponse.Raw);
-
-            Console.WriteLine($"Raw TokenResponse ...");
+            Console.WriteLine($"token response...");
             foreach (var item in values)
             {
                 Console.WriteLine($"{item.Key}: {item.Value}");
@@ -140,9 +135,9 @@ namespace ConsoleClientWithBrowser
 
             if (response.IsSuccessStatusCode)
             {
-                var json = JArray.Parse(await response.Content.ReadAsStringAsync());
+                var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
                 Console.WriteLine("\n\n");
-                Console.WriteLine(json);
+                Console.WriteLine(json.RootElement);
             }
             else
             {
