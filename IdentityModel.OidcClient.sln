@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OidcClient.Tests", "test\Oi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleClientWithBrowser", "clients\ConsoleClientWithBrowser\ConsoleClientWithBrowser.csproj", "{D8307A14-403E-48A4-870F-88CF9FE8CACA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JwtHandlerIdentityTokenValidator", "src\JwtHandlerIdentityTokenValidator\JwtHandlerIdentityTokenValidator.csproj", "{B5E03BAE-BDB8-4516-AE1A-F9F262C87DE8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityTokenValidator", "src\IdentityTokenValidator\IdentityTokenValidator.csproj", "{B5E03BAE-BDB8-4516-AE1A-F9F262C87DE8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JwtValidationTests", "test\JwtValidationTests\JwtValidationTests.csproj", "{927224F5-C4B6-404F-8028-60E867D8D24C}"
 EndProject

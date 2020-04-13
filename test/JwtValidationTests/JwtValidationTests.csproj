@@ -14,7 +14,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\JwtHandlerIdentityTokenValidator\JwtHandlerIdentityTokenValidator.csproj" />
+        <ProjectReference Include="..\..\src\IdentityTokenValidator\IdentityTokenValidator.csproj" />
         <ProjectReference Include="..\..\src\OidcClient\OidcClient.csproj" />
     </ItemGroup>
 
