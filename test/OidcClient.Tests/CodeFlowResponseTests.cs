@@ -294,6 +294,35 @@ namespace IdentityModel.OidcClient.Tests
             body.Should().Contain("foo=foo");
             body.Should().Contain("bar=bar");
         }
+        
+        [Fact]
+        public async Task No_identity_token_validator_should_fail()
+        {
+            _options.Policy.RequireIdentityTokenSignature = true;
+            var client = new OidcClient(_options);
+            var state = await client.PrepareLoginAsync();
+
+            var url = $"?state={state.State}&nonce={state.Nonce}&code=bar";
+            var key = Crypto.CreateKey();
+            var idToken = Crypto.CreateJwt(key, "https://authority", "client",
+                new Claim("at_hash", Crypto.HashData("token")),
+                new Claim("sub", "123"),
+                new Claim("nonce", state.Nonce));
+
+            var tokenResponse = new Dictionary<string, object>
+            {
+                { "access_token", "token" },
+                { "expires_in", 300 },
+                { "id_token", idToken },
+                { "refresh_token", "refresh_token" }
+            };
+
+            _options.ProviderInformation.KeySet = Crypto.CreateKeySet(key);
+            _options.BackchannelHandler = new NetworkHandler(JsonConvert.SerializeObject(tokenResponse), HttpStatusCode.OK);
+
+            Func<Task> act = async () => { await client.ProcessResponseAsync(url, state); };
+            act.Should().Throw<InvalidOperationException>().Where(e => e.Message.StartsWith("No IIdentityTokenValidator is configured"));
+        }
 
         [Fact]
         public async Task Invalid_nonce_should_fail()
