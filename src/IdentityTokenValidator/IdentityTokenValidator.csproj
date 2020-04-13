@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <PackageId>IdentityModel.OidcClient.JwtHandlerIdentityTokenValidator</PackageId>
+        <PackageId>IdentityModel.OidcClient.IdentityTokenValidator</PackageId>
         <RootNamespace>IdentityModel.OidcClient</RootNamespace>
-        <AssemblyName>IdentityModel.OidcClient.JwtHandlerIdentityTokenValidator</AssemblyName>
+        <AssemblyName>IdentityModel.OidcClient.IdentityTokenValidator</AssemblyName>
         
         <TargetFramework>netstandard2.0</TargetFramework>
     

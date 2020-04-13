@@ -32,7 +32,7 @@ namespace build
                     if (sign.HasValue())
                     {
                         Sign("IdentityModel.OidcClient.dll", "./src/OidcClient/bin/release");
-                        Sign("IdentityModel.OidcClient.JwtHandlerIdentityTokenValidator.dll", "./src/JwtHandlerIdentityTokenValidator/bin/release");
+                        Sign("IdentityModel.OidcClient.IdentityTokenValidator.dll", "./src/IdentityTokenValidator/bin/release");
                     }
                 });
 
@@ -44,7 +44,7 @@ namespace build
                 Target(Targets.Pack, DependsOn(Targets.Test), () => 
                 {
                     Run("dotnet", $"pack ./src/OidcClient/OidcClient.csproj -c Release -o ./artifacts --no-build");
-                    Run("dotnet", $"pack ./src/JwtHandlerIdentityTokenValidator/JwtHandlerIdentityTokenValidator.csproj -c Release -o ./artifacts --no-build");
+                    Run("dotnet", $"pack ./src/IdentityTokenValidator/IdentityTokenValidator.csproj -c Release -o ./artifacts --no-build");
                     
                     if (sign.HasValue())
                     {
