@@ -27,8 +27,12 @@ namespace IdentityModel.OidcClient.Tests
             RedirectUri = "https://redirect",
 
             LoadProfile = false,
-            IdentityTokenValidator = new NoValidationIdentityTokenValidator(),
-
+            
+            Policy = new Policy
+            {
+                RequireIdentityTokenSignature = false
+            },
+            
             ProviderInformation = new ProviderInformation
             {
                 IssuerName = "https://authority",

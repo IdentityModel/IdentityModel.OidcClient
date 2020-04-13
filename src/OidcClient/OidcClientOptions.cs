@@ -187,7 +187,6 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The logger factory.
         /// </value>
-        // todo: default value handling?
         [JsonIgnore]
         public IIdentityTokenValidator IdentityTokenValidator { get; set; }
 

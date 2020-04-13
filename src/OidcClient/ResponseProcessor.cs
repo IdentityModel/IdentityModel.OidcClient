@@ -108,14 +108,24 @@ namespace IdentityModel.OidcClient
 
             if (response.IdentityToken.IsPresent())
             {
-                // if identity token is present, it must be valid
-                if (_options.IdentityTokenValidator is null)
+                IIdentityTokenValidator validator;
+                if (_options.IdentityTokenValidator == null)
                 {
-                    throw new Exception("No IIdentityTokenValidator set");
+                    if (_options.Policy.RequireIdentityTokenSignature == false)
+                    {
+                        validator = new NoValidationIdentityTokenValidator();
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("No IIdentityTokenValidator is configured. Either explicitly set a validator on the options, or set RequireIdentityTokenSignature to false to skip validation.");
+                    }
+                }
+                else
+                {
+                    validator = _options.IdentityTokenValidator;
                 }
                 
-                var validationResult = await _options.IdentityTokenValidator.ValidateAsync(response.IdentityToken, _options, cancellationToken);
-                //var validationResult = await _tokenValidator.ValidateAsync(response.IdentityToken, cancellationToken);
+                var validationResult = await validator.ValidateAsync(response.IdentityToken, _options, cancellationToken);
 
                 if (validationResult.Error == "invalid_signature")
                 {
