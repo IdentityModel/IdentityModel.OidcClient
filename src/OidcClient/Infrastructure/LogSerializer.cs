@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace IdentityModel.OidcClient.Infrastructure
 {
@@ -18,16 +18,15 @@ namespace IdentityModel.OidcClient.Infrastructure
         /// </summary>
         public static bool Enabled = true;
 
-        static readonly JsonSerializerSettings jsonSettings = new JsonSerializerSettings
+        static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions()
         {
-            NullValueHandling = NullValueHandling.Ignore,
-            DateFormatHandling = DateFormatHandling.IsoDateFormat,
-            Formatting = Formatting.Indented
+            IgnoreNullValues = true,
+            WriteIndented = true
         };
 
         static LogSerializer()
         {
-            jsonSettings.Converters.Add(new StringEnumConverter());
+            JsonOptions.Converters.Add(new JsonStringEnumConverter());
         }
 
         /// <summary>
@@ -37,7 +36,7 @@ namespace IdentityModel.OidcClient.Infrastructure
         /// <returns></returns>
         public static string Serialize(object logObject)
         {
-            return Enabled ? JsonConvert.SerializeObject(logObject, jsonSettings) : "Logging has been disabled";
+            return Enabled ? JsonSerializer.Serialize(logObject, JsonOptions) : "Logging has been disabled";
         }
     }
 }

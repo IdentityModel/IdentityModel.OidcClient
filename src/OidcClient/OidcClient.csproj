@@ -2,40 +2,41 @@
 
   <PropertyGroup>
     <PackageId>IdentityModel.OidcClient</PackageId>
+    <RootNamespace>IdentityModel.OidcClient</RootNamespace>
+    <AssemblyName>IdentityModel.OidcClient</AssemblyName>
+    
     <TargetFramework>netstandard2.0</TargetFramework>
     
     <PackageTags>OAuth2;OAuth 2.0;OpenID Connect;Security;Identity;IdentityServer</PackageTags>
     <Description>RFC8252 compliant and certified OpenID Connect and OAuth 2.0 client library for native applications</Description>
     <Authors>Dominick Baier;Brock Allen</Authors>
-    <AssemblyName>IdentityModel.OidcClient</AssemblyName>
     <PackageIcon>icon.jpg</PackageIcon>
     
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     
-    <!-- Declare that the Repository URL can be published to NuSpec -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <!-- Embed source files that are not tracked by the source control manager to the PDB -->
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <!-- Include PDB in the built .nupkg -->
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     
-    <AssemblyOriginatorKeyFile>../key.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>../../key.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
+    
   </PropertyGroup>
 
    <ItemGroup>
-    <None Include="../icon.jpg" Pack="true" Visible="false" PackagePath="" />
+    <None Include="../../icon.jpg" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="IdentityModel" Version="4.1.0" />
+    <PackageReference Include="IdentityModel" Version="4.2.0" />
     <PackageReference Include="minver" Version="2.2.0" PrivateAssets="All" />
     
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.6.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    
+    <PackageReference Include="System.Text.Json" Version="4.7.0" />
   </ItemGroup>
 
 </Project>

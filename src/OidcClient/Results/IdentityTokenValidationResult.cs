@@ -6,9 +6,19 @@ using System.Security.Claims;
 
 namespace IdentityModel.OidcClient.Results
 {
-    internal class IdentityTokenValidationResult : Result
+    /// <summary>
+    /// Identity token validation result
+    /// </summary>
+    public class IdentityTokenValidationResult : Result
     {
+        /// <summary>
+        /// The user represented by the identity token
+        /// </summary>
         public ClaimsPrincipal User { get; set; }
+        
+        /// <summary>
+        /// The signature algorithm of the identity token 
+        /// </summary>
         public string SignatureAlgorithm { get; set; }
     }
 }

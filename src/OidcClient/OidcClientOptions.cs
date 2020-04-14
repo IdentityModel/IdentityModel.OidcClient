@@ -5,10 +5,10 @@
 using IdentityModel.Client;
 using IdentityModel.OidcClient.Browser;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Text.Json.Serialization;
 
 namespace IdentityModel.OidcClient
 {
@@ -180,6 +180,15 @@ namespace IdentityModel.OidcClient
         /// </value>
         [JsonIgnore]
         public ILoggerFactory LoggerFactory { get; set; } = new LoggerFactory();
+        
+        /// <summary>
+        /// Gets or sets the identity token validator.
+        /// </summary>
+        /// <value>
+        /// The logger factory.
+        /// </value>
+        [JsonIgnore]
+        public IIdentityTokenValidator IdentityTokenValidator { get; set; }
 
         /// <summary>
         /// Gets or sets the claims types that should be filtered.

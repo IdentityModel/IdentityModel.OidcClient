@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-<PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
       <TargetFrameworks>netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
@@ -11,13 +11,16 @@
     <AssemblyOriginatorKeyFile>../../key.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
+    <RootNamespace>IdentityModel.OidcClient.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\IdentityModel.OidcClient.csproj" />
+    <ProjectReference Include="..\..\src\OidcClient\OidcClient.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.5.0" />
+    
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
     <PackageReference Include="xunit" Version="2.4.1" />

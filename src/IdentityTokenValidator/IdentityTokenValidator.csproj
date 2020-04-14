@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <PackageId>IdentityModel.OidcClient.IdentityTokenValidator</PackageId>
+        <RootNamespace>IdentityModel.OidcClient</RootNamespace>
+        <AssemblyName>IdentityModel.OidcClient.IdentityTokenValidator</AssemblyName>
+        
+        <TargetFramework>netstandard2.0</TargetFramework>
+    
+        <PackageTags>OAuth2;OAuth 2.0;OpenID Connect;Security;Identity;IdentityServer</PackageTags>
+        <Description>Identity token validator for IdentityModeo.OidcClient ased on the Microsoft JWT handler</Description>
+        <Authors>Dominick Baier;Brock Allen</Authors>
+        <PackageIcon>icon.jpg</PackageIcon>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+        
+        <AssemblyOriginatorKeyFile>../../key.snk</AssemblyOriginatorKeyFile>
+        <SignAssembly>true</SignAssembly>
+        <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="../../icon.jpg" Pack="true" Visible="false" PackagePath="" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <PackageReference Include="minver" Version="2.2.0" PrivateAssets="All" />
+
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.5.0" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\OidcClient\OidcClient.csproj" />
+    </ItemGroup>
+
+</Project>
