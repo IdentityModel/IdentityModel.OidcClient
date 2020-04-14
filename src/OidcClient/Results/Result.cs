@@ -24,5 +24,13 @@ namespace IdentityModel.OidcClient
         /// The error.
         /// </value>
         public virtual string Error { get; set; }
+
+        /// <summary>
+        /// Gets or sets the error description.
+        /// </summary>
+        /// <value>
+        /// The error description.
+        /// </value>
+        public virtual string ErrorDescription { get; set; }
     }
 }
