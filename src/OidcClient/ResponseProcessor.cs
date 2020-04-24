@@ -133,7 +133,6 @@ namespace IdentityModel.OidcClient
                     validationResult = await _options.IdentityTokenValidator.ValidateAsync(response.IdentityToken, _options, cancellationToken);
                 }
                 
-                // todo: handle invalid_signature response
                 if (validationResult.IsError)
                 {
                     return new TokenResponseValidationResult(validationResult.Error ?? "Identity token validation error");
@@ -149,8 +148,7 @@ namespace IdentityModel.OidcClient
                 }
 
                 // validate at_hash
-                // todo: validate approach / configuration etc
-                if (validationResult.SignatureAlgorithm != "none")
+                if (!string.Equals(validationResult.SignatureAlgorithm, "none", StringComparison.OrdinalIgnoreCase))
                 {
                     var atHash = validationResult.User.FindFirst(JwtClaimTypes.AccessTokenHash);
                     if (atHash == null)
