@@ -432,10 +432,13 @@ namespace IdentityModel.OidcClient
 
             if (Options.ProviderInformation.KeySet == null)
             {
-                var error = "Key set is missing in provider information";
+                if (Options.Policy.Discovery.RequireKeySet)
+                {
+                    var error = "Key set is missing in provider information";
 
-                _logger.LogError(error);
-                throw new InvalidOperationException(error);
+                    _logger.LogError(error);
+                    throw new InvalidOperationException(error);
+                }
             }
         }
 
