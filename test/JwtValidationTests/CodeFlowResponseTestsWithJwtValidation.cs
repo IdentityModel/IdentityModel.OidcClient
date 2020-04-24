@@ -139,6 +139,74 @@ namespace IdentityModel.OidcClient.Tests
             result.User.Claims.Skip(1).First().Type.Should().Be("name");
             result.User.Claims.Skip(1).First().Value.Should().Be("Dominick");
         }
+        
+        [Fact]
+        public async Task Valid_response_with_missing_signature_should_succeed()
+        {
+            _options.Policy.RequireIdentityTokenSignature = false;
+            
+            var client = new OidcClient(_options);
+            var state = await client.PrepareLoginAsync();
+
+            var url = $"?state={state.State}&nonce={state.Nonce}&code=bar";
+            var key = Crypto.CreateKey();
+            var idToken = Crypto.CreateJwt(null, "https://authority", "client",
+                new Claim("at_hash", Crypto.HashData("token")),
+                new Claim("sub", "123"),
+                new Claim("nonce", state.Nonce));
+
+            var tokenResponse = new Dictionary<string, object>
+            {
+                { "access_token", "token" },
+                { "expires_in", 300 },
+                { "id_token", idToken },
+                { "refresh_token", "refresh_token" }
+            };
+
+            _options.ProviderInformation.KeySet = Crypto.CreateKeySet(key);
+            _options.BackchannelHandler = new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
+
+            var result = await client.ProcessResponseAsync(url, state);
+
+            result.IsError.Should().BeFalse();
+            result.AccessToken.Should().Be("token");
+            result.IdentityToken.Should().NotBeNull();
+            result.User.Should().NotBeNull();
+
+            result.User.Claims.Count().Should().Be(1);
+            result.User.Claims.First().Type.Should().Be("sub");
+            result.User.Claims.First().Value.Should().Be("123");
+        }
+        
+        [Fact]
+        public async Task Valid_response_with_missing_signature_should_fail()
+        {
+            var client = new OidcClient(_options);
+            var state = await client.PrepareLoginAsync();
+
+            var url = $"?state={state.State}&nonce={state.Nonce}&code=bar";
+            var key = Crypto.CreateKey();
+            var idToken = Crypto.CreateJwt(null, "https://authority", "client",
+                new Claim("at_hash", Crypto.HashData("token")),
+                new Claim("sub", "123"),
+                new Claim("nonce", state.Nonce));
+
+            var tokenResponse = new Dictionary<string, object>
+            {
+                { "access_token", "token" },
+                { "expires_in", 300 },
+                { "id_token", idToken },
+                { "refresh_token", "refresh_token" }
+            };
+
+            _options.ProviderInformation.KeySet = Crypto.CreateKeySet(key);
+            _options.BackchannelHandler = new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
+
+            var result = await client.ProcessResponseAsync(url, state);
+
+            result.IsError.Should().BeTrue();
+            result.Error.Should().Contain("Identity token is not signed");
+        }
 
         [Fact]
         public async Task Sending_authorization_header_should_succeed()

@@ -80,9 +80,11 @@ namespace JwtValidationTests.Infrastructure
             var jwtClaims = new List<Claim>(claims);
             jwtClaims.Add(new Claim(JwtClaimTypes.IssuedAt, "now"));
 
-
-            
-            
+            SigningCredentials credentials = null;
+            if (key != null)
+            {
+                credentials = new SigningCredentials(key, "RS256");
+            }
 
             var jwt = new JwtSecurityToken(
                 issuer,
@@ -90,7 +92,8 @@ namespace JwtValidationTests.Infrastructure
                 jwtClaims,
                 DateTime.UtcNow,
                 DateTime.UtcNow.AddHours(1),
-                new SigningCredentials(key, "RS256"));
+                credentials);
+                
 
             var handler = new JwtSecurityTokenHandler();
             handler.OutboundClaimTypeMap.Clear();

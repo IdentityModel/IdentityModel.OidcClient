@@ -54,7 +54,7 @@ namespace IdentityModel.OidcClient
             var algorithm = jwt.Alg;
             
             // if token is unsigned, and this is allowed, skip signature validation
-            if (string.Equals(algorithm, "none"))
+            if (string.Equals(algorithm, "none", StringComparison.OrdinalIgnoreCase))
             {
                 if (options.Policy.RequireIdentityTokenSignature)
                 {
