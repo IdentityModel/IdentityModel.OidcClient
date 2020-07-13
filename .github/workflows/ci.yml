@@ -6,6 +6,10 @@ on:
     tags:
     - '*.*.*'
   pull_request:
+
+env:
+  DOTNET_NOLOGO: true
+
 jobs:
   build:
     strategy:
@@ -17,10 +21,14 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: dotnet --info
-    - uses: actions/checkout@af513c7a016048ae468971c52ed77d9562c7c819
-    - if: contains(matrix.runs-on, 'windows')
-      run: ./build.cmd
+    
     - if: contains(matrix.runs-on, 'macOS') || contains(matrix.runs-on, 'ubuntu')
       run: ./build.sh
-    - if: (matrix.runs-on == 'windows-latest') && (github.ref == 'refs/heads/main')
-      run: dotnet nuget push .\artifacts\*.nupkg -s https://www.myget.org/F/identity/api/v2/package -k ${{ secrets.MYGET }}
+    - if: contains(matrix.runs-on, 'windows')
+      run: ./build.cmd
+    - if: (matrix.runs-on == 'windows-latest') && (github.ref == 'refs/heads/main' || contains(github.ref, 'refs/tags/'))
+      env:
+        SignClientSecret: ${{ secrets.SIGNCLIENT }}
+      run: |
+        ./build.cmd sign
+        dotnet nuget push .\artifacts\*.nupkg -s https://www.myget.org/F/identity/api/v2/package -k ${{ secrets.MYGET }}
