@@ -6,10 +6,8 @@ on:
     tags:
     - '*.*.*'
   pull_request:
-
 env:
   DOTNET_NOLOGO: true
-
 jobs:
   build:
     strategy:
@@ -24,7 +22,7 @@ jobs:
     
     - if: contains(matrix.runs-on, 'macOS') || contains(matrix.runs-on, 'ubuntu')
       run: ./build.sh
-    - if: contains(matrix.runs-on, 'windows')
+    - if: matrix.runs-on == 'windows-latest' && github.ref != 'refs/heads/main' && !contains(github.ref, 'refs/tags/')
       run: ./build.cmd
     - if: (matrix.runs-on == 'windows-latest') && (github.ref == 'refs/heads/main' || contains(github.ref, 'refs/tags/'))
       env:
