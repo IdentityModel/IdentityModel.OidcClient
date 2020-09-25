@@ -50,6 +50,14 @@ namespace IdentityModel.OidcClient
         public string ClientSecret { get; set; }
 
         /// <summary>
+        /// Gets or sets the client assertion (if needed).
+        /// </summary>
+        /// <value>
+        /// The client assertion.
+        /// </value>
+        public ClientAssertion ClientAssertion { get; set; } = new ClientAssertion();
+
+        /// <summary>
         /// Gets or sets the scopes (required).
         /// </summary>
         /// <value>

@@ -313,6 +313,7 @@ namespace IdentityModel.OidcClient
                 Address = Options.ProviderInformation.TokenEndpoint,
                 ClientId = Options.ClientId,
                 ClientSecret = Options.ClientSecret,
+                ClientAssertion = Options.ClientAssertion,
                 ClientCredentialStyle = Options.TokenClientCredentialStyle,
                 RefreshToken = refreshToken, 
                 Parameters = extraParameters ?? new Dictionary<string, string>()
