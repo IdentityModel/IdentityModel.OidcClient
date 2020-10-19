@@ -30,7 +30,7 @@
         <PackageReference Include="minver" Version="2.3.1" PrivateAssets="All" />
 
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.8.0" />
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.9" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     </ItemGroup>
     
