@@ -79,7 +79,7 @@ namespace IdentityModel.OidcClient
             
             if (authorizeResult.IsError)
             {
-                return new LoginResult(authorizeResult.Error);
+                return new LoginResult(authorizeResult.Error, authorizeResult.ErrorDescription);
             }
 
             var result = await ProcessResponseAsync(
@@ -182,14 +182,14 @@ namespace IdentityModel.OidcClient
             if (authorizeResponse.IsError)
             {
                 _logger.LogError(authorizeResponse.Error);
-                return new LoginResult(authorizeResponse.Error);
+                return new LoginResult(authorizeResponse.Error, authorizeResponse.ErrorDescription);
             }
 
             var result = await _processor.ProcessResponseAsync(authorizeResponse, state, extraParameters, cancellationToken);
             if (result.IsError)
             {
                 _logger.LogError(result.Error);
-                return new LoginResult(result.Error);
+                return new LoginResult(result.Error, result.ErrorDescription);
             }
 
             var userInfoClaims = Enumerable.Empty<Claim>();
