@@ -32,6 +32,17 @@ namespace IdentityModel.OidcClient
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="LoginResult"/> class.
+        /// </summary>
+        /// <param name="error">The error.</param>
+        /// <param name="errorDescription">The error description.</param>
+        public LoginResult(string error, string errorDescription)
+        {
+            Error = error;
+            ErrorDescription = errorDescription;
+        }
+
+        /// <summary>
         /// Gets or sets the user.
         /// </summary>
         /// <value>
