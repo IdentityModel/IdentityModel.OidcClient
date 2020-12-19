@@ -350,8 +350,8 @@ namespace IdentityModel.OidcClient
                 IdentityToken = response.IdentityToken,
                 AccessToken = response.AccessToken,
                 RefreshToken = response.RefreshToken,
-                ExpiresIn = (int)response.ExpiresIn,
-                AccessTokenExpiration = DateTime.Now.AddSeconds(response.ExpiresIn)
+                ExpiresIn = response.ExpiresIn,
+                AccessTokenExpiration = DateTimeOffset.Now.AddSeconds(response.ExpiresIn)
             };
         }
 
