@@ -5,7 +5,9 @@
 using IdentityModel.Client;
 using IdentityModel.OidcClient.Infrastructure;
 using IdentityModel.OidcClient.Results;
+
 using Microsoft.Extensions.Logging;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -77,7 +79,7 @@ namespace IdentityModel.OidcClient
                 Timeout = request.BrowserTimeout,
                 ExtraParameters = request.FrontChannelExtraParameters
             }, cancellationToken);
-            
+
             if (authorizeResult.IsError)
             {
                 return new LoginResult(authorizeResult.Error, authorizeResult.ErrorDescription);
@@ -235,6 +237,7 @@ namespace IdentityModel.OidcClient
             DateTimeOffset? authTime = null;
             if (authTimeValue.IsPresent() && long.TryParse(authTimeValue, out seconds))
                 authTime = new DateTimeOffset(TOKEN_START_TIME, TimeSpan.Zero).AddSeconds(seconds);
+
             var loginResult = new LoginResult
             {
                 User = user,
@@ -313,7 +316,7 @@ namespace IdentityModel.OidcClient
 
             await EnsureConfigurationAsync(cancellationToken);
             var client = Options.CreateClient();
-            
+
             var response = await client.RequestRefreshTokenAsync(new RefreshTokenRequest
             {
                 Address = Options.ProviderInformation.TokenEndpoint,
@@ -383,11 +386,11 @@ namespace IdentityModel.OidcClient
                     Address = Options.Authority,
                     Policy = Options.Policy.Discovery
                 }, cancellationToken).ConfigureAwait(false);
-               
+
                 if (disco.IsError)
                 {
                     _logger.LogError("Error loading discovery document: {errorType} - {error}", disco.ErrorType.ToString(), disco.Error);
-                    
+
                     if (disco.ErrorType == ResponseErrorType.Exception)
                     {
                         throw new InvalidOperationException("Error loading discovery document: " + disco.Error, disco.Exception);
