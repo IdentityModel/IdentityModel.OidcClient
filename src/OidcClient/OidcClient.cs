@@ -20,6 +20,7 @@ namespace IdentityModel.OidcClient
     /// </summary>
     public class OidcClient
     {
+        private const long TOKEN_START_TIME = 621355968000000000;// 1970-01-01T00:00:00Z UTCTicks
         private readonly ILogger _logger;
         private readonly AuthorizeClient _authorizeClient;
 
@@ -229,6 +230,11 @@ namespace IdentityModel.OidcClient
 
             var user = ProcessClaims(result.User, userInfoClaims);
 
+            long seconds = 0;
+            var authTimeValue = result.TokenResponse.TryGet(JwtClaimTypes.AuthenticationTime);
+            DateTimeOffset? authTime = null;
+            if (authTimeValue.IsPresent() && long.TryParse(authTimeValue, out seconds))
+                authTime = new DateTimeOffset(TOKEN_START_TIME, TimeSpan.Zero).AddSeconds(seconds);
             var loginResult = new LoginResult
             {
                 User = user,
@@ -236,7 +242,7 @@ namespace IdentityModel.OidcClient
                 RefreshToken = result.TokenResponse.RefreshToken,
                 AccessTokenExpiration = DateTimeOffset.Now.AddSeconds(result.TokenResponse.ExpiresIn),
                 IdentityToken = result.TokenResponse.IdentityToken,
-                AuthenticationTime = DateTimeOffset.Now,
+                AuthenticationTime = authTime,
                 TokenResponse = result.TokenResponse // In some cases there is additional custom response data that clients need access to
             };
 
