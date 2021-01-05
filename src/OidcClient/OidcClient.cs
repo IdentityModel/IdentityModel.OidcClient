@@ -102,7 +102,7 @@ namespace IdentityModel.OidcClient
         /// <param name="extraParameters">extra parameters to send to the authorize endpoint.</param>
         /// /// <param name="cancellationToken">A token that can be used to cancel the request</param>
         /// <returns>State for initiating the authorize request and processing the response</returns>
-        public virtual async Task<AuthorizeState> PrepareLoginAsync(IDictionary<string, string> extraParameters = null, CancellationToken cancellationToken = default)
+        public virtual async Task<AuthorizeState> PrepareLoginAsync(Parameters extraParameters = null, CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("PrepareLoginAsync");
 
@@ -169,7 +169,7 @@ namespace IdentityModel.OidcClient
         /// <returns>
         /// Result of the login response validation
         /// </returns>
-        public virtual async Task<LoginResult> ProcessResponseAsync(string data, AuthorizeState state, IDictionary<string, string> extraParameters = null, CancellationToken cancellationToken = default)
+        public virtual async Task<LoginResult> ProcessResponseAsync(string data, AuthorizeState state, Parameters extraParameters = null, CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("ProcessResponseAsync");
             _logger.LogInformation("Processing response.");
@@ -301,7 +301,7 @@ namespace IdentityModel.OidcClient
         /// <returns>
         /// A token response.
         /// </returns>
-        public virtual async Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken, IDictionary<string, string> extraParameters = null, CancellationToken cancellationToken = default)
+        public virtual async Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken, Parameters extraParameters = null, CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("RefreshTokenAsync");
 
@@ -316,7 +316,7 @@ namespace IdentityModel.OidcClient
                 ClientAssertion = Options.ClientAssertion,
                 ClientCredentialStyle = Options.TokenClientCredentialStyle,
                 RefreshToken = refreshToken, 
-                Parameters = extraParameters ?? new Dictionary<string, string>()
+                Parameters = extraParameters ?? new Parameters()
             }, cancellationToken).ConfigureAwait(false);
 
             if (response.IsError)

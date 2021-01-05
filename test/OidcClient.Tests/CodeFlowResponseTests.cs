@@ -294,7 +294,7 @@ namespace IdentityModel.OidcClient.Tests
             var handler = new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
             _options.BackchannelHandler = handler;
 
-            var extra = new Dictionary<string, string>
+            var extra = new Parameters
             {
                 { "foo", "foo" },
                 { "bar", "bar" }

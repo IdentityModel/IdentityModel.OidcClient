@@ -31,7 +31,7 @@ namespace IdentityModel.OidcClient
         }
 
         public async Task<ResponseValidationResult> ProcessResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state,
-            IDictionary<string, string> extraParameters, CancellationToken cancellationToken = default)
+            Parameters extraParameters, CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("ProcessResponseAsync");
 
@@ -57,7 +57,7 @@ namespace IdentityModel.OidcClient
             return await ProcessCodeFlowResponseAsync(authorizeResponse, state, extraParameters, cancellationToken);
         }
 
-        private async Task<ResponseValidationResult> ProcessCodeFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state, IDictionary<string, string> extraParameters, CancellationToken cancellationToken)
+        private async Task<ResponseValidationResult> ProcessCodeFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state, Parameters extraParameters, CancellationToken cancellationToken)
         {
             _logger.LogTrace("ProcessCodeFlowResponseAsync");
 
@@ -188,7 +188,7 @@ namespace IdentityModel.OidcClient
             return match;
         }
 
-        private async Task<TokenResponse> RedeemCodeAsync(string code, AuthorizeState state, IDictionary<string, string> extraParameters, CancellationToken cancellationToken)
+        private async Task<TokenResponse> RedeemCodeAsync(string code, AuthorizeState state, Parameters extraParameters, CancellationToken cancellationToken)
         {
             _logger.LogTrace("RedeemCodeAsync");
 
@@ -205,7 +205,7 @@ namespace IdentityModel.OidcClient
                 Code = code,
                 RedirectUri = state.RedirectUri,
                 CodeVerifier = state.CodeVerifier,
-                Parameters = extraParameters ?? new Dictionary<string, string>()
+                Parameters = extraParameters ?? new Parameters()
             }, cancellationToken).ConfigureAwait(false);
 
             return tokenResult;

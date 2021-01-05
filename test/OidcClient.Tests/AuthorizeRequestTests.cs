@@ -6,6 +6,7 @@ using FluentAssertions;
 using IdentityModel.OidcClient.Browser;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using IdentityModel.Client;
 using Xunit;
 
 namespace IdentityModel.OidcClient.Tests
@@ -44,7 +45,7 @@ namespace IdentityModel.OidcClient.Tests
                 RedirectUri = "http://redirect"
             };
 
-            var extra = new Dictionary<string, string>
+            var extra = new Parameters
             {
                 { "client_id", "client_id2" },
                 { "scope", "openid extra" },
@@ -68,7 +69,7 @@ namespace IdentityModel.OidcClient.Tests
         {
             var options = new OidcClientOptions();
 
-            var extra = new Dictionary<string, string>
+            var extra = new Parameters
             {
                 { "client_id", "client_id2" },
                 { "scope", "openid extra" },

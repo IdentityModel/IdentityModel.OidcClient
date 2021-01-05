@@ -31,7 +31,8 @@ namespace IdentityModel.OidcClient
             _crypto = new CryptoHelper(options);
         }
 
-        public async Task<AuthorizeResult> AuthorizeAsync(AuthorizeRequest request, CancellationToken cancellationToken = default)
+        public async Task<AuthorizeResult> AuthorizeAsync(AuthorizeRequest request,
+            CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("AuthorizeAsync");
 
@@ -63,7 +64,8 @@ namespace IdentityModel.OidcClient
             return result;
         }
 
-        public async Task<BrowserResult> EndSessionAsync(LogoutRequest request, CancellationToken cancellationToken = default)
+        public async Task<BrowserResult> EndSessionAsync(LogoutRequest request,
+            CancellationToken cancellationToken = default)
         {
             var endpoint = _options.ProviderInformation.EndSessionEndpoint;
             if (endpoint.IsMissing())
@@ -82,7 +84,7 @@ namespace IdentityModel.OidcClient
             return await _options.Browser.InvokeAsync(browserOptions, cancellationToken);
         }
 
-        public AuthorizeState CreateAuthorizeState(IDictionary<string, string> extraParameters = default)
+        public AuthorizeState CreateAuthorizeState(Parameters extraParameters = default)
         {
             _logger.LogTrace("CreateAuthorizeStateAsync");
 
@@ -103,7 +105,7 @@ namespace IdentityModel.OidcClient
             return state;
         }
 
-        internal string CreateAuthorizeUrl(string state, string nonce, string codeChallenge, IDictionary<string, string> extraParameters)
+        internal string CreateAuthorizeUrl(string state, string nonce, string codeChallenge, Parameters extraParameters)
         {
             _logger.LogTrace("CreateAuthorizeUrl");
 
@@ -120,14 +122,15 @@ namespace IdentityModel.OidcClient
             return new RequestUrl(endpoint).CreateEndSessionUrl(
                 idTokenHint: request.IdTokenHint,
                 postLogoutRedirectUri: _options.PostLogoutRedirectUri,
-								state: request.State);
+                state: request.State);
         }
 
-        internal Dictionary<string, string> CreateAuthorizeParameters(string state, string nonce, string codeChallenge, IDictionary<string, string> extraParameters)
+        internal Parameters CreateAuthorizeParameters(string state, string nonce, string codeChallenge,
+            Parameters extraParameters)
         {
             _logger.LogTrace("CreateAuthorizeParameters");
 
-            var parameters = new Dictionary<string, string>
+            var parameters = new Parameters
             {
                 { OidcConstants.AuthorizeRequest.ResponseType, OidcConstants.ResponseTypes.Code },
                 { OidcConstants.AuthorizeRequest.Nonce, nonce },
@@ -140,10 +143,12 @@ namespace IdentityModel.OidcClient
             {
                 parameters.Add(OidcConstants.AuthorizeRequest.ClientId, _options.ClientId);
             }
+
             if (_options.Scope.IsPresent())
             {
                 parameters.Add(OidcConstants.AuthorizeRequest.Scope, _options.Scope);
             }
+
             if (_options.RedirectUri.IsPresent())
             {
                 parameters.Add(OidcConstants.AuthorizeRequest.RedirectUri, _options.RedirectUri);
@@ -153,17 +158,7 @@ namespace IdentityModel.OidcClient
             {
                 foreach (var entry in extraParameters)
                 {
-                    if (!string.IsNullOrWhiteSpace(entry.Value))
-                    {
-                        if (parameters.ContainsKey(entry.Key))
-                        {
-                            parameters[entry.Key] = entry.Value;
-                        }
-                        else
-                        {
-                            parameters.Add(entry.Key, entry.Value);
-                        }
-                    }
+                    parameters.Add(entry.Key, entry.Value);
                 }
             }
 

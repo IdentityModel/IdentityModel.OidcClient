@@ -14,6 +14,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
+using IdentityModel.Client;
 using JwtValidationTests.Infrastructure;
 using Xunit;
 
@@ -342,7 +343,7 @@ namespace IdentityModel.OidcClient.Tests
             var handler = new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
             _options.BackchannelHandler = handler;
 
-            var extra = new Dictionary<string, string>
+            var extra = new Parameters
             {
                 { "foo", "foo" },
                 { "bar", "bar" }
