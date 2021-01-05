@@ -95,6 +95,20 @@ namespace IdentityModel.OidcClient
 
             return result;
         }
+        
+        /// <summary>
+        /// Prepares the login request.
+        /// </summary>
+        /// <param name="extraParameters">extra parameters to send to the authorize endpoint.</param>
+        /// /// <param name="cancellationToken">A token that can be used to cancel the request</param>
+        /// <returns>State for initiating the authorize request and processing the response</returns>
+        public virtual async Task<AuthorizeState> PrepareLoginAsync(IDictionary<string, string> extraParameters = null, CancellationToken cancellationToken = default)
+        {
+            _logger.LogTrace("PrepareLoginAsync");
+
+            await EnsureConfigurationAsync(cancellationToken);
+            return _authorizeClient.CreateAuthorizeState(extraParameters);
+        }
 
         /// <summary>
         /// Creates a logout URL.
@@ -143,20 +157,6 @@ namespace IdentityModel.OidcClient
                     Response = result.Response
                 };
             }
-        }
-
-        /// <summary>
-        /// Prepares the login request.
-        /// </summary>
-        /// <param name="extraParameters">extra parameters to send to the authorize endpoint.</param>
-        /// /// <param name="cancellationToken">A token that can be used to cancel the request</param>
-        /// <returns>State for initiating the authorize request and processing the response</returns>
-        public virtual async Task<AuthorizeState> PrepareLoginAsync(IDictionary<string, string> extraParameters = null, CancellationToken cancellationToken = default)
-        {
-            _logger.LogTrace("PrepareLoginAsync");
-
-            await EnsureConfigurationAsync(cancellationToken);
-            return _authorizeClient.CreateAuthorizeState(extraParameters);
         }
 
         /// <summary>
