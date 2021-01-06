@@ -63,7 +63,8 @@ namespace IdentityModel.OidcClient.Tests
             };
 
             _options.ProviderInformation.KeySet = Crypto.CreateKeySet(key);
-            _options.BackchannelHandler = new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
+            _options.BackchannelHandler =
+                new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
 
             var result = await client.ProcessResponseAsync(url, state);
 
@@ -122,7 +123,6 @@ namespace IdentityModel.OidcClient.Tests
                 {
                     throw new InvalidOperationException("unknown netowrk request.");
                 }
-
             }, HttpStatusCode.OK);
 
             _options.BackchannelHandler = networkHandler;
@@ -140,12 +140,12 @@ namespace IdentityModel.OidcClient.Tests
             result.User.Claims.Skip(1).First().Type.Should().Be("name");
             result.User.Claims.Skip(1).First().Value.Should().Be("Dominick");
         }
-        
+
         [Fact]
         public async Task Valid_response_with_missing_signature_should_succeed()
         {
             _options.Policy.RequireIdentityTokenSignature = false;
-            
+
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
 
@@ -165,7 +165,8 @@ namespace IdentityModel.OidcClient.Tests
             };
 
             _options.ProviderInformation.KeySet = Crypto.CreateKeySet(key);
-            _options.BackchannelHandler = new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
+            _options.BackchannelHandler =
+                new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
 
             var result = await client.ProcessResponseAsync(url, state);
 
@@ -178,7 +179,7 @@ namespace IdentityModel.OidcClient.Tests
             result.User.Claims.First().Type.Should().Be("sub");
             result.User.Claims.First().Value.Should().Be("123");
         }
-        
+
         [Fact]
         public async Task Valid_response_with_missing_signature_should_fail()
         {
@@ -201,7 +202,8 @@ namespace IdentityModel.OidcClient.Tests
             };
 
             _options.ProviderInformation.KeySet = Crypto.CreateKeySet(key);
-            _options.BackchannelHandler = new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
+            _options.BackchannelHandler =
+                new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
 
             var result = await client.ProcessResponseAsync(url, state);
 
@@ -244,7 +246,8 @@ namespace IdentityModel.OidcClient.Tests
 
             request.Headers.Authorization.Should().NotBeNull();
             request.Headers.Authorization.Scheme.Should().Be("Basic");
-            request.Headers.Authorization.Parameter.Should().Be(BasicAuthenticationOAuthHeaderValue.EncodeCredential("client", "secret"));
+            request.Headers.Authorization.Parameter.Should()
+                .Be(BasicAuthenticationOAuthHeaderValue.EncodeCredential("client", "secret"));
         }
 
         [Fact]
@@ -308,7 +311,8 @@ namespace IdentityModel.OidcClient.Tests
             };
 
             _options.ProviderInformation.KeySet = Crypto.CreateKeySet(key);
-            _options.BackchannelHandler = new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
+            _options.BackchannelHandler =
+                new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
 
             var result = await client.ProcessResponseAsync(url, state);
 
@@ -343,13 +347,16 @@ namespace IdentityModel.OidcClient.Tests
             var handler = new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
             _options.BackchannelHandler = handler;
 
-            var extra = new Parameters
+            var backChannel = new BackChannelParameters
             {
-                { "foo", "foo" },
-                { "bar", "bar" }
+                Extra = new Parameters
+                {
+                    { "foo", "foo" },
+                    { "bar", "bar" }
+                }
             };
-
-            var result = await client.ProcessResponseAsync(url, state, extra);
+            
+            var result = await client.ProcessResponseAsync(url, state, backChannel);
 
             result.IsError.Should().BeFalse();
             result.AccessToken.Should().Be("token");
@@ -383,7 +390,8 @@ namespace IdentityModel.OidcClient.Tests
             };
 
             _options.ProviderInformation.KeySet = Crypto.CreateKeySet(key);
-            _options.BackchannelHandler = new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
+            _options.BackchannelHandler =
+                new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
 
             var result = await client.ProcessResponseAsync(url, state);
 
@@ -412,7 +420,8 @@ namespace IdentityModel.OidcClient.Tests
             };
 
             _options.ProviderInformation.KeySet = Crypto.CreateKeySet(key);
-            _options.BackchannelHandler = new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
+            _options.BackchannelHandler =
+                new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
 
             var result = await client.ProcessResponseAsync(url, state);
 
@@ -447,7 +456,8 @@ namespace IdentityModel.OidcClient.Tests
                 { "refresh_token", "refresh_token" }
             };
 
-            _options.BackchannelHandler = new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
+            _options.BackchannelHandler =
+                new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
 
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
@@ -469,7 +479,8 @@ namespace IdentityModel.OidcClient.Tests
                 { "refresh_token", "refresh_token" }
             };
 
-            _options.BackchannelHandler = new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
+            _options.BackchannelHandler =
+                new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
 
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
@@ -480,7 +491,7 @@ namespace IdentityModel.OidcClient.Tests
             result.IsError.Should().BeFalse();
             result.AccessToken.Should().Be("token");
             result.IdentityToken.Should().BeNull();
-            
+
             result.User.Should().NotBeNull();
             result.User.Claims.Count().Should().Be(0);
         }
@@ -529,7 +540,6 @@ namespace IdentityModel.OidcClient.Tests
                 {
                     throw new InvalidOperationException("unknown netowrk request.");
                 }
-
             }, HttpStatusCode.OK);
 
             _options.BackchannelHandler = networkHandler;
@@ -559,7 +569,8 @@ namespace IdentityModel.OidcClient.Tests
                 { "refresh_token", "refresh_token" }
             };
 
-            _options.BackchannelHandler = new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
+            _options.BackchannelHandler =
+                new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
 
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
@@ -582,7 +593,8 @@ namespace IdentityModel.OidcClient.Tests
                 { "refresh_token", "refresh_token" }
             };
 
-            _options.BackchannelHandler = new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
+            _options.BackchannelHandler =
+                new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
 
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
@@ -606,8 +618,9 @@ namespace IdentityModel.OidcClient.Tests
             };
 
             _options.ProviderInformation.KeySet = Crypto.CreateKeySet(Crypto.CreateKey());
-            _options.BackchannelHandler = new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
-            
+            _options.BackchannelHandler =
+                new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
+
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
 
@@ -631,7 +644,7 @@ namespace IdentityModel.OidcClient.Tests
             var idToken = Crypto.CreateJwt(key, "https://authority", "client",
                 new Claim("sub", "123"),
                 new Claim("nonce", state.Nonce));
-                
+
             var tokenResponse = new Dictionary<string, object>
             {
                 { "access_token", "token" },
@@ -641,7 +654,8 @@ namespace IdentityModel.OidcClient.Tests
             };
 
             _options.ProviderInformation.KeySet = Crypto.CreateKeySet(key);
-            _options.BackchannelHandler = new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
+            _options.BackchannelHandler =
+                new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
             _options.Policy.RequireAccessTokenHash = atHashRequired;
 
             var result = await client.ProcessResponseAsync(url, state);
@@ -684,7 +698,8 @@ namespace IdentityModel.OidcClient.Tests
             };
 
             _options.ProviderInformation.KeySet = Crypto.CreateKeySet(key);
-            _options.BackchannelHandler = new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
+            _options.BackchannelHandler =
+                new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
             _options.Policy.RequireAccessTokenHash = atHashRequired;
 
             var result = await client.ProcessResponseAsync(url, state);
@@ -714,7 +729,8 @@ namespace IdentityModel.OidcClient.Tests
             };
 
             _options.ProviderInformation.KeySet = Crypto.CreateKeySet(key);
-            _options.BackchannelHandler = new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
+            _options.BackchannelHandler =
+                new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
 
             _options.Policy.ValidSignatureAlgorithms.Clear();
             _options.Policy.ValidSignatureAlgorithms.Add("unsupported");

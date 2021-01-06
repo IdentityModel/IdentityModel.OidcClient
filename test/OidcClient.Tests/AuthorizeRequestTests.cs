@@ -45,15 +45,18 @@ namespace IdentityModel.OidcClient.Tests
                 RedirectUri = "http://redirect"
             };
 
-            var extra = new Parameters
+            var frontChannel = new FrontChannelParameters
             {
-                { "client_id", "client_id2" },
-                { "scope", "openid extra" },
-                { "redirect_uri", "http://redirect2" }
+                Extra = new Parameters
+                {
+                    { "client_id", "client_id2" },
+                    { "scope", "openid extra" },
+                    { "redirect_uri", "http://redirect2" }
+                }
             };
-
+            
             var client = new AuthorizeClient(options);
-            var parameters = client.CreateAuthorizeParameters("state", "nonce", "code_challenge", extra);
+            var parameters = client.CreateAuthorizeParameters("state", "nonce", "code_challenge", frontChannel);
 
             parameters.Should().Contain("client_id", "client_id2");
             parameters.Should().Contain("scope", "openid extra");
@@ -69,15 +72,18 @@ namespace IdentityModel.OidcClient.Tests
         {
             var options = new OidcClientOptions();
 
-            var extra = new Parameters
+            var frontChannel = new FrontChannelParameters
             {
-                { "client_id", "client_id2" },
-                { "scope", "openid extra" },
-                { "redirect_uri", "http://redirect2" }
+                Extra = new Parameters
+                {
+                    { "client_id", "client_id2" },
+                    { "scope", "openid extra" },
+                    { "redirect_uri", "http://redirect2" }
+                }
             };
-
+            
             var client = new AuthorizeClient(options);
-            var parameters = client.CreateAuthorizeParameters("state", "nonce", "code_challenge", extra);
+            var parameters = client.CreateAuthorizeParameters("state", "nonce", "code_challenge", frontChannel);
 
             parameters.Should().Contain("client_id", "client_id2");
             parameters.Should().Contain("scope", "openid extra");

@@ -74,7 +74,7 @@ namespace IdentityModel.OidcClient
             {
                 DisplayMode = request.BrowserDisplayMode,
                 Timeout = request.BrowserTimeout,
-                ExtraParameters = request.FrontChannelExtraParameters
+                FrontChannel = request.FrontChannel
             }, cancellationToken);
             
             if (authorizeResult.IsError)
@@ -85,7 +85,7 @@ namespace IdentityModel.OidcClient
             var result = await ProcessResponseAsync(
                 authorizeResult.Data,
                 authorizeResult.State,
-                request.BackChannelExtraParameters,
+                request.BackChannel,
                 cancellationToken);
 
             if (!result.IsError)
@@ -99,15 +99,15 @@ namespace IdentityModel.OidcClient
         /// <summary>
         /// Prepares the login request.
         /// </summary>
-        /// <param name="extraParameters">extra parameters to send to the authorize endpoint.</param>
+        /// <param name="frontChannelParameters">extra parameters to send to the authorize endpoint.</param>
         /// /// <param name="cancellationToken">A token that can be used to cancel the request</param>
         /// <returns>State for initiating the authorize request and processing the response</returns>
-        public virtual async Task<AuthorizeState> PrepareLoginAsync(Parameters extraParameters = null, CancellationToken cancellationToken = default)
+        public virtual async Task<AuthorizeState> PrepareLoginAsync(FrontChannelParameters frontChannelParameters = null, CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("PrepareLoginAsync");
 
             await EnsureConfigurationAsync(cancellationToken);
-            return _authorizeClient.CreateAuthorizeState(extraParameters);
+            return _authorizeClient.CreateAuthorizeState(frontChannelParameters);
         }
 
         /// <summary>
@@ -169,7 +169,7 @@ namespace IdentityModel.OidcClient
         /// <returns>
         /// Result of the login response validation
         /// </returns>
-        public virtual async Task<LoginResult> ProcessResponseAsync(string data, AuthorizeState state, Parameters extraParameters = null, CancellationToken cancellationToken = default)
+        public virtual async Task<LoginResult> ProcessResponseAsync(string data, AuthorizeState state, BackChannelParameters backChannelParameters = null, CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("ProcessResponseAsync");
             _logger.LogInformation("Processing response.");
@@ -185,7 +185,7 @@ namespace IdentityModel.OidcClient
                 return new LoginResult(authorizeResponse.Error, authorizeResponse.ErrorDescription);
             }
 
-            var result = await _processor.ProcessResponseAsync(authorizeResponse, state, extraParameters, cancellationToken);
+            var result = await _processor.ProcessResponseAsync(authorizeResponse, state, backChannelParameters, cancellationToken);
             if (result.IsError)
             {
                 _logger.LogError(result.Error);

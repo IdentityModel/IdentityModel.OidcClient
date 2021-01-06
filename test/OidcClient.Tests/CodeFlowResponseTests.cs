@@ -294,13 +294,16 @@ namespace IdentityModel.OidcClient.Tests
             var handler = new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
             _options.BackchannelHandler = handler;
 
-            var extra = new Parameters
+            var backChannel = new BackChannelParameters
             {
-                { "foo", "foo" },
-                { "bar", "bar" }
+                Extra = new Parameters
+                {
+                    { "foo", "foo" },
+                    { "bar", "bar" }
+                }
             };
-
-            var result = await client.ProcessResponseAsync(url, state, extra);
+            
+            var result = await client.ProcessResponseAsync(url, state, backChannel);
 
             result.IsError.Should().BeFalse();
             result.AccessToken.Should().Be("token");

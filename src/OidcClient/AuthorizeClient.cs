@@ -43,7 +43,7 @@ namespace IdentityModel.OidcClient
 
             AuthorizeResult result = new AuthorizeResult
             {
-                State = CreateAuthorizeState(request.ExtraParameters)
+                State = CreateAuthorizeState(request.FrontChannel)
             };
 
             var browserOptions = new BrowserOptions(result.State.StartUrl, _options.RedirectUri)
@@ -84,7 +84,7 @@ namespace IdentityModel.OidcClient
             return await _options.Browser.InvokeAsync(browserOptions, cancellationToken);
         }
 
-        public AuthorizeState CreateAuthorizeState(Parameters extraParameters = default)
+        public AuthorizeState CreateAuthorizeState(FrontChannelParameters frontChannelParameters)
         {
             _logger.LogTrace("CreateAuthorizeStateAsync");
 
@@ -98,14 +98,14 @@ namespace IdentityModel.OidcClient
                 CodeVerifier = pkce.CodeVerifier,
             };
 
-            state.StartUrl = CreateAuthorizeUrl(state.State, state.Nonce, pkce.CodeChallenge, extraParameters);
+            state.StartUrl = CreateAuthorizeUrl(state.State, state.Nonce, pkce.CodeChallenge, frontChannelParameters);
 
             _logger.LogDebug(LogSerializer.Serialize(state));
 
             return state;
         }
 
-        internal string CreateAuthorizeUrl(string state, string nonce, string codeChallenge, Parameters extraParameters)
+        internal string CreateAuthorizeUrl(string state, string nonce, string codeChallenge, FrontChannelParameters extraParameters)
         {
             _logger.LogTrace("CreateAuthorizeUrl");
 
@@ -126,7 +126,7 @@ namespace IdentityModel.OidcClient
         }
 
         internal Parameters CreateAuthorizeParameters(string state, string nonce, string codeChallenge,
-            Parameters extraParameters)
+            FrontChannelParameters frontChannelParameters)
         {
             _logger.LogTrace("CreateAuthorizeParameters");
 
@@ -153,10 +153,12 @@ namespace IdentityModel.OidcClient
             {
                 parameters.Add(OidcConstants.AuthorizeRequest.RedirectUri, _options.RedirectUri);
             }
+            
+            // todo: add resource
 
-            if (extraParameters != null)
+            if (frontChannelParameters != null)
             {
-                foreach (var entry in extraParameters)
+                foreach (var entry in frontChannelParameters.Extra)
                 {
                     parameters.Add(entry.Key, entry.Value);
                 }
