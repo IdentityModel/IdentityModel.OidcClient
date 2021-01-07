@@ -9,6 +9,7 @@ using IdentityModel.OidcClient.Results;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -105,7 +106,8 @@ namespace IdentityModel.OidcClient
             return state;
         }
 
-        internal string CreateAuthorizeUrl(string state, string nonce, string codeChallenge, FrontChannelParameters extraParameters)
+        internal string CreateAuthorizeUrl(string state, string nonce, string codeChallenge,
+            FrontChannelParameters extraParameters)
         {
             _logger.LogTrace("CreateAuthorizeUrl");
 
@@ -125,7 +127,10 @@ namespace IdentityModel.OidcClient
                 state: request.State);
         }
 
-        internal Parameters CreateAuthorizeParameters(string state, string nonce, string codeChallenge,
+        internal Parameters CreateAuthorizeParameters(
+            string state,
+            string nonce,
+            string codeChallenge,
             FrontChannelParameters frontChannelParameters)
         {
             _logger.LogTrace("CreateAuthorizeParameters");
@@ -153,11 +158,14 @@ namespace IdentityModel.OidcClient
             {
                 parameters.Add(OidcConstants.AuthorizeRequest.RedirectUri, _options.RedirectUri);
             }
-            
-            // todo: add resource
 
             if (frontChannelParameters != null)
             {
+                foreach (var resource in frontChannelParameters.Resource)
+                {
+                    parameters.Add(OidcConstants.AuthorizeRequest.Resource, resource);
+                }
+
                 foreach (var entry in frontChannelParameters.Extra)
                 {
                     parameters.Add(entry.Key, entry.Value);
