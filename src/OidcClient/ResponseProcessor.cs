@@ -30,8 +30,11 @@ namespace IdentityModel.OidcClient
             _crypto = new CryptoHelper(options);
         }
 
-        public async Task<ResponseValidationResult> ProcessResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state,
-            BackChannelParameters backChannelParameters, CancellationToken cancellationToken = default)
+        public async Task<ResponseValidationResult> ProcessResponseAsync(
+            AuthorizeResponse authorizeResponse, 
+            AuthorizeState state,
+            BackChannelParameters backChannelParameters, 
+            CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("ProcessResponseAsync");
 

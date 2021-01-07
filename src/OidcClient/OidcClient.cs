@@ -164,16 +164,21 @@ namespace IdentityModel.OidcClient
         /// </summary>
         /// <param name="data">The response data.</param>
         /// <param name="state">The state.</param>
-        /// <param name="extraParameters">The extra parameters.</param>
-        /// /// <param name="cancellationToken">A token that can be used to cancel the request</param>
+        /// <param name="backChannelParameters">Parameters for back-channel call</param>
+        /// <param name="cancellationToken">A token that can be used to cancel the request</param>
         /// <returns>
         /// Result of the login response validation
         /// </returns>
-        public virtual async Task<LoginResult> ProcessResponseAsync(string data, AuthorizeState state, BackChannelParameters backChannelParameters = null, CancellationToken cancellationToken = default)
+        public virtual async Task<LoginResult> ProcessResponseAsync(
+            string data, 
+            AuthorizeState state, 
+            BackChannelParameters backChannelParameters = null, 
+            CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("ProcessResponseAsync");
             _logger.LogInformation("Processing response.");
 
+            backChannelParameters = backChannelParameters ?? new BackChannelParameters();
             await EnsureConfigurationAsync(cancellationToken);
 
             _logger.LogDebug("Authorize response: {response}", data);
