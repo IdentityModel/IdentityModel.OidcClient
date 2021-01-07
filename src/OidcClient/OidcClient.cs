@@ -301,16 +301,18 @@ namespace IdentityModel.OidcClient
         /// Refreshes an access token.
         /// </summary>
         /// <param name="refreshToken">The refresh token.</param>
-        /// <param name="extraParameters">The extra parameters.</param>
+        /// <param name="backChannelParameters">Back-channel parameters</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// A token response.
         /// </returns>
-        public virtual async Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken, Parameters extraParameters = null, CancellationToken cancellationToken = default)
+        public virtual async Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken, BackChannelParameters backChannelParameters = null, CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("RefreshTokenAsync");
 
             await EnsureConfigurationAsync(cancellationToken);
+            backChannelParameters = backChannelParameters ?? new BackChannelParameters();
+            
             var client = Options.CreateClient();
             
             var response = await client.RequestRefreshTokenAsync(new RefreshTokenRequest
@@ -321,7 +323,8 @@ namespace IdentityModel.OidcClient
                 ClientAssertion = Options.ClientAssertion,
                 ClientCredentialStyle = Options.TokenClientCredentialStyle,
                 RefreshToken = refreshToken, 
-                Parameters = extraParameters ?? new Parameters()
+                Resource = backChannelParameters.Resource,
+                Parameters = backChannelParameters.Extra
             }, cancellationToken).ConfigureAwait(false);
 
             if (response.IsError)
@@ -457,7 +460,7 @@ namespace IdentityModel.OidcClient
             user.Claims.ToList().ForEach(c => combinedClaims.Add(c));
             userInfoClaims.ToList().ForEach(c => combinedClaims.Add(c));
 
-            var userClaims = new List<Claim>();
+            List<Claim> userClaims;
             if (Options.FilterClaims)
             {
                 userClaims = combinedClaims.Where(c => !Options.FilteredClaims.Contains(c.Type)).ToList();

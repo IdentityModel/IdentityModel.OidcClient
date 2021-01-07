@@ -16,6 +16,7 @@ namespace IdentityModel.OidcClient
 
     public class BackChannelParameters
     {
+        public ICollection<string> Resource { get; set; } = new HashSet<string>();
         public Parameters Extra { get; set; } = new Parameters();
     }
     

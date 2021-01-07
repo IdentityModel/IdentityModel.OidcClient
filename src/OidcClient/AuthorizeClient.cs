@@ -107,11 +107,11 @@ namespace IdentityModel.OidcClient
         }
 
         internal string CreateAuthorizeUrl(string state, string nonce, string codeChallenge,
-            FrontChannelParameters extraParameters)
+            FrontChannelParameters frontChannelParameters)
         {
             _logger.LogTrace("CreateAuthorizeUrl");
 
-            var parameters = CreateAuthorizeParameters(state, nonce, codeChallenge, extraParameters);
+            var parameters = CreateAuthorizeParameters(state, nonce, codeChallenge, frontChannelParameters);
             var request = new RequestUrl(_options.ProviderInformation.AuthorizeEndpoint);
 
             return request.Create(parameters);
