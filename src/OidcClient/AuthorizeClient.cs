@@ -9,6 +9,7 @@ using IdentityModel.OidcClient.Results;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -31,7 +32,8 @@ namespace IdentityModel.OidcClient
             _crypto = new CryptoHelper(options);
         }
 
-        public async Task<AuthorizeResult> AuthorizeAsync(AuthorizeRequest request, CancellationToken cancellationToken = default)
+        public async Task<AuthorizeResult> AuthorizeAsync(AuthorizeRequest request,
+            CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("AuthorizeAsync");
 
@@ -42,7 +44,7 @@ namespace IdentityModel.OidcClient
 
             AuthorizeResult result = new AuthorizeResult
             {
-                State = CreateAuthorizeState(request.ExtraParameters)
+                State = CreateAuthorizeState(request.FrontChannel)
             };
 
             var browserOptions = new BrowserOptions(result.State.StartUrl, _options.RedirectUri)
@@ -63,7 +65,8 @@ namespace IdentityModel.OidcClient
             return result;
         }
 
-        public async Task<BrowserResult> EndSessionAsync(LogoutRequest request, CancellationToken cancellationToken = default)
+        public async Task<BrowserResult> EndSessionAsync(LogoutRequest request,
+            CancellationToken cancellationToken = default)
         {
             var endpoint = _options.ProviderInformation.EndSessionEndpoint;
             if (endpoint.IsMissing())
@@ -82,7 +85,7 @@ namespace IdentityModel.OidcClient
             return await _options.Browser.InvokeAsync(browserOptions, cancellationToken);
         }
 
-        public AuthorizeState CreateAuthorizeState(IDictionary<string, string> extraParameters = default)
+        public AuthorizeState CreateAuthorizeState(FrontChannelParameters frontChannelParameters)
         {
             _logger.LogTrace("CreateAuthorizeStateAsync");
 
@@ -96,18 +99,19 @@ namespace IdentityModel.OidcClient
                 CodeVerifier = pkce.CodeVerifier,
             };
 
-            state.StartUrl = CreateAuthorizeUrl(state.State, state.Nonce, pkce.CodeChallenge, extraParameters);
+            state.StartUrl = CreateAuthorizeUrl(state.State, state.Nonce, pkce.CodeChallenge, frontChannelParameters);
 
             _logger.LogDebug(LogSerializer.Serialize(state));
 
             return state;
         }
 
-        internal string CreateAuthorizeUrl(string state, string nonce, string codeChallenge, IDictionary<string, string> extraParameters)
+        internal string CreateAuthorizeUrl(string state, string nonce, string codeChallenge,
+            FrontChannelParameters frontChannelParameters)
         {
             _logger.LogTrace("CreateAuthorizeUrl");
 
-            var parameters = CreateAuthorizeParameters(state, nonce, codeChallenge, extraParameters);
+            var parameters = CreateAuthorizeParameters(state, nonce, codeChallenge, frontChannelParameters);
             var request = new RequestUrl(_options.ProviderInformation.AuthorizeEndpoint);
 
             return request.Create(parameters);
@@ -120,14 +124,18 @@ namespace IdentityModel.OidcClient
             return new RequestUrl(endpoint).CreateEndSessionUrl(
                 idTokenHint: request.IdTokenHint,
                 postLogoutRedirectUri: _options.PostLogoutRedirectUri,
-								state: request.State);
+                state: request.State);
         }
 
-        internal Dictionary<string, string> CreateAuthorizeParameters(string state, string nonce, string codeChallenge, IDictionary<string, string> extraParameters)
+        internal Parameters CreateAuthorizeParameters(
+            string state,
+            string nonce,
+            string codeChallenge,
+            FrontChannelParameters frontChannelParameters)
         {
             _logger.LogTrace("CreateAuthorizeParameters");
 
-            var parameters = new Dictionary<string, string>
+            var parameters = new Parameters
             {
                 { OidcConstants.AuthorizeRequest.ResponseType, OidcConstants.ResponseTypes.Code },
                 { OidcConstants.AuthorizeRequest.Nonce, nonce },
@@ -140,30 +148,27 @@ namespace IdentityModel.OidcClient
             {
                 parameters.Add(OidcConstants.AuthorizeRequest.ClientId, _options.ClientId);
             }
+
             if (_options.Scope.IsPresent())
             {
                 parameters.Add(OidcConstants.AuthorizeRequest.Scope, _options.Scope);
             }
+
             if (_options.RedirectUri.IsPresent())
             {
                 parameters.Add(OidcConstants.AuthorizeRequest.RedirectUri, _options.RedirectUri);
             }
 
-            if (extraParameters != null)
+            if (frontChannelParameters != null)
             {
-                foreach (var entry in extraParameters)
+                foreach (var resource in frontChannelParameters.Resource)
                 {
-                    if (!string.IsNullOrWhiteSpace(entry.Value))
-                    {
-                        if (parameters.ContainsKey(entry.Key))
-                        {
-                            parameters[entry.Key] = entry.Value;
-                        }
-                        else
-                        {
-                            parameters.Add(entry.Key, entry.Value);
-                        }
-                    }
+                    parameters.Add(OidcConstants.AuthorizeRequest.Resource, resource);
+                }
+
+                foreach (var entry in frontChannelParameters.Extra)
+                {
+                    parameters.Add(entry.Key, entry.Value);
                 }
             }
 

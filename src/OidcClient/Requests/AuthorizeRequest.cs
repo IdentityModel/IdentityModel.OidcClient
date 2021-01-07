@@ -4,6 +4,7 @@
 
 using IdentityModel.OidcClient.Browser;
 using System.Collections.Generic;
+using IdentityModel.Client;
 
 namespace IdentityModel.OidcClient
 {
@@ -11,6 +12,7 @@ namespace IdentityModel.OidcClient
     {
         public DisplayMode DisplayMode { get; set; } = DisplayMode.Visible;
         public int Timeout { get; set; } = 300;
-        public IDictionary<string, string> ExtraParameters = new Dictionary<string, string>();
+        
+        public FrontChannelParameters FrontChannel = new FrontChannelParameters();
     }
 }

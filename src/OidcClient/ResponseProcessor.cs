@@ -30,8 +30,11 @@ namespace IdentityModel.OidcClient
             _crypto = new CryptoHelper(options);
         }
 
-        public async Task<ResponseValidationResult> ProcessResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state,
-            IDictionary<string, string> extraParameters, CancellationToken cancellationToken = default)
+        public async Task<ResponseValidationResult> ProcessResponseAsync(
+            AuthorizeResponse authorizeResponse, 
+            AuthorizeState state,
+            BackChannelParameters backChannelParameters, 
+            CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("ProcessResponseAsync");
 
@@ -54,10 +57,10 @@ namespace IdentityModel.OidcClient
                 return new ResponseValidationResult("Invalid state.");
             }
 
-            return await ProcessCodeFlowResponseAsync(authorizeResponse, state, extraParameters, cancellationToken);
+            return await ProcessCodeFlowResponseAsync(authorizeResponse, state, backChannelParameters, cancellationToken);
         }
 
-        private async Task<ResponseValidationResult> ProcessCodeFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state, IDictionary<string, string> extraParameters, CancellationToken cancellationToken)
+        private async Task<ResponseValidationResult> ProcessCodeFlowResponseAsync(AuthorizeResponse authorizeResponse, AuthorizeState state, BackChannelParameters backChannelParameters, CancellationToken cancellationToken)
         {
             _logger.LogTrace("ProcessCodeFlowResponseAsync");
 
@@ -66,7 +69,7 @@ namespace IdentityModel.OidcClient
             //////////////////////////////////////////////////////
 
             // redeem code for tokens
-            var tokenResponse = await RedeemCodeAsync(authorizeResponse.Code, state, extraParameters, cancellationToken);
+            var tokenResponse = await RedeemCodeAsync(authorizeResponse.Code, state, backChannelParameters, cancellationToken);
             if (tokenResponse.IsError)
             {
                 return new ResponseValidationResult($"Error redeeming code: {tokenResponse.Error ?? "no error code"} / {tokenResponse.ErrorDescription ?? "no description"}");
@@ -188,7 +191,7 @@ namespace IdentityModel.OidcClient
             return match;
         }
 
-        private async Task<TokenResponse> RedeemCodeAsync(string code, AuthorizeState state, IDictionary<string, string> extraParameters, CancellationToken cancellationToken)
+        private async Task<TokenResponse> RedeemCodeAsync(string code, AuthorizeState state, BackChannelParameters backChannelParameters, CancellationToken cancellationToken)
         {
             _logger.LogTrace("RedeemCodeAsync");
 
@@ -205,7 +208,7 @@ namespace IdentityModel.OidcClient
                 Code = code,
                 RedirectUri = state.RedirectUri,
                 CodeVerifier = state.CodeVerifier,
-                Parameters = extraParameters ?? new Dictionary<string, string>()
+                Parameters = backChannelParameters.Extra ?? new Parameters()
             }, cancellationToken).ConfigureAwait(false);
 
             return tokenResult;

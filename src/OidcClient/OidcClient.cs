@@ -74,7 +74,7 @@ namespace IdentityModel.OidcClient
             {
                 DisplayMode = request.BrowserDisplayMode,
                 Timeout = request.BrowserTimeout,
-                ExtraParameters = request.FrontChannelExtraParameters
+                FrontChannel = request.FrontChannel
             }, cancellationToken);
             
             if (authorizeResult.IsError)
@@ -85,7 +85,7 @@ namespace IdentityModel.OidcClient
             var result = await ProcessResponseAsync(
                 authorizeResult.Data,
                 authorizeResult.State,
-                request.BackChannelExtraParameters,
+                request.BackChannel,
                 cancellationToken);
 
             if (!result.IsError)
@@ -99,15 +99,15 @@ namespace IdentityModel.OidcClient
         /// <summary>
         /// Prepares the login request.
         /// </summary>
-        /// <param name="extraParameters">extra parameters to send to the authorize endpoint.</param>
+        /// <param name="frontChannelParameters">extra parameters to send to the authorize endpoint.</param>
         /// /// <param name="cancellationToken">A token that can be used to cancel the request</param>
         /// <returns>State for initiating the authorize request and processing the response</returns>
-        public virtual async Task<AuthorizeState> PrepareLoginAsync(IDictionary<string, string> extraParameters = null, CancellationToken cancellationToken = default)
+        public virtual async Task<AuthorizeState> PrepareLoginAsync(FrontChannelParameters frontChannelParameters = null, CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("PrepareLoginAsync");
 
             await EnsureConfigurationAsync(cancellationToken);
-            return _authorizeClient.CreateAuthorizeState(extraParameters);
+            return _authorizeClient.CreateAuthorizeState(frontChannelParameters);
         }
 
         /// <summary>
@@ -164,16 +164,21 @@ namespace IdentityModel.OidcClient
         /// </summary>
         /// <param name="data">The response data.</param>
         /// <param name="state">The state.</param>
-        /// <param name="extraParameters">The extra parameters.</param>
-        /// /// <param name="cancellationToken">A token that can be used to cancel the request</param>
+        /// <param name="backChannelParameters">Parameters for back-channel call</param>
+        /// <param name="cancellationToken">A token that can be used to cancel the request</param>
         /// <returns>
         /// Result of the login response validation
         /// </returns>
-        public virtual async Task<LoginResult> ProcessResponseAsync(string data, AuthorizeState state, IDictionary<string, string> extraParameters = null, CancellationToken cancellationToken = default)
+        public virtual async Task<LoginResult> ProcessResponseAsync(
+            string data, 
+            AuthorizeState state, 
+            BackChannelParameters backChannelParameters = null, 
+            CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("ProcessResponseAsync");
             _logger.LogInformation("Processing response.");
 
+            backChannelParameters = backChannelParameters ?? new BackChannelParameters();
             await EnsureConfigurationAsync(cancellationToken);
 
             _logger.LogDebug("Authorize response: {response}", data);
@@ -185,7 +190,7 @@ namespace IdentityModel.OidcClient
                 return new LoginResult(authorizeResponse.Error, authorizeResponse.ErrorDescription);
             }
 
-            var result = await _processor.ProcessResponseAsync(authorizeResponse, state, extraParameters, cancellationToken);
+            var result = await _processor.ProcessResponseAsync(authorizeResponse, state, backChannelParameters, cancellationToken);
             if (result.IsError)
             {
                 _logger.LogError(result.Error);
@@ -296,16 +301,18 @@ namespace IdentityModel.OidcClient
         /// Refreshes an access token.
         /// </summary>
         /// <param name="refreshToken">The refresh token.</param>
-        /// <param name="extraParameters">The extra parameters.</param>
+        /// <param name="backChannelParameters">Back-channel parameters</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// A token response.
         /// </returns>
-        public virtual async Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken, IDictionary<string, string> extraParameters = null, CancellationToken cancellationToken = default)
+        public virtual async Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken, BackChannelParameters backChannelParameters = null, CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("RefreshTokenAsync");
 
             await EnsureConfigurationAsync(cancellationToken);
+            backChannelParameters = backChannelParameters ?? new BackChannelParameters();
+            
             var client = Options.CreateClient();
             
             var response = await client.RequestRefreshTokenAsync(new RefreshTokenRequest
@@ -316,7 +323,8 @@ namespace IdentityModel.OidcClient
                 ClientAssertion = Options.ClientAssertion,
                 ClientCredentialStyle = Options.TokenClientCredentialStyle,
                 RefreshToken = refreshToken, 
-                Parameters = extraParameters ?? new Dictionary<string, string>()
+                Resource = backChannelParameters.Resource,
+                Parameters = backChannelParameters.Extra
             }, cancellationToken).ConfigureAwait(false);
 
             if (response.IsError)
@@ -452,7 +460,7 @@ namespace IdentityModel.OidcClient
             user.Claims.ToList().ForEach(c => combinedClaims.Add(c));
             userInfoClaims.ToList().ForEach(c => combinedClaims.Add(c));
 
-            var userClaims = new List<Claim>();
+            List<Claim> userClaims;
             if (Options.FilterClaims)
             {
                 userClaims = combinedClaims.Where(c => !Options.FilteredClaims.Contains(c.Type)).ToList();
