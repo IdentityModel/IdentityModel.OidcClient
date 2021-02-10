@@ -120,7 +120,7 @@ namespace IdentityModel.OidcClient
                     }
                     else
                     {
-                        throw new InvalidOperationException("No IIdentityTokenValidator is configured. Either explicitly set a validator on the options, or set RequireIdentityTokenSignature to false to skip validation.");
+                        throw new InvalidOperationException("No IIdentityTokenValidator is configured. Either explicitly set a validator on the options, or set OidcClientOptions.Policy.RequireIdentityTokenSignature to false to skip validation.");
                     }
                 }
                 else
