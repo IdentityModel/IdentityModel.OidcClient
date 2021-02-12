@@ -44,7 +44,7 @@ namespace IdentityModel.OidcClient
 
             AuthorizeResult result = new AuthorizeResult
             {
-                State = CreateAuthorizeState(request.FrontChannel)
+                State = CreateAuthorizeState(request.ExtraParameters)
             };
 
             var browserOptions = new BrowserOptions(result.State.StartUrl, _options.RedirectUri)
@@ -85,7 +85,7 @@ namespace IdentityModel.OidcClient
             return await _options.Browser.InvokeAsync(browserOptions, cancellationToken);
         }
 
-        public AuthorizeState CreateAuthorizeState(FrontChannelParameters frontChannelParameters)
+        public AuthorizeState CreateAuthorizeState(Parameters frontChannelParameters)
         {
             _logger.LogTrace("CreateAuthorizeStateAsync");
 
@@ -107,7 +107,7 @@ namespace IdentityModel.OidcClient
         }
 
         internal string CreateAuthorizeUrl(string state, string nonce, string codeChallenge,
-            FrontChannelParameters frontChannelParameters)
+            Parameters frontChannelParameters)
         {
             _logger.LogTrace("CreateAuthorizeUrl");
 
@@ -131,7 +131,7 @@ namespace IdentityModel.OidcClient
             string state,
             string nonce,
             string codeChallenge,
-            FrontChannelParameters frontChannelParameters)
+            Parameters frontChannelParameters)
         {
             _logger.LogTrace("CreateAuthorizeParameters");
 
@@ -154,6 +154,14 @@ namespace IdentityModel.OidcClient
                 parameters.Add(OidcConstants.AuthorizeRequest.Scope, _options.Scope);
             }
 
+            if (_options.Resource.Any())
+            {
+                foreach (var resource in _options.Resource)
+                {
+                    parameters.Add(OidcConstants.AuthorizeRequest.Resource, resource);
+                }
+            }
+
             if (_options.RedirectUri.IsPresent())
             {
                 parameters.Add(OidcConstants.AuthorizeRequest.RedirectUri, _options.RedirectUri);
@@ -161,12 +169,7 @@ namespace IdentityModel.OidcClient
 
             if (frontChannelParameters != null)
             {
-                foreach (var resource in frontChannelParameters.Resource)
-                {
-                    parameters.Add(OidcConstants.AuthorizeRequest.Resource, resource);
-                }
-
-                foreach (var entry in frontChannelParameters.Extra)
+                foreach (var entry in frontChannelParameters)
                 {
                     parameters.Add(entry.Key, entry.Value);
                 }

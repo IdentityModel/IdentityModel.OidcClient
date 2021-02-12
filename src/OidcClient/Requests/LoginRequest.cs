@@ -8,18 +8,6 @@ using IdentityModel.Client;
 
 namespace IdentityModel.OidcClient
 {
-    public class FrontChannelParameters
-    {
-        public ICollection<string> Resource { get; set; } = new HashSet<string>();
-        public Parameters Extra { get; set; } = new Parameters();
-    }
-
-    public class BackChannelParameters
-    {
-        public ICollection<string> Resource { get; set; } = new HashSet<string>();
-        public Parameters Extra { get; set; } = new Parameters();
-    }
-    
     /// <summary>
     /// A login request.
     /// </summary>
@@ -40,9 +28,21 @@ namespace IdentityModel.OidcClient
         /// The browser timeout.
         /// </value>
         public int BrowserTimeout { get; set; } = 300;
-
         
-        public FrontChannelParameters FrontChannel { get; set; } = new FrontChannelParameters();
-        public BackChannelParameters BackChannel { get; set; } = new BackChannelParameters();
+        /// <summary>
+        /// Gets or sets extra parameters for the front-channel request.
+        /// </summary>
+        /// <value>
+        /// The extra parameters.
+        /// </value>
+        public Parameters FrontChannelExtraParameters { get; set; } = new Parameters();
+        
+        /// <summary>
+        /// Gets or sets extra parameters for the back-channel request.
+        /// </summary>
+        /// <value>
+        /// The extra parameters.
+        /// </value>
+        public Parameters BackChannelExtraParameters { get; set; } = new Parameters();
     }
 }

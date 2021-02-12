@@ -347,13 +347,10 @@ namespace IdentityModel.OidcClient.Tests
             var handler = new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
             _options.BackchannelHandler = handler;
 
-            var backChannel = new BackChannelParameters
+            var backChannel = new Parameters
             {
-                Extra = new Parameters
-                {
-                    { "foo", "foo" },
-                    { "bar", "bar" }
-                }
+                { "foo", "foo" },
+                { "bar", "bar" }
             };
             
             var result = await client.ProcessResponseAsync(url, state, backChannel);

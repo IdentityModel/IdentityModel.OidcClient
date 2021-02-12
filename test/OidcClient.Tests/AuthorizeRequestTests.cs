@@ -21,15 +21,18 @@ namespace IdentityModel.OidcClient.Tests
             {
                 ClientId = "client_id",
                 Scope = "openid",
+                Resource = { "urn:resource1", "urn:resource2" },
                 RedirectUri = "http://redirect"
             };
 
             var client = new AuthorizeClient(options);
             var parameters = client.CreateAuthorizeParameters("state", "nonce", "code_challenge", null);
 
-            parameters.Should().HaveCount(8);
+            parameters.Should().HaveCount(10);
             parameters.GetValues("client_id").Single().Should().Be("client_id");
             parameters.GetValues("scope").Single().Should().Be("openid");
+            parameters.GetValues("resource").First().Should().Be("urn:resource1");
+            parameters.GetValues("resource").Skip(1).First().Should().Be("urn:resource2");
             parameters.GetValues("redirect_uri").Single().Should().Be("http://redirect");
             parameters.GetValues("response_type").Single().Should().Be("code");
             parameters.GetValues("state").Single().Should().Be("state");
@@ -38,54 +41,21 @@ namespace IdentityModel.OidcClient.Tests
             parameters.GetValues("code_challenge_method").Single().Should().Be("S256");
         }
 
-        [Fact(Skip = "revisit")]
-        public void Extra_parameters_should_override_default_parameters()
-        {
-            var options = new OidcClientOptions
-            {
-                ClientId = "client_id",
-                Scope = "openid",
-                RedirectUri = "http://redirect"
-            };
-
-            var frontChannel = new FrontChannelParameters
-            {
-                Extra = new Parameters
-                {
-                    { "client_id", "client_id2" },
-                    { "scope", "openid extra" },
-                    { "redirect_uri", "http://redirect2" }
-                }
-            };
-            
-            var client = new AuthorizeClient(options);
-            var parameters = client.CreateAuthorizeParameters("state", "nonce", "code_challenge", frontChannel);
-            
-            parameters.Should().Contain("client_id", "client_id2");
-            parameters.Should().Contain("scope", "openid extra");
-            parameters.Should().Contain("redirect_uri", "http://redirect2");
-            parameters.Should().Contain("response_type", "code");
-            parameters.Should().Contain("state", "state");
-            parameters.Should().Contain("nonce", "nonce");
-            parameters.Should().Contain("code_challenge", "code_challenge");
-        }
-
         [Fact]
         public void Missing_default_parameters_can_be_set_by_extra_parameters()
         {
             var options = new OidcClientOptions();
 
-            var frontChannel = new FrontChannelParameters
+            var frontChannel = new Parameters
             {
-                Resource = { "urn:resource1", "urn:resource2" },
-                Extra = new Parameters
-                {
-                    { "client_id", "client_id2" },
-                    { "scope", "openid extra" },
-                    { "redirect_uri", "http://redirect2" }
-                }
+                { "resource", "urn:resource1" },
+                { "resource", "urn:resource2" },
+
+                { "client_id", "client_id2" },
+                { "scope", "openid extra" },
+                { "redirect_uri", "http://redirect2" }
             };
-            
+
             var client = new AuthorizeClient(options);
             var parameters = client.CreateAuthorizeParameters("state", "nonce", "code_challenge", frontChannel);
 

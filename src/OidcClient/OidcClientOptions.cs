@@ -66,6 +66,14 @@ namespace IdentityModel.OidcClient
         public string Scope { get; set; }
 
         /// <summary>
+        /// Gets or sets the resource (optional)
+        /// </summary>
+        /// <value>
+        /// The scope.
+        /// </value>
+        public ICollection<string> Resource { get; set; } = new HashSet<string>();
+
+        /// <summary>
         /// Gets or sets the redirect URI (required).
         /// </summary>
         /// <value>

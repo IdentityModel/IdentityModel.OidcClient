@@ -13,6 +13,6 @@ namespace IdentityModel.OidcClient
         public DisplayMode DisplayMode { get; set; } = DisplayMode.Visible;
         public int Timeout { get; set; } = 300;
         
-        public FrontChannelParameters FrontChannel = new FrontChannelParameters();
+        public Parameters ExtraParameters = new Parameters();
     }
 }

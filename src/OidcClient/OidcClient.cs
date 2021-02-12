@@ -25,7 +25,7 @@ namespace IdentityModel.OidcClient
         private readonly ILogger _logger;
         private readonly AuthorizeClient _authorizeClient;
 
-        private readonly bool useDiscovery;
+        private readonly bool _useDiscovery;
         private readonly ResponseProcessor _processor;
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace IdentityModel.OidcClient
             if (options.ProviderInformation == null)
             {
                 if (options.Authority.IsMissing()) throw new ArgumentException("No authority specified", nameof(Options.Authority));
-                useDiscovery = true;
+                _useDiscovery = true;
             }
 
             Options = options;
@@ -76,7 +76,7 @@ namespace IdentityModel.OidcClient
             {
                 DisplayMode = request.BrowserDisplayMode,
                 Timeout = request.BrowserTimeout,
-                FrontChannel = request.FrontChannel
+                ExtraParameters = request.FrontChannelExtraParameters
             }, cancellationToken);
 
             if (authorizeResult.IsError)
@@ -87,7 +87,7 @@ namespace IdentityModel.OidcClient
             var result = await ProcessResponseAsync(
                 authorizeResult.Data,
                 authorizeResult.State,
-                request.BackChannel,
+                request.BackChannelExtraParameters,
                 cancellationToken);
 
             if (!result.IsError)
@@ -104,7 +104,7 @@ namespace IdentityModel.OidcClient
         /// <param name="frontChannelParameters">extra parameters to send to the authorize endpoint.</param>
         /// /// <param name="cancellationToken">A token that can be used to cancel the request</param>
         /// <returns>State for initiating the authorize request and processing the response</returns>
-        public virtual async Task<AuthorizeState> PrepareLoginAsync(FrontChannelParameters frontChannelParameters = null, CancellationToken cancellationToken = default)
+        public virtual async Task<AuthorizeState> PrepareLoginAsync(Parameters frontChannelParameters = null, CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("PrepareLoginAsync");
 
@@ -174,13 +174,13 @@ namespace IdentityModel.OidcClient
         public virtual async Task<LoginResult> ProcessResponseAsync(
             string data, 
             AuthorizeState state, 
-            BackChannelParameters backChannelParameters = null, 
+            Parameters backChannelParameters = null, 
             CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("ProcessResponseAsync");
             _logger.LogInformation("Processing response.");
 
-            backChannelParameters = backChannelParameters ?? new BackChannelParameters();
+            backChannelParameters = backChannelParameters ?? new Parameters();
             await EnsureConfigurationAsync(cancellationToken);
 
             _logger.LogDebug("Authorize response: {response}", data);
@@ -316,12 +316,15 @@ namespace IdentityModel.OidcClient
         /// <returns>
         /// A token response.
         /// </returns>
-        public virtual async Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken, BackChannelParameters backChannelParameters = null, CancellationToken cancellationToken = default)
+        public virtual async Task<RefreshTokenResult> RefreshTokenAsync(
+            string refreshToken, 
+            Parameters backChannelParameters = null, 
+            CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("RefreshTokenAsync");
 
             await EnsureConfigurationAsync(cancellationToken);
-            backChannelParameters = backChannelParameters ?? new BackChannelParameters();
+            backChannelParameters = backChannelParameters ?? new Parameters();
             
             var client = Options.CreateClient();
 
@@ -332,9 +335,8 @@ namespace IdentityModel.OidcClient
                 ClientSecret = Options.ClientSecret,
                 ClientAssertion = Options.ClientAssertion,
                 ClientCredentialStyle = Options.TokenClientCredentialStyle,
-                RefreshToken = refreshToken, 
-                Resource = backChannelParameters.Resource,
-                Parameters = backChannelParameters.Extra
+                RefreshToken = refreshToken,
+                Parameters = backChannelParameters
             }, cancellationToken).ConfigureAwait(false);
 
             if (response.IsError)
@@ -376,7 +378,7 @@ namespace IdentityModel.OidcClient
         {
             _logger.LogTrace("EnsureProviderInformation");
 
-            if (useDiscovery)
+            if (_useDiscovery)
             {
                 if (Options.RefreshDiscoveryDocumentForLogin == false)
                 {
