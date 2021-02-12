@@ -88,7 +88,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The authentication time.
         /// </value>
-        public virtual DateTimeOffset AuthenticationTime { get; internal set; }
+        public virtual DateTimeOffset? AuthenticationTime { get; internal set; }
 
         /// <summary>
         /// Gets or sets the refresh token handler.

@@ -50,7 +50,7 @@ namespace IdentityModel.OidcClient.Results
         /// <value>
         /// The access token expiration.
         /// </value>
-        public virtual DateTime AccessTokenExpiration { get; internal set; }
+        public virtual DateTimeOffset AccessTokenExpiration { get; internal set; }
 
     }
 }
