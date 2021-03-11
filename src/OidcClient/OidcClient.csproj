@@ -30,13 +30,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="IdentityModel" Version="5.0.0" />
+    <PackageReference Include="IdentityModel" Version="5.1.0-preview.1" />
     <PackageReference Include="minver" Version="2.4.0" PrivateAssets="All" />
     
     <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-    
-    <PackageReference Include="System.Text.Json" Version="5.0.0" />
   </ItemGroup>
 
 </Project>
