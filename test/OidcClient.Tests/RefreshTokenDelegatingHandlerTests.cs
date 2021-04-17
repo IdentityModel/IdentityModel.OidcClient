@@ -78,7 +78,7 @@ namespace IdentityModel.OidcClient.Tests
                 await Task.WhenAll(tasks);
             }
 
-            tokens.Count.Should().BeGreaterThan(logicalThreadCount * callsPerThread / maxCallsPerAccessToken);
+            tokens.Count.Should().BeGreaterOrEqualTo(logicalThreadCount * callsPerThread / maxCallsPerAccessToken);
         }
 
         private class TestClient : IDisposable
