@@ -1,28 +1,42 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using FluentAssertions.Extensions;
 using IdentityModel.Client;
 using IdentityModel.OidcClient.Results;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace IdentityModel.OidcClient.Tests
 {
     public class RefreshTokenDelegatingHandlerTests
     {
+        private readonly Action<string> _writeLine;
+
+        public RefreshTokenDelegatingHandlerTests(ITestOutputHelper output)
+        {
+            _writeLine = output.WriteLine;
+        }
+
+        //private void WriteLine(string message) => _writeLine(message);
+
         [Fact]
         public async Task Can_refresh_access_tokens_with_sliding_refresh_tokens()
         {
             const int maxCallsPerAccessToken = 2;
 
-            var tokens = new TestTokens(maxCallsPerAccessToken);
+            var tokens = new TestTokens(maxCallsPerAccessToken, _writeLine);
 
             var handlerUnderTest = new RefreshTokenDelegatingHandler(
-                new TestableOidcTokenRefreshClient(tokens), tokens.InitialAccessToken, tokens.InitialRefreshToken,
-                new TestServer(tokens));
+                new TestableOidcTokenRefreshClient(tokens, TimeSpan.Zero), 
+                tokens.InitialAccessToken, 
+                tokens.InitialRefreshToken,
+                new TestServer(tokens, TimeSpan.Zero));
 
             using (var client = new TestClient(handlerUnderTest))
             {
@@ -34,6 +48,69 @@ namespace IdentityModel.OidcClient.Tests
                 await client.SecuredPing();
                 tokens.Count.Should().Be(2);
             }
+        }
+
+        [Fact]
+        public async Task Can_refresh_access_tokens_in_parallel()
+        {
+            var logicalThreadCount = 10;
+            var callsPerThread = 10;
+            var maxCallsPerAccessToken = 20;
+
+            var tokens = new TestTokens(maxCallsPerAccessToken);
+
+            var handlerUnderTest = new RefreshTokenDelegatingHandler(
+                new TestableOidcTokenRefreshClient(tokens, 5.Milliseconds()),
+                tokens.InitialAccessToken,
+                tokens.InitialRefreshToken,
+                new TestServer(tokens, 1.Milliseconds()));
+
+            using (var client = new TestClient(handlerUnderTest))
+            {
+                async Task PerformPingRequests()
+                {
+                    for (var i = 0; i < callsPerThread; i++)
+                        await client.SecuredPing();
+                }
+
+                var tasks = Enumerable.Range(0, logicalThreadCount).Select(i => PerformPingRequests());
+
+                await Task.WhenAll(tasks);
+            }
+
+            tokens.Count.Should().BeGreaterThan(logicalThreadCount * callsPerThread / maxCallsPerAccessToken);
+        }
+
+        [Fact]
+        public async Task Can_refresh_access_tokens_in_parallel_using_non_singleton_handler()
+        {
+            RefreshTokenDelegatingHandler CreateHandler(TestTokens testTokens)
+            {
+                return new RefreshTokenDelegatingHandler(
+                    new TestableOidcTokenRefreshClient(testTokens, 20.Milliseconds()),
+                    testTokens.InitialAccessToken,
+                    testTokens.InitialRefreshToken,
+                    new TestServer(testTokens, 0.Milliseconds()));
+            }
+
+            var logicalThreadCount = 2;
+            var callsPerThread = 20;
+            var maxCallsPerAccessToken = 10;
+
+            var tokens = new TestTokens(maxCallsPerAccessToken, _writeLine);
+
+            async Task PerformPingRequests()
+            {
+                using (var client = new TestClient(CreateHandler(tokens)))
+                    for (var i = 0; i < callsPerThread; i++)
+                        await client.SecuredPing();
+            }
+
+            var tasks = Enumerable.Range(0, logicalThreadCount).Select(i => PerformPingRequests());
+
+            await Task.WhenAll(tasks);
+
+            tokens.Count.Should().BeGreaterThan(logicalThreadCount * callsPerThread / maxCallsPerAccessToken);
         }
 
         private class TestClient : IDisposable
@@ -50,7 +127,8 @@ namespace IdentityModel.OidcClient.Tests
 
             public async Task SecuredPing()
             {
-                await _client.GetAsync("/whatever");
+                var response = await _client.GetAsync("/whatever");
+                response.EnsureSuccessStatusCode();
             }
 
             public void Dispose()
@@ -67,11 +145,13 @@ namespace IdentityModel.OidcClient.Tests
         private class TestTokens
         {
             private readonly int _maxCallsPerAccessToken;
+            private readonly Action<string> _writeLine;
             private readonly ConcurrentStack<TokenSet> _tokens;
 
-            public TestTokens(int maxCallsPerAccessToken)
+            public TestTokens(int maxCallsPerAccessToken, Action<string> writeLine = null)
             {
                 _maxCallsPerAccessToken = maxCallsPerAccessToken;
+                _writeLine = writeLine;
 
                 var initialTokenSet = new TokenSet();
 
@@ -109,9 +189,18 @@ namespace IdentityModel.OidcClient.Tests
                 if (_tokens.TryPeek(out var currentTokens))
                 {
                     if (currentTokens.AccessToken != accessToken)
+                    {
+                        _writeLine?.Invoke($"{accessToken} is no longer valid because it has been superseded");
                         return false;
+                    }
 
-                    var expired = currentTokens.AccessTokenUseCount > _maxCallsPerAccessToken;
+                    var useCount = currentTokens.AccessTokenUseCount;
+                    var expired = useCount > _maxCallsPerAccessToken;
+
+                    if (expired)
+                        _writeLine?.Invoke($"{accessToken} is no longer valid because it has been used {useCount} times (more than the {_maxCallsPerAccessToken} allowed)");
+                    else
+                        _writeLine?.Invoke($"{accessToken} is still valid (used {useCount} times now)");
 
                     return !expired;
                 }
@@ -135,13 +224,15 @@ namespace IdentityModel.OidcClient.Tests
         private class TestServer : DelegatingHandler
         {
             private readonly TestTokens _tokens;
+            private readonly TimeSpan _pingDelay;
 
-            public TestServer(TestTokens tokens)
+            public TestServer(TestTokens tokens, TimeSpan pingDelay)
             {
                 _tokens = tokens;
+                _pingDelay = pingDelay;
             }
 
-            protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+            protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
                 CancellationToken cancellationToken)
             {
                 var accessToken = request.Headers.Authorization?.Parameter;
@@ -150,40 +241,41 @@ namespace IdentityModel.OidcClient.Tests
                     ? HttpStatusCode.OK
                     : HttpStatusCode.Unauthorized;
 
-                return Task.FromResult(new HttpResponseMessage(responseCode));
+                await Task.Delay(_pingDelay, cancellationToken);
+
+                return new HttpResponseMessage(responseCode);
             }
         }
 
         private class TestableOidcTokenRefreshClient : OidcClient
         {
             private readonly TestTokens _tokens;
+            private readonly TimeSpan _delayForRefresh;
 
-            public TestableOidcTokenRefreshClient(TestTokens tokens) : base(new OidcClientOptions
+            public TestableOidcTokenRefreshClient(TestTokens tokens, TimeSpan delayForRefresh) : base(new OidcClientOptions
             {
                 Authority = "http://test-authority"
             })
             {
                 _tokens = tokens;
+                _delayForRefresh = delayForRefresh;
             }
 
-            public override Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken,
+            public override async Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken,
                 Parameters backChannelParameters = null,
                 CancellationToken cancellationToken = default)
             {
                 var newTokens = _tokens.RefreshUsing(refreshToken);
 
-                RefreshTokenResult result;
+                await Task.Delay(_delayForRefresh, cancellationToken);
 
-                if (newTokens == null)
-                    result = new RefreshTokenResult {Error = "something with grant"};
-                else
-                    result = new RefreshTokenResult
+                return newTokens == null
+                    ? new RefreshTokenResult {Error = "something with grant"}
+                    : new RefreshTokenResult
                     {
                         AccessToken = newTokens.AccessToken,
                         RefreshToken = newTokens.RefreshToken
                     };
-
-                return Task.FromResult(result);
             }
         }
     }
