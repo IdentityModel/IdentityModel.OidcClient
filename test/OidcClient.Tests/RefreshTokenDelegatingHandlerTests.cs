@@ -81,38 +81,6 @@ namespace IdentityModel.OidcClient.Tests
             tokens.Count.Should().BeGreaterThan(logicalThreadCount * callsPerThread / maxCallsPerAccessToken);
         }
 
-        [Fact]
-        public async Task Can_refresh_access_tokens_in_parallel_using_non_singleton_handler()
-        {
-            RefreshTokenDelegatingHandler CreateHandler(TestTokens testTokens)
-            {
-                return new RefreshTokenDelegatingHandler(
-                    new TestableOidcTokenRefreshClient(testTokens, 20.Milliseconds()),
-                    testTokens.InitialAccessToken,
-                    testTokens.InitialRefreshToken,
-                    new TestServer(testTokens, 0.Milliseconds()));
-            }
-
-            var logicalThreadCount = 2;
-            var callsPerThread = 20;
-            var maxCallsPerAccessToken = 10;
-
-            var tokens = new TestTokens(maxCallsPerAccessToken, _writeLine);
-
-            async Task PerformPingRequests()
-            {
-                using (var client = new TestClient(CreateHandler(tokens)))
-                    for (var i = 0; i < callsPerThread; i++)
-                        await client.SecuredPing();
-            }
-
-            var tasks = Enumerable.Range(0, logicalThreadCount).Select(i => PerformPingRequests());
-
-            await Task.WhenAll(tasks);
-
-            tokens.Count.Should().BeGreaterThan(logicalThreadCount * callsPerThread / maxCallsPerAccessToken);
-        }
-
         private class TestClient : IDisposable
         {
             private readonly HttpClient _client;
