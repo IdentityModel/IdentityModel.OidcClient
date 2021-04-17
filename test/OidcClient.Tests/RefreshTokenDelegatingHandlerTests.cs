@@ -54,7 +54,7 @@ namespace IdentityModel.OidcClient.Tests
         public async Task Can_refresh_access_tokens_in_parallel()
         {
             var logicalThreadCount = 10;
-            var callsPerThread = 1000;
+            var callsPerThread = 10;
             var maxCallsPerAccessToken = 20;
 
             var tokens = new TestTokens(maxCallsPerAccessToken);
@@ -95,17 +95,21 @@ namespace IdentityModel.OidcClient.Tests
 
             public async Task SecuredPing()
             {
+                int n = 0;
+
                 // Had to relax the test, since it is perfectly possible that 
                 // a single retry by the refresh handler is not enough.
                 // The test needs to demonstrate that we can recover from 
                 // expired access tokens without a new login (so just by using the refresh token).
-                while (true)
+                while (++n < 100)
                 {
                     var response = await _client.GetAsync("/whatever");
 
                     if (response.IsSuccessStatusCode)
                         return;
                 }
+
+                throw new Exception("The client was not able to recover.");
             }
 
             public void Dispose()
