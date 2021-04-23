@@ -8,6 +8,7 @@ using IdentityModel.OidcClient.Results;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -77,6 +78,10 @@ namespace IdentityModel.OidcClient
             if (tokenResponse.IsError)
             {
                 return new ResponseValidationResult($"Error redeeming code: {tokenResponse.Error ?? "no error code"} / {tokenResponse.ErrorDescription ?? "no description"}");
+            }
+            if (tokenResponse.HttpStatusCode != HttpStatusCode.OK)
+            {
+                return new ResponseValidationResult($"Error redeeming code: {tokenResponse.Raw}");
             }
 
             // validate token response

@@ -90,6 +90,22 @@ namespace IdentityModel.OidcClient
         public string PostLogoutRedirectUri { get; set; }
 
         /// <summary>
+        /// Gets or sets the nonce length.
+        /// </summary>
+        /// <value>
+        /// The nonce length.
+        /// </value>
+        public int NonceLength { get; set; } = 16;
+
+        /// <summary>
+        /// Gets or sets the state length.
+        /// </summary>
+        /// <value>
+        /// The state length.
+        /// </value>
+        public int StateLength { get; set; } = 16;
+
+        /// <summary>
         /// Gets or sets the browser implementation.
         /// </summary>
         /// <value>
