@@ -156,17 +156,16 @@ namespace IdentityModel.OidcClient
 
         private async Task<bool> RefreshTokensAsync(CancellationToken cancellationToken)
         {
-            var refreshToken = RefreshToken;
-            if (refreshToken.IsMissing())
-            {
-                return false;
-            }
-
             if (await _lock.WaitAsync(Timeout, cancellationToken).ConfigureAwait(false))
             {
+                if (_refreshToken.IsMissing())
+                {
+                    return false;
+                }
+
                 try
                 {
-                    var response = await _oidcClient.RefreshTokenAsync(refreshToken, cancellationToken: cancellationToken).ConfigureAwait(false);
+                    var response = await _oidcClient.RefreshTokenAsync(_refreshToken, cancellationToken: cancellationToken).ConfigureAwait(false);
 
                     if (!response.IsError)
                     {
