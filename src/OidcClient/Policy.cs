@@ -42,7 +42,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// <c>true</c> if identity token must be signed; otherwise, <c>false</c>.
         /// </value>
-        public bool RequireIdentityTokenSignature { get; set; } = true;
+        public bool RequireIdentityTokenSignature { get; set; } = false;
 
         /// <summary>
         /// Gets or sets a value indicating whether the identity token issuer name should match.

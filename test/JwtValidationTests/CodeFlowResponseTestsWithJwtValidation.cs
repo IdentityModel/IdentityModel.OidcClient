@@ -183,6 +183,7 @@ namespace IdentityModel.OidcClient.Tests
         [Fact]
         public async Task Valid_response_with_missing_signature_should_fail()
         {
+            _options.Policy.RequireIdentityTokenSignature = true;
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
 
