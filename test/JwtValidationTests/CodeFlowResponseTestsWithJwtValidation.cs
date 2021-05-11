@@ -601,7 +601,7 @@ namespace IdentityModel.OidcClient.Tests
             var result = await client.ProcessResponseAsync(url, state);
 
             result.IsError.Should().BeTrue();
-            result.Error.Should().Contain("invalid_signature");
+            result.Error.Should().Contain("unable_to_validate_token");
         }
 
         [Fact]
@@ -626,7 +626,7 @@ namespace IdentityModel.OidcClient.Tests
             var result = await client.ProcessResponseAsync(url, state);
 
             result.IsError.Should().BeTrue();
-            result.Error.Should().Contain("invalid_signature");
+            result.Error.Should().Contain("unable_to_validate_token");
         }
 
         [Theory]
