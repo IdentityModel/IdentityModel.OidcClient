@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.9.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.11.0" />
     
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
