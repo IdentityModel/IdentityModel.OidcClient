@@ -55,6 +55,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The client assertion.
         /// </value>
+        [CLSCompliant(false)]
         public ClientAssertion ClientAssertion { get; set; } = new ClientAssertion();
 
         /// <summary>
@@ -178,6 +179,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The token client authentication style.
         /// </value>
+        [CLSCompliant(false)]
         public ClientCredentialStyle TokenClientCredentialStyle { get; set; } = ClientCredentialStyle.PostBody;
 
         /// <summary>

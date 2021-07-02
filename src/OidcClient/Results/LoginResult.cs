@@ -104,6 +104,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The token response from the server.
         /// </value>
+        [CLSCompliant(false)]
         public TokenResponse TokenResponse { get; internal set; }
     }
 }

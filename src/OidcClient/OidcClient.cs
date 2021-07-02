@@ -104,6 +104,7 @@ namespace IdentityModel.OidcClient
         /// <param name="frontChannelParameters">extra parameters to send to the authorize endpoint.</param>
         /// /// <param name="cancellationToken">A token that can be used to cancel the request</param>
         /// <returns>State for initiating the authorize request and processing the response</returns>
+        [CLSCompliant(false)]
         public virtual async Task<AuthorizeState> PrepareLoginAsync(Parameters frontChannelParameters = null, CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("PrepareLoginAsync");
@@ -171,6 +172,7 @@ namespace IdentityModel.OidcClient
         /// <returns>
         /// Result of the login response validation
         /// </returns>
+        [CLSCompliant(false)]
         public virtual async Task<LoginResult> ProcessResponseAsync(
             string data, 
             AuthorizeState state, 
@@ -316,6 +318,7 @@ namespace IdentityModel.OidcClient
         /// <returns>
         /// A token response.
         /// </returns>
+        [CLSCompliant(false)]
         public virtual async Task<RefreshTokenResult> RefreshTokenAsync(
             string refreshToken, 
             Parameters backChannelParameters = null, 

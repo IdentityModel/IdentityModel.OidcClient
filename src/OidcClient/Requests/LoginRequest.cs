@@ -1,10 +1,9 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-
-using IdentityModel.OidcClient.Browser;
-using System.Collections.Generic;
+using System;
 using IdentityModel.Client;
+using IdentityModel.OidcClient.Browser;
 
 namespace IdentityModel.OidcClient
 {
@@ -35,6 +34,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The extra parameters.
         /// </value>
+        [CLSCompliant(false)]
         public Parameters FrontChannelExtraParameters { get; set; } = new Parameters();
         
         /// <summary>
@@ -43,6 +43,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The extra parameters.
         /// </value>
+        [CLSCompliant(false)]
         public Parameters BackChannelExtraParameters { get; set; } = new Parameters();
     }
 }
