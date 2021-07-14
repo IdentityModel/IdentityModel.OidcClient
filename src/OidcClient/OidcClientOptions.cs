@@ -171,7 +171,16 @@ namespace IdentityModel.OidcClient
         /// The backchannel timeout.
         /// </value>
         public TimeSpan BackchannelTimeout { get; set; } = TimeSpan.FromSeconds(30);
-        
+
+        /// <summary>
+        /// Gets or sets the HTTP client factory.
+        /// </summary>
+        /// <value>
+        /// The backchannel timeout.
+        /// </value>
+        [JsonIgnore]
+        public Func<OidcClientOptions, HttpClient> HttpClientFactory { get; set; }
+
         /// <summary>
         /// Gets or sets the authentication style used by the token client (defaults to posting clientid/secret values).
         /// </summary>
@@ -196,7 +205,7 @@ namespace IdentityModel.OidcClient
         /// </value>
         [JsonIgnore]
         public ILoggerFactory LoggerFactory { get; set; } = new LoggerFactory();
-        
+
         /// <summary>
         /// Gets or sets the identity token validator.
         /// </summary>
