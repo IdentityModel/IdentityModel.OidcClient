@@ -58,7 +58,8 @@ namespace IdentityModel.OidcClient.Tests
             var url = $"?state={state.State}&code=bar";
             var idToken = Crypto.CreateJwt(null, "https://authority", "client",
                 new Claim("at_hash", Crypto.HashData("token")),
-                new Claim("sub", "123"));
+                new Claim("sub", "123"),
+                new Claim("auth_time", "123"));
 
             var tokenResponse = new Dictionary<string, object>
             {
@@ -77,6 +78,7 @@ namespace IdentityModel.OidcClient.Tests
             result.AccessToken.Should().Be("token");
             result.IdentityToken.Should().NotBeNull();
             result.User.Should().NotBeNull();
+            result.AuthenticationTime.Should().Be(DateTimeOffset.FromUnixTimeSeconds(123));
 
             result.User.Claims.Count().Should().Be(1);
             result.User.Claims.First().Type.Should().Be("sub");
