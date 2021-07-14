@@ -145,15 +145,6 @@ namespace IdentityModel.OidcClient
                     return new TokenResponseValidationResult(validationResult.Error ?? "Identity token validation error");
                 }
 
-                // validate nonce
-                if (state != null)
-                {
-                    if (!ValidateNonce(state.Nonce, validationResult.User))
-                    {
-                        return new TokenResponseValidationResult("Invalid nonce.");
-                    }
-                }
-
                 // validate at_hash
                 if (!string.Equals(validationResult.SignatureAlgorithm, "none", StringComparison.OrdinalIgnoreCase))
                 {
@@ -178,21 +169,6 @@ namespace IdentityModel.OidcClient
             }
 
             return new TokenResponseValidationResult((IdentityTokenValidationResult)null);
-        }
-
-        private bool ValidateNonce(string nonce, ClaimsPrincipal user)
-        {
-            _logger.LogTrace("ValidateNonce");
-
-            var tokenNonce = user.FindFirst(JwtClaimTypes.Nonce)?.Value ?? "";
-            var match = string.Equals(nonce, tokenNonce, StringComparison.Ordinal);
-
-            if (!match)
-            {
-                _logger.LogError($"nonce ({nonce}) does not match nonce from token ({tokenNonce})");
-            }
-
-            return match;
         }
 
         private async Task<TokenResponse> RedeemCodeAsync(string code, AuthorizeState state, Parameters backChannelParameters, CancellationToken cancellationToken)

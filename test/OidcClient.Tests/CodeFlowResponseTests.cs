@@ -55,11 +55,10 @@ namespace IdentityModel.OidcClient.Tests
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
 
-            var url = $"?state={state.State}&nonce={state.Nonce}&code=bar";
+            var url = $"?state={state.State}&code=bar";
             var idToken = Crypto.CreateJwt(null, "https://authority", "client",
                 new Claim("at_hash", Crypto.HashData("token")),
-                new Claim("sub", "123"),
-                new Claim("nonce", state.Nonce));
+                new Claim("sub", "123"));
 
             var tokenResponse = new Dictionary<string, object>
             {
@@ -91,7 +90,7 @@ namespace IdentityModel.OidcClient.Tests
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
 
-            var url = $"?state={state.State}&nonce={state.Nonce}&code=bar";
+            var url = $"?state={state.State}&code=bar";
 
             var tokenResponse = new Dictionary<string, object>
             {
@@ -119,11 +118,10 @@ namespace IdentityModel.OidcClient.Tests
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
 
-            var url = $"?state={state.State}&nonce={state.Nonce}&code=bar";
+            var url = $"?state={state.State}&code=bar";
             var idToken = Crypto.CreateJwt(null, "https://authority", "client",
                 new Claim("at_hash", Crypto.HashData("token")),
-                new Claim("sub", "123"),
-                new Claim("nonce", state.Nonce));
+                new Claim("sub", "123"));
 
             var tokenResponse = new Dictionary<string, object>
             {
@@ -180,11 +178,10 @@ namespace IdentityModel.OidcClient.Tests
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
 
-            var url = $"?state={state.State}&nonce={state.Nonce}&code=bar";
+            var url = $"?state={state.State}&code=bar";
             var idToken = Crypto.CreateJwt(null, "https://authority", "client",
                 new Claim("at_hash", Crypto.HashData("token")),
-                new Claim("sub", "123"),
-                new Claim("nonce", state.Nonce));
+                new Claim("sub", "123"));
 
             var tokenResponse = new Dictionary<string, object>
             {
@@ -216,11 +213,10 @@ namespace IdentityModel.OidcClient.Tests
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
 
-            var url = $"?state={state.State}&nonce={state.Nonce}&code=bar";
+            var url = $"?state={state.State}&code=bar";
             var idToken = Crypto.CreateJwt(null, "https://authority", "client",
                 new Claim("at_hash", Crypto.HashData("token")),
-                new Claim("sub", "123"),
-                new Claim("nonce", state.Nonce));
+                new Claim("sub", "123"));
 
             var tokenResponse = new Dictionary<string, object>
             {
@@ -249,11 +245,10 @@ namespace IdentityModel.OidcClient.Tests
             _options.Policy.Discovery.ValidateEndpoints = false;
             _options.Policy.ValidateTokenIssuerName = false;
 
-            var url = $"?state={state.State}&nonce={state.Nonce}&code=bar";
+            var url = $"?state={state.State}&code=bar";
             var idToken = Crypto.CreateJwt(null, "https://{some_multi_tenant_name}", "client",
                 new Claim("at_hash", Crypto.HashData("token")),
-                new Claim("sub", "123"),
-                new Claim("nonce", state.Nonce));
+                new Claim("sub", "123"));
 
             var tokenResponse = new Dictionary<string, object>
             {
@@ -280,11 +275,10 @@ namespace IdentityModel.OidcClient.Tests
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
 
-            var url = $"?state={state.State}&nonce={state.Nonce}&code=bar";
+            var url = $"?state={state.State}&code=bar";
             var idToken = Crypto.CreateJwt(null, "https://authority", "client",
                 new Claim("at_hash", Crypto.HashData("token")),
-                new Claim("sub", "123"),
-                new Claim("nonce", state.Nonce));
+                new Claim("sub", "123"));
 
             var tokenResponse = new Dictionary<string, object>
             {
@@ -322,11 +316,10 @@ namespace IdentityModel.OidcClient.Tests
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
 
-            var url = $"?state={state.State}&nonce={state.Nonce}&code=bar";
+            var url = $"?state={state.State}&code=bar";
             var idToken = Crypto.CreateJwt(null, "https://authority", "client",
                 new Claim("at_hash", Crypto.HashData("token")),
-                new Claim("sub", "123"),
-                new Claim("nonce", state.Nonce));
+                new Claim("sub", "123"));
 
             var tokenResponse = new Dictionary<string, object>
             {
@@ -343,64 +336,6 @@ namespace IdentityModel.OidcClient.Tests
             act.Should().Throw<InvalidOperationException>()
                 .Where(e => e.Message.StartsWith("No IIdentityTokenValidator is configured"));
         }
-
-        [Fact]
-        public async Task Invalid_nonce_should_fail()
-        {
-            var client = new OidcClient(_options);
-            var state = await client.PrepareLoginAsync();
-
-            var url = $"?state={state.State}&nonce={state.Nonce}&code=bar";
-            var idToken = Crypto.CreateJwt(null, "https://authority", "client",
-                new Claim("at_hash", Crypto.HashData("token")),
-                new Claim("sub", "123"),
-                new Claim("nonce", "invalid"));
-
-            var tokenResponse = new Dictionary<string, object>
-            {
-                { "access_token", "token" },
-                { "expires_in", 300 },
-                { "id_token", idToken },
-                { "refresh_token", "refresh_token" }
-            };
-
-            _options.BackchannelHandler =
-                new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
-
-            var result = await client.ProcessResponseAsync(url, state);
-
-            result.IsError.Should().BeTrue();
-            result.Error.Should().Be("Error validating token response: Invalid nonce.");
-        }
-
-        [Fact]
-        public async Task Missing_nonce_should_fail()
-        {
-            var client = new OidcClient(_options);
-            var state = await client.PrepareLoginAsync();
-
-            var url = $"?state={state.State}&nonce={state.Nonce}&code=bar";
-            var idToken = Crypto.CreateJwt(null, "https://authority", "client",
-                new Claim("at_hash", Crypto.HashData("token")),
-                new Claim("sub", "123"));
-
-            var tokenResponse = new Dictionary<string, object>
-            {
-                { "access_token", "token" },
-                { "expires_in", 300 },
-                { "id_token", idToken },
-                { "refresh_token", "refresh_token" }
-            };
-
-            _options.BackchannelHandler =
-                new NetworkHandler(JsonSerializer.Serialize(tokenResponse), HttpStatusCode.OK);
-
-            var result = await client.ProcessResponseAsync(url, state);
-
-            result.IsError.Should().BeTrue();
-            result.Error.Should().Be("Error validating token response: Invalid nonce.");
-        }
-
 
         [Fact]
         public async Task Error_redeeming_code_should_fail()
@@ -476,11 +411,10 @@ namespace IdentityModel.OidcClient.Tests
             var client = new OidcClient(_options);
             var state = await client.PrepareLoginAsync();
 
-            var url = $"?state={state.State}&nonce={state.Nonce}&code=bar";
+            var url = $"?state={state.State}&code=bar";
             var idToken = Crypto.CreateJwt(null, "https://authority", "client",
                 new Claim("at_hash", Crypto.HashData("token")),
-                new Claim("sub", "123"),
-                new Claim("nonce", state.Nonce));
+                new Claim("sub", "123"));
 
             var tokenResponse = new Dictionary<string, object>
             {
