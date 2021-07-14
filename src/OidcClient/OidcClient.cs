@@ -234,15 +234,15 @@ namespace IdentityModel.OidcClient
                 }
             }
 
-            var user = ProcessClaims(result.User, userInfoClaims);
-
-            var authTimeValue = result.TokenResponse.TryGet(JwtClaimTypes.AuthenticationTime);
+            var authTimeValue = result.User.FindFirst(JwtClaimTypes.AuthenticationTime)?.Value;
             DateTimeOffset? authTime = null;
 
             if (authTimeValue.IsPresent() && long.TryParse(authTimeValue, out long seconds))
             {
                 authTime = DateTimeOffset.FromUnixTimeSeconds(seconds);
             }
+
+            var user = ProcessClaims(result.User, userInfoClaims);
 
             var loginResult = new LoginResult
             {
