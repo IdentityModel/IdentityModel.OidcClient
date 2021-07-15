@@ -93,25 +93,24 @@ namespace IdentityModel.OidcClient
 
             var state = new AuthorizeState
             {
-                Nonce = _crypto.CreateNonce(_options.NonceLength),
                 State = _crypto.CreateState(_options.StateLength),
                 RedirectUri = _options.RedirectUri,
                 CodeVerifier = pkce.CodeVerifier,
             };
 
-            state.StartUrl = CreateAuthorizeUrl(state.State, state.Nonce, pkce.CodeChallenge, frontChannelParameters);
+            state.StartUrl = CreateAuthorizeUrl(state.State, pkce.CodeChallenge, frontChannelParameters);
 
             _logger.LogDebug(LogSerializer.Serialize(state));
 
             return state;
         }
 
-        internal string CreateAuthorizeUrl(string state, string nonce, string codeChallenge,
+        internal string CreateAuthorizeUrl(string state, string codeChallenge,
             Parameters frontChannelParameters)
         {
             _logger.LogTrace("CreateAuthorizeUrl");
 
-            var parameters = CreateAuthorizeParameters(state, nonce, codeChallenge, frontChannelParameters);
+            var parameters = CreateAuthorizeParameters(state, codeChallenge, frontChannelParameters);
             var request = new RequestUrl(_options.ProviderInformation.AuthorizeEndpoint);
 
             return request.Create(parameters);
@@ -129,7 +128,6 @@ namespace IdentityModel.OidcClient
 
         internal Parameters CreateAuthorizeParameters(
             string state,
-            string nonce,
             string codeChallenge,
             Parameters frontChannelParameters)
         {
@@ -138,7 +136,6 @@ namespace IdentityModel.OidcClient
             var parameters = new Parameters
             {
                 { OidcConstants.AuthorizeRequest.ResponseType, OidcConstants.ResponseTypes.Code },
-                { OidcConstants.AuthorizeRequest.Nonce, nonce },
                 { OidcConstants.AuthorizeRequest.State, state },
                 { OidcConstants.AuthorizeRequest.CodeChallenge, codeChallenge },
                 { OidcConstants.AuthorizeRequest.CodeChallengeMethod, OidcConstants.CodeChallengeMethods.Sha256 },

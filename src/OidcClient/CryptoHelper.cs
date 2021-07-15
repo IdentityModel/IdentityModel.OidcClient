@@ -80,13 +80,6 @@ namespace IdentityModel.OidcClient
             return CryptoRandom.CreateUniqueId(length);
         }
 
-        public string CreateNonce(int length)
-        {
-            _logger.LogTrace("CreateNonce");
-
-            return CryptoRandom.CreateUniqueId(length);
-        }
-
         public Pkce CreatePkceData()
         {
             _logger.LogTrace("CreatePkceData");

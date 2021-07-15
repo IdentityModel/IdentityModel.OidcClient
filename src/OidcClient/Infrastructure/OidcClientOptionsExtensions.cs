@@ -10,6 +10,11 @@ namespace IdentityModel.OidcClient.Infrastructure
     {
         public static HttpClient CreateClient(this OidcClientOptions options)
         {
+            if (options.HttpClientFactory != null)
+            {
+                return options.HttpClientFactory(options);
+            }
+            
             HttpClient client;
 
             if (options.BackchannelHandler != null)

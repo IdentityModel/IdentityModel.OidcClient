@@ -234,15 +234,15 @@ namespace IdentityModel.OidcClient
                 }
             }
 
-            var user = ProcessClaims(result.User, userInfoClaims);
-
-            var authTimeValue = result.TokenResponse.TryGet(JwtClaimTypes.AuthenticationTime);
+            var authTimeValue = result.User.FindFirst(JwtClaimTypes.AuthenticationTime)?.Value;
             DateTimeOffset? authTime = null;
 
             if (authTimeValue.IsPresent() && long.TryParse(authTimeValue, out long seconds))
             {
                 authTime = DateTimeOffset.FromUnixTimeSeconds(seconds);
             }
+
+            var user = ProcessClaims(result.User, userInfoClaims);
 
             var loginResult = new LoginResult
             {
@@ -412,7 +412,11 @@ namespace IdentityModel.OidcClient
 
                 _logger.LogDebug("Successfully loaded discovery document");
                 _logger.LogDebug("Loaded keyset from {jwks_uri}", disco.JwksUri);
-                _logger.LogDebug("Keyset contains the following kids: {kids}", from k in disco.KeySet.Keys select k.Kid ?? "unspecified");
+                var kids = disco.KeySet?.Keys?.Select(k => k.Kid);
+                if (kids != null)
+                {
+                    _logger.LogDebug($"Keyset contains the following kids: {string.Join(",", kids)}");
+                }
 
                 Options.ProviderInformation = new ProviderInformation
                 {

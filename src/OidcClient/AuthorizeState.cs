@@ -18,14 +18,6 @@ namespace IdentityModel.OidcClient
         public string StartUrl { get; set; }
 
         /// <summary>
-        /// Gets or sets the nonce.
-        /// </summary>
-        /// <value>
-        /// The nonce.
-        /// </value>
-        public string Nonce { get; set; }
-
-        /// <summary>
         /// Gets or sets the state.
         /// </summary>
         /// <value>
