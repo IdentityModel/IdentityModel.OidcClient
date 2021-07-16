@@ -73,18 +73,11 @@ namespace IdentityModel.OidcClient
             }
         }
 
-        public string CreateState()
+        public string CreateState(int length)
         {
             _logger.LogTrace("CreateState");
 
-            return CryptoRandom.CreateUniqueId(16);
-        }
-
-        public string CreateNonce()
-        {
-            _logger.LogTrace("CreateNonce");
-
-            return CryptoRandom.CreateUniqueId(16);
+            return CryptoRandom.CreateUniqueId(length);
         }
 
         public Pkce CreatePkceData()

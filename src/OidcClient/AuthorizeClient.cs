@@ -93,7 +93,7 @@ namespace IdentityModel.OidcClient
 
             var state = new AuthorizeState
             {
-                State = _crypto.CreateState(),
+                State = _crypto.CreateState(_options.StateLength),
                 RedirectUri = _options.RedirectUri,
                 CodeVerifier = pkce.CodeVerifier,
             };
