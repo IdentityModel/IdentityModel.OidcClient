@@ -60,7 +60,7 @@ namespace build
 
             Target(Targets.SignPackage, DependsOn(Targets.Pack, Targets.RestoreTools), () =>
             {
-                Sign(packOutput, "*.nupkg");
+                SignNuGet();
             });
 
             Target("default", DependsOn(Targets.Test, Targets.Pack));
