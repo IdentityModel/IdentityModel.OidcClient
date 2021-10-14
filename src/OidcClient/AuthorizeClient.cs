@@ -85,24 +85,24 @@ namespace IdentityModel.OidcClient
             return await _options.Browser.InvokeAsync(browserOptions, cancellationToken);
         }
 
-        public AuthorizeState CreateAuthorizeState(Parameters frontChannelParameters)
+        public AuthorizeState CreateAuthorizeState(Parameters frontChannelParameters, string customState = null)
         {
             _logger.LogTrace("CreateAuthorizeStateAsync");
 
             var pkce = _crypto.CreatePkceData();
 
-            var state = new AuthorizeState
+            var authorizeState = new AuthorizeState
             {
-                State = _crypto.CreateState(_options.StateLength),
+                State = customState ?? _crypto.CreateState(_options.StateLength),
                 RedirectUri = _options.RedirectUri,
                 CodeVerifier = pkce.CodeVerifier,
             };
 
-            state.StartUrl = CreateAuthorizeUrl(state.State, pkce.CodeChallenge, frontChannelParameters);
+            authorizeState.StartUrl = CreateAuthorizeUrl(authorizeState.State, pkce.CodeChallenge, frontChannelParameters);
 
-            _logger.LogDebug(LogSerializer.Serialize(state));
+            _logger.LogDebug(LogSerializer.Serialize(authorizeState));
 
-            return state;
+            return authorizeState;
         }
 
         internal string CreateAuthorizeUrl(string state, string codeChallenge,

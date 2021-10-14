@@ -101,15 +101,16 @@ namespace IdentityModel.OidcClient
         /// <summary>
         /// Prepares the login request.
         /// </summary>
-        /// <param name="frontChannelParameters">extra parameters to send to the authorize endpoint.</param>
-        /// /// <param name="cancellationToken">A token that can be used to cancel the request</param>
+        /// <param name="frontChannelParameters">Extra parameters to send to the authorize endpoint.</param>
+        /// <param name="cancellationToken">A token that can be used to cancel the request</param>
+        /// <param name="customState">Custom state string to override the generated value</param>
         /// <returns>State for initiating the authorize request and processing the response</returns>
-        public virtual async Task<AuthorizeState> PrepareLoginAsync(Parameters frontChannelParameters = null, CancellationToken cancellationToken = default)
+        public virtual async Task<AuthorizeState> PrepareLoginAsync(Parameters frontChannelParameters = null, CancellationToken cancellationToken = default, string customState = null)
         {
             _logger.LogTrace("PrepareLoginAsync");
 
             await EnsureConfigurationAsync(cancellationToken);
-            return _authorizeClient.CreateAuthorizeState(frontChannelParameters);
+            return _authorizeClient.CreateAuthorizeState(frontChannelParameters, customState);
         }
 
         /// <summary>
