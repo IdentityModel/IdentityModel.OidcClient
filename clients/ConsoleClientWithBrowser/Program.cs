@@ -11,8 +11,8 @@ namespace ConsoleClientWithBrowser
 {
     public class Program
     {
-        static string _authority = "https://demo.identityserver.io";
-        static string _api = "https://demo.identityserver.io/api/test";
+        static string _authority = "https://demo.duendesoftware.com";
+        static string _api = "https://demo.duendesoftware.com/api/test";
 
         static OidcClient _oidcClient;
         static HttpClient _apiClient = new HttpClient { BaseAddress = new Uri(_api) };
@@ -46,7 +46,7 @@ namespace ConsoleClientWithBrowser
 
                 Browser = browser,
                 IdentityTokenValidator = new JwtHandlerIdentityTokenValidator(),
-                RefreshTokenInnerHttpHandler = new HttpClientHandler()
+                RefreshTokenInnerHttpHandler = new SocketsHttpHandler()
             };
 
             var serilog = new LoggerConfiguration()
