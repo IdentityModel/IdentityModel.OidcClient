@@ -53,7 +53,7 @@ namespace IdentityModel.OidcClient
                 DisplayMode = request.DisplayMode
             };
 
-            var browserResult = await _options.Browser.InvokeAsync(browserOptions, cancellationToken);
+            var browserResult = await _options.Browser.InvokeAsync(browserOptions, cancellationToken).ConfigureAwait(false);
 
             if (browserResult.ResultType == BrowserResultType.Success)
             {
@@ -82,7 +82,7 @@ namespace IdentityModel.OidcClient
                 DisplayMode = request.BrowserDisplayMode
             };
 
-            return await _options.Browser.InvokeAsync(browserOptions, cancellationToken);
+            return await _options.Browser.InvokeAsync(browserOptions, cancellationToken).ConfigureAwait(false);
         }
 
         public AuthorizeState CreateAuthorizeState(Parameters frontChannelParameters)
