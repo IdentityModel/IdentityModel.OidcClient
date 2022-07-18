@@ -58,7 +58,7 @@ namespace IdentityModel.OidcClient
                 return new ResponseValidationResult("Invalid state.");
             }
 
-            return await ProcessCodeFlowResponseAsync(authorizeResponse, state, backChannelParameters, cancellationToken);
+            return await ProcessCodeFlowResponseAsync(authorizeResponse, state, backChannelParameters, cancellationToken).ConfigureAwait(false);
         }
 
         private async Task<ResponseValidationResult> ProcessCodeFlowResponseAsync(
@@ -74,7 +74,7 @@ namespace IdentityModel.OidcClient
             //////////////////////////////////////////////////////
 
             // redeem code for tokens
-            var tokenResponse = await RedeemCodeAsync(authorizeResponse.Code, state, backChannelParameters, cancellationToken);
+            var tokenResponse = await RedeemCodeAsync(authorizeResponse.Code, state, backChannelParameters, cancellationToken).ConfigureAwait(false);
             if (tokenResponse.IsError)
             {
                 return new ResponseValidationResult($"Error redeeming code: {tokenResponse.Error ?? "no error code"} / {tokenResponse.ErrorDescription ?? "no description"}");
@@ -85,7 +85,7 @@ namespace IdentityModel.OidcClient
             }
 
             // validate token response
-            var tokenResponseValidationResult = await ValidateTokenResponseAsync(tokenResponse, state, requireIdentityToken:false, cancellationToken: cancellationToken);
+            var tokenResponseValidationResult = await ValidateTokenResponseAsync(tokenResponse, state, requireIdentityToken:false, cancellationToken: cancellationToken).ConfigureAwait(false);
             if (tokenResponseValidationResult.IsError)
             {
                 return new ResponseValidationResult($"Error validating token response: {tokenResponseValidationResult.Error}");
@@ -137,12 +137,12 @@ namespace IdentityModel.OidcClient
                     validator = _options.IdentityTokenValidator;
                 }
                 
-                var validationResult = await validator.ValidateAsync(response.IdentityToken, _options, cancellationToken);
+                var validationResult = await validator.ValidateAsync(response.IdentityToken, _options, cancellationToken).ConfigureAwait(false);
 
                 if (validationResult.Error == "invalid_signature")
                 {
-                    await _refreshKeysAsync(cancellationToken);
-                    validationResult = await _options.IdentityTokenValidator.ValidateAsync(response.IdentityToken, _options, cancellationToken);
+                    await _refreshKeysAsync(cancellationToken).ConfigureAwait(false);
+                    validationResult = await _options.IdentityTokenValidator.ValidateAsync(response.IdentityToken, _options, cancellationToken).ConfigureAwait(false);
                 }
                 
                 if (validationResult.IsError)
