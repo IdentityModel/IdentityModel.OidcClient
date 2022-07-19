@@ -11,7 +11,6 @@ namespace ConsoleClientWithBrowser
 {
     public class Program
     {
-        static string _authority = "https://demo.duendesoftware.com";
         static string _api = "https://demo.duendesoftware.com/api/test";
 
         static OidcClient _oidcClient;
@@ -38,8 +37,8 @@ namespace ConsoleClientWithBrowser
 
             var options = new OidcClientOptions
             {
-                Authority = _authority,
-                ClientId = "interactive.public",
+                Authority = "https://demo.duendesoftware.com",
+                ClientId = "interactive.public.short",
                 RedirectUri = redirectUri,
                 Scope = "openid profile api offline_access",
                 FilterClaims = false,
@@ -94,12 +93,8 @@ namespace ConsoleClientWithBrowser
 
         private static async Task NextSteps(LoginResult result)
         {
-            var currentAccessToken = result.AccessToken;
-            var currentRefreshToken = result.RefreshToken;
-
             var menu = "  x...exit  c...call api   ";
-            if (currentRefreshToken != null) menu += "r...refresh token   ";
-
+            
             while (true)
             {
                 Console.WriteLine("\n\n");
@@ -109,23 +104,6 @@ namespace ConsoleClientWithBrowser
 
                 if (key.Key == ConsoleKey.X) return;
                 if (key.Key == ConsoleKey.C) await CallApi();
-                if (key.Key == ConsoleKey.R)
-                {
-                    var refreshResult = await _oidcClient.RefreshTokenAsync(currentRefreshToken);
-                    if (refreshResult.IsError)
-                    {
-                        Console.WriteLine($"Error: {refreshResult.Error}");
-                    }
-                    else
-                    {
-                        currentRefreshToken = refreshResult.RefreshToken;
-                        currentAccessToken = refreshResult.AccessToken;
-
-                        Console.WriteLine("\n\n");
-                        Console.WriteLine($"access token:   {currentAccessToken}");
-                        Console.WriteLine($"refresh token:  {currentRefreshToken ?? "none"}");
-                    }
-                }
             }
         }
 
