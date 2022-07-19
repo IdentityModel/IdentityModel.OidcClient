@@ -91,12 +91,10 @@ namespace IdentityModel.OidcClient
         public RefreshTokenDelegatingHandler(OidcClient oidcClient, string accessToken, string refreshToken, HttpMessageHandler innerHandler = null)
         {
             _oidcClient = oidcClient ?? throw new ArgumentNullException(nameof(oidcClient));
-
+            _accessToken = accessToken;
+            
             if (refreshToken.IsMissing()) throw new ArgumentNullException(nameof(refreshToken));
             _refreshToken = refreshToken;
-
-            if (accessToken.IsMissing()) throw new ArgumentNullException(nameof(accessToken));
-            _accessToken = accessToken;
 
             if (innerHandler != null) InnerHandler = innerHandler;
         }
