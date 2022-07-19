@@ -70,14 +70,14 @@ namespace IdentityModel.OidcClient
 
             if (request == null) request = new LoginRequest();
 
-            await EnsureConfigurationAsync(cancellationToken);
+            await EnsureConfigurationAsync(cancellationToken).ConfigureAwait(false);
 
             var authorizeResult = await _authorizeClient.AuthorizeAsync(new AuthorizeRequest
             {
                 DisplayMode = request.BrowserDisplayMode,
                 Timeout = request.BrowserTimeout,
                 ExtraParameters = request.FrontChannelExtraParameters
-            }, cancellationToken);
+            }, cancellationToken).ConfigureAwait(false);
 
             if (authorizeResult.IsError)
             {
@@ -88,7 +88,7 @@ namespace IdentityModel.OidcClient
                 authorizeResult.Data,
                 authorizeResult.State,
                 request.BackChannelExtraParameters,
-                cancellationToken);
+                cancellationToken).ConfigureAwait(false);
 
             if (!result.IsError)
             {
@@ -108,7 +108,7 @@ namespace IdentityModel.OidcClient
         {
             _logger.LogTrace("PrepareLoginAsync");
 
-            await EnsureConfigurationAsync(cancellationToken);
+            await EnsureConfigurationAsync(cancellationToken).ConfigureAwait(false);
             return _authorizeClient.CreateAuthorizeState(frontChannelParameters);
         }
 
@@ -120,7 +120,7 @@ namespace IdentityModel.OidcClient
         /// <returns></returns>
         public virtual async Task<string> PrepareLogoutAsync(LogoutRequest request = default, CancellationToken cancellationToken = default)
         {
-            await EnsureConfigurationAsync(cancellationToken);
+            await EnsureConfigurationAsync(cancellationToken).ConfigureAwait(false);
 
             var endpoint = Options.ProviderInformation.EndSessionEndpoint;
             if (endpoint.IsMissing())
@@ -141,9 +141,9 @@ namespace IdentityModel.OidcClient
         {
             if (request == null) request = new LogoutRequest();
 
-            await EnsureConfigurationAsync(cancellationToken);
+            await EnsureConfigurationAsync(cancellationToken).ConfigureAwait(false);
 
-            var result = await _authorizeClient.EndSessionAsync(request, cancellationToken);
+            var result = await _authorizeClient.EndSessionAsync(request, cancellationToken).ConfigureAwait(false);
 
             if (result.ResultType != Browser.BrowserResultType.Success)
             {
@@ -181,7 +181,7 @@ namespace IdentityModel.OidcClient
             _logger.LogInformation("Processing response.");
 
             backChannelParameters = backChannelParameters ?? new Parameters();
-            await EnsureConfigurationAsync(cancellationToken);
+            await EnsureConfigurationAsync(cancellationToken).ConfigureAwait(false);
 
             _logger.LogDebug("Authorize response: {response}", data);
             var authorizeResponse = new AuthorizeResponse(data);
@@ -192,7 +192,7 @@ namespace IdentityModel.OidcClient
                 return new LoginResult(authorizeResponse.Error, authorizeResponse.ErrorDescription);
             }
 
-            var result = await _processor.ProcessResponseAsync(authorizeResponse, state, backChannelParameters, cancellationToken);
+            var result = await _processor.ProcessResponseAsync(authorizeResponse, state, backChannelParameters, cancellationToken).ConfigureAwait(false);
             if (result.IsError)
             {
                 _logger.LogError(result.Error);
@@ -202,7 +202,7 @@ namespace IdentityModel.OidcClient
             var userInfoClaims = Enumerable.Empty<Claim>();
             if (Options.LoadProfile)
             {
-                var userInfoResult = await GetUserInfoAsync(result.TokenResponse.AccessToken, cancellationToken);
+                var userInfoResult = await GetUserInfoAsync(result.TokenResponse.AccessToken, cancellationToken).ConfigureAwait(false);
                 if (userInfoResult.IsError)
                 {
                     var error = $"Error contacting userinfo endpoint: {userInfoResult.Error}";
@@ -281,7 +281,7 @@ namespace IdentityModel.OidcClient
         {
             _logger.LogTrace("GetUserInfoAsync");
 
-            await EnsureConfigurationAsync(cancellationToken);
+            await EnsureConfigurationAsync(cancellationToken).ConfigureAwait(false);
             if (accessToken.IsMissing()) throw new ArgumentNullException(nameof(accessToken));
             if (!Options.ProviderInformation.SupportsUserInfo) throw new InvalidOperationException("No userinfo endpoint specified");
 
@@ -323,7 +323,7 @@ namespace IdentityModel.OidcClient
         {
             _logger.LogTrace("RefreshTokenAsync");
 
-            await EnsureConfigurationAsync(cancellationToken);
+            await EnsureConfigurationAsync(cancellationToken).ConfigureAwait(false);
             backChannelParameters = backChannelParameters ?? new Parameters();
             
             var client = Options.CreateClient();
@@ -350,7 +350,7 @@ namespace IdentityModel.OidcClient
 
             // validate token response
             var validationResult = await _processor.ValidateTokenResponseAsync(response, null, requireIdentityToken: Options.Policy.RequireIdentityTokenOnRefreshTokenResponse,
-                cancellationToken: cancellationToken);
+                cancellationToken: cancellationToken).ConfigureAwait(false);
             if (validationResult.IsError)
             {
                 return new RefreshTokenResult { Error = validationResult.Error };
@@ -368,7 +368,7 @@ namespace IdentityModel.OidcClient
 
         internal async Task EnsureConfigurationAsync(CancellationToken cancellationToken)
         {
-            await EnsureProviderInformationAsync(cancellationToken);
+            await EnsureProviderInformationAsync(cancellationToken).ConfigureAwait(false);
 
             _logger.LogTrace("Effective options:");
             _logger.LogTrace(LogSerializer.Serialize(Options));
