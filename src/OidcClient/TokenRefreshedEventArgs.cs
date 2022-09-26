@@ -17,11 +17,12 @@ namespace IdentityModel.OidcClient
         /// <param name="accessToken">The access token.</param>
         /// <param name="refreshToken">The refresh token.</param>
         /// <param name="expiresIn">The expires in.</param>
-        public TokenRefreshedEventArgs(string accessToken, string refreshToken, int expiresIn)
+        public TokenRefreshedEventArgs(string accessToken, string refreshToken, int expiresIn, string identityToken = null)
         {
             AccessToken = accessToken;
             RefreshToken = refreshToken;
             ExpiresIn = expiresIn;
+            IdentityToken = identityToken;
         }
 
         /// <summary>
@@ -47,5 +48,13 @@ namespace IdentityModel.OidcClient
         /// The expires in.
         /// </value>
         public int ExpiresIn { get; }
+
+        /// <summary>
+        /// Gets the identity token.
+        /// </summary>
+        /// <value>
+        /// The identity token.
+        /// </value>
+        public string IdentityToken { get; }
     }
 }
