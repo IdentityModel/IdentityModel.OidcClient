@@ -17,6 +17,7 @@ namespace IdentityModel.OidcClient
         /// <param name="accessToken">The access token.</param>
         /// <param name="refreshToken">The refresh token.</param>
         /// <param name="expiresIn">The expires in.</param>
+        /// <param name="identityToken">The identity token (optional).</param>
         public TokenRefreshedEventArgs(string accessToken, string refreshToken, int expiresIn, string identityToken = null)
         {
             AccessToken = accessToken;
