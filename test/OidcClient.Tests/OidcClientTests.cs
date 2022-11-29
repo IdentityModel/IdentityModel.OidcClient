@@ -41,13 +41,13 @@ namespace IdentityModel.OidcClient.Tests
                             Assert.Contains($"scope={scope}", content);
                             return new HttpResponseMessage
                                 {
-                                    Content = new StringContent(@"{
+                                    Content = new StringContent($@"{{
   ""access_token"": ""23af3183-a712-40c7-86f8-d784705c8a78"",
   ""refresh_token"": ""23af3183-a712-40c7-86f8-d784705c8a79"",
   ""expires_in"": 3600,
   ""token_type"": ""Bearer"",
-  ""scope"": ""test""
-}")
+  ""scope"": ""{scope}""
+}}")
                                 };
                         }
                     });
