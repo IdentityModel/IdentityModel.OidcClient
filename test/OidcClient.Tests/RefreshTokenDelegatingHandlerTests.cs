@@ -244,7 +244,8 @@ namespace IdentityModel.OidcClient.Tests
 
             public override async Task<RefreshTokenResult> RefreshTokenAsync(string refreshToken,
                 Parameters backChannelParameters = null,
-                CancellationToken cancellationToken = default)
+                CancellationToken cancellationToken = default,
+                string scope = null)
             {
                 var newTokens = _tokens.RefreshUsing(refreshToken);
 
