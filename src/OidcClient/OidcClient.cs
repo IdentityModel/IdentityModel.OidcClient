@@ -312,16 +312,16 @@ namespace IdentityModel.OidcClient
         /// </summary>
         /// <param name="refreshToken">The refresh token.</param>
         /// <param name="backChannelParameters">Back-channel parameters</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
         /// <param name="scope">Space separated list of the requested scopes.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// A token response.
         /// </returns>
         public virtual async Task<RefreshTokenResult> RefreshTokenAsync(
             string refreshToken, 
-            Parameters backChannelParameters = null, 
-            CancellationToken cancellationToken = default,
-            string scope = null)
+            Parameters backChannelParameters = null,
+            string scope = null,
+            CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("RefreshTokenAsync");
 
