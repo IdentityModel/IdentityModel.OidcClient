@@ -32,15 +32,28 @@ namespace IdentityModel.OidcClient
             _crypto = new CryptoHelper(options);
         }
 
+        // TODO remove
+        public string BeginAuthorization(Parameters extraParameters = null)
+        {
+            _logger.LogTrace("AuthorizeAsync");
+
+            if (extraParameters == null)
+            {
+                extraParameters= new Parameters();
+            }
+
+            AuthorizeResult result = new AuthorizeResult
+            {
+                State = CreateAuthorizeState(extraParameters)
+            };
+
+            return result.State.StartUrl;
+        }
+
         public async Task<AuthorizeResult> AuthorizeAsync(AuthorizeRequest request,
             CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("AuthorizeAsync");
-
-            if (_options.Browser == null)
-            {
-                throw new InvalidOperationException("No browser configured.");
-            }
 
             AuthorizeResult result = new AuthorizeResult
             {
@@ -53,7 +66,7 @@ namespace IdentityModel.OidcClient
                 DisplayMode = request.DisplayMode
             };
 
-            var browserResult = await _options.Browser.InvokeAsync(browserOptions, cancellationToken);
+            var browserResult = await _options.Browser.InvokeAsync(browserOptions, cancellationToken);  
 
             if (browserResult.ResultType == BrowserResultType.Success)
             {

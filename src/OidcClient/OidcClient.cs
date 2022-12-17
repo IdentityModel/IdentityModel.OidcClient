@@ -60,42 +60,31 @@ namespace IdentityModel.OidcClient
         /// <summary>
         /// Starts a login.
         /// </summary>
-        /// <param name="request">The login request.</param>
         /// <param name="cancellationToken">A token that can be used to cancel the request</param>
         /// <returns></returns>
-        public virtual async Task<LoginResult> LoginAsync(LoginRequest request = null, CancellationToken cancellationToken = default)
+        public virtual async Task<string> GetRedirectionUrl(CancellationToken cancellationToken = default) // TODO LoginResult
         {
             _logger.LogTrace("LoginAsync");
             _logger.LogInformation("Starting authentication request.");
 
-            if (request == null) request = new LoginRequest();
-
             await EnsureConfigurationAsync(cancellationToken);
+            return _authorizeClient.BeginAuthorization();
 
-            var authorizeResult = await _authorizeClient.AuthorizeAsync(new AuthorizeRequest
-            {
-                DisplayMode = request.BrowserDisplayMode,
-                Timeout = request.BrowserTimeout,
-                ExtraParameters = request.FrontChannelExtraParameters
-            }, cancellationToken);
+            //if (authorizeResult.IsError)
+            //{
+            //    return new LoginResult(authorizeResult.Error, authorizeResult.ErrorDescription);
+            //}
 
-            if (authorizeResult.IsError)
-            {
-                return new LoginResult(authorizeResult.Error, authorizeResult.ErrorDescription);
-            }
+            //var result = await ProcessResponseAsync(
+            //    authorizeResult.Data,
+            //    authorizeResult.State,
+            //    request.BackChannelExtraParameters,
+            //    cancellationToken);
 
-            var result = await ProcessResponseAsync(
-                authorizeResult.Data,
-                authorizeResult.State,
-                request.BackChannelExtraParameters,
-                cancellationToken);
-
-            if (!result.IsError)
-            {
-                _logger.LogInformation("Authentication request success.");
-            }
-
-            return result;
+            //if (!result.IsError)
+            //{
+            //    _logger.LogInformation("Authentication request success.");
+            //}
         }
         
         /// <summary>

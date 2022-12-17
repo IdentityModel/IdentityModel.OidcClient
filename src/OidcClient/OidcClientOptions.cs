@@ -103,6 +103,7 @@ namespace IdentityModel.OidcClient
         /// <value>
         /// The browser.
         /// </value>
+        [Obsolete]
         [JsonIgnore]
         public IBrowser Browser { get; set; }
 
