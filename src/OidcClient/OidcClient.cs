@@ -14,6 +14,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
+using System.Xml.Linq;
 
 namespace IdentityModel.OidcClient
 {
@@ -62,7 +64,7 @@ namespace IdentityModel.OidcClient
         /// </summary>
         /// <param name="cancellationToken">A token that can be used to cancel the request</param>
         /// <returns></returns>
-        public virtual async Task<string> GetRedirectionUrl(CancellationToken cancellationToken = default) // TODO LoginResult
+        public virtual async Task<string> InitiateLogin(CancellationToken cancellationToken = default) // TODO LoginResult
         {
             _logger.LogTrace("LoginAsync");
             _logger.LogInformation("Starting authentication request.");
@@ -86,7 +88,38 @@ namespace IdentityModel.OidcClient
             //    _logger.LogInformation("Authentication request success.");
             //}
         }
-        
+
+        public virtual async Task<LoginResult> CompleteLogin(string code, string scope,
+            string state, string sessionState, string iss, CancellationToken cancellationToken = default)
+        {
+            string data = $"?code={HttpUtility.UrlEncode(code)}&scope={HttpUtility.UrlEncode(scope)}&state={HttpUtility.UrlEncode(state)}" +
+                $"&session_state={HttpUtility.UrlEncode(sessionState)}&iss={HttpUtility.UrlEncode(iss)}";
+
+            /*CryptoHelper crypto = new CryptoHelper(Options);
+            var pkce = crypto.CreatePkceData();
+
+            var authorizeState = new AuthorizeState
+            {
+                State = crypto.CreateState(Options.StateLength),
+                RedirectUri = Options.RedirectUri,
+                CodeVerifier = pkce.CodeVerifier,
+                StartUrl
+            };*/
+            await EnsureConfigurationAsync(cancellationToken);
+            var authorizeState = _authorizeClient.CreateAuthorizeState(new Parameters());
+            var result = await ProcessResponseAsync(
+                    data, AuthorizeClient.result?.State ?? authorizeState,
+                    new Parameters(), // TODO fix request.BackChannelExtraParameters,
+                    cancellationToken);
+
+            if (!result.IsError)
+            {
+                _logger.LogInformation("Authentication request success.");
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// Prepares the login request.
         /// </summary>

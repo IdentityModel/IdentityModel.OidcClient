@@ -23,17 +23,31 @@ namespace ApiClient.Controllers
                 IdentityTokenValidator = new JwtHandlerIdentityTokenValidator(),
                 RefreshTokenInnerHttpHandler = new SocketsHttpHandler()
             };
-             OidcClient oidcClient = new OidcClient(options);
-            var redirectionUrl = await oidcClient.GetRedirectionUrl();
+            OidcClient oidcClient = new OidcClient(options);
+            var redirectionUrl = await oidcClient.InitiateLogin();
 
             return Redirect(redirectionUrl);
         }
 
         [HttpGet]
         [Route("callback")]
-        public async Task<IActionResult> AuthenticationCallback()
+        public async Task<IActionResult> AuthenticationCallback([FromQuery] string code, [FromQuery] string scope, 
+            [FromQuery] string state, [FromQuery(Name = "session_state")] string sessionState, [FromQuery] string iss)
         {
-            return new EmptyResult();
+            var options = new OidcClientOptions
+            {
+                Authority = "https://demo.duendesoftware.com",
+                ClientId = "interactive.public.short",
+                RedirectUri = "https://localhost:7088/api/auth/callback",
+                Scope = "openid profile api offline_access",
+                FilterClaims = false,
+
+                IdentityTokenValidator = new JwtHandlerIdentityTokenValidator(),
+                RefreshTokenInnerHttpHandler = new SocketsHttpHandler()
+            };
+            OidcClient oidcClient = new OidcClient(options);
+            await oidcClient.CompleteLogin(code, scope, state, sessionState, iss);
+            return new OkObjectResult(code);
         }
     }
 }

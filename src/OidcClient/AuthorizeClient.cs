@@ -42,7 +42,7 @@ namespace IdentityModel.OidcClient
                 extraParameters= new Parameters();
             }
 
-            AuthorizeResult result = new AuthorizeResult
+             result = new AuthorizeResult
             {
                 State = CreateAuthorizeState(extraParameters)
             };
@@ -50,12 +50,14 @@ namespace IdentityModel.OidcClient
             return result.State.StartUrl;
         }
 
+        public static AuthorizeResult result;
+
         public async Task<AuthorizeResult> AuthorizeAsync(AuthorizeRequest request,
             CancellationToken cancellationToken = default)
         {
             _logger.LogTrace("AuthorizeAsync");
 
-            AuthorizeResult result = new AuthorizeResult
+            result = new AuthorizeResult
             {
                 State = CreateAuthorizeState(request.ExtraParameters)
             };
