@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace IdentityModel.OidcClient
 {
@@ -18,10 +19,11 @@ namespace IdentityModel.OidcClient
     {
         private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
         private readonly OidcClient _oidcClient;
+        private readonly ILogger _logger;
 
         private string _accessToken;
         private string _refreshToken;
-        
+
         private bool _disposed;
 
         /// <summary>
@@ -92,7 +94,9 @@ namespace IdentityModel.OidcClient
         {
             _oidcClient = oidcClient ?? throw new ArgumentNullException(nameof(oidcClient));
             _accessToken = accessToken;
-            
+
+            _logger = _oidcClient.Options.LoggerFactory.CreateLogger<RefreshTokenDelegatingHandler>();
+
             if (refreshToken.IsMissing()) throw new ArgumentNullException(nameof(refreshToken));
             _refreshToken = refreshToken;
 
@@ -189,6 +193,8 @@ namespace IdentityModel.OidcClient
 
                         return true;
                     }
+
+                    _logger.LogError($"Failed on RefreshTokensAsync: {response.Error} - {response.ErrorDescription}");
                 }
                 finally
                 {
