@@ -167,7 +167,7 @@ namespace IdentityModel.OidcClient
 
                 try
                 {
-                    var response = await _oidcClient.RefreshTokenAsync(_refreshToken, cancellationToken: cancellationToken).ConfigureAwait(false);
+                    var response = await _oidcClient.RefreshTokenAsync(_refreshToken, null, _oidcClient.Options.Scope, cancellationToken: cancellationToken).ConfigureAwait(false);
 
                     if (!response.IsError)
                     {
