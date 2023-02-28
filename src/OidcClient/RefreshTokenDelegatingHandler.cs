@@ -167,7 +167,11 @@ namespace IdentityModel.OidcClient
 
                 try
                 {
-                    var response = await _oidcClient.RefreshTokenAsync(_refreshToken, cancellationToken: cancellationToken).ConfigureAwait(false);
+                    var response = await _oidcClient.RefreshTokenAsync(
+                        _refreshToken,
+                        backChannelParameters: null,
+                        scope: null,
+                        cancellationToken: cancellationToken).ConfigureAwait(false);
 
                     if (!response.IsError)
                     {
@@ -194,7 +198,7 @@ namespace IdentityModel.OidcClient
                         return true;
                     }
 
-                    _logger.LogError($"Failed on RefreshTokensAsync: {response.Error} - {response.ErrorDescription}");
+                    _logger.LogError("Failed on RefreshTokensAsync: {error} - {description}", response.Error, response.ErrorDescription);
                 }
                 finally
                 {
