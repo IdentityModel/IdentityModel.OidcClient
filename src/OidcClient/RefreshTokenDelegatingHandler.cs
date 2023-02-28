@@ -194,7 +194,7 @@ namespace IdentityModel.OidcClient
                         return true;
                     }
 
-                    _logger.LogError($"Failed on RefreshTokensAsync: {response.Error} - {response.ErrorDescription}");
+                    _logger.LogError("Failed on RefreshTokensAsync: {error} - {description}", response.Error, response.ErrorDescription);
                 }
                 finally
                 {
