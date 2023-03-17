@@ -7,7 +7,7 @@
         <TargetFramework>netstandard2.0</TargetFramework>
     
         <PackageTags>OAuth2;OAuth 2.0;OpenID Connect;Security;Identity;IdentityServer</PackageTags>
-        <Description>Identity token validator for IdentityModeo.OidcClient ased on the Microsoft JWT handler</Description>
+        <Description>Identity token validator for IdentityModeo.OidcClient based on the Microsoft JWT handler</Description>
         <Authors>Dominick Baier;Brock Allen</Authors>
         <PackageIcon>icon.jpg</PackageIcon>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
