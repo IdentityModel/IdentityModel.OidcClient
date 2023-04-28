@@ -9,15 +9,15 @@ namespace IdentityModel.DPoP
         /// <summary>
         /// Creates a new RSA JWK.
         /// </summary>
-        // public static JsonWebKey CreateRsa(int size = 2048, string algorithm = OidcConstants.Algorithms.Asymmetric.PS256)
-        // {
-        //     var rsaKey = new RsaSecurityKey(RSA.Create(size));
-        //
-        //     var jwk = JsonWebKeyConverter.ConvertFromSecurityKey(rsaKey);
-        //     jwk.Alg = algorithm;
-        //
-        //     return jwk;
-        // }
+        public static JsonWebKey CreateRsa(string algorithm = OidcConstants.Algorithms.Asymmetric.PS256)
+        {
+            var rsaKey = new RsaSecurityKey(RSA.Create());
+        
+            var jwk = JsonWebKeyConverter.ConvertFromSecurityKey(rsaKey);
+            jwk.Alg = algorithm;
+        
+            return jwk;
+        }
         
         /// <summary>
         /// Creates a new ECDSA JWK.
