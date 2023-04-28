@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityTokenValidator", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JwtValidationTests", "test\JwtValidationTests\JwtValidationTests.csproj", "{927224F5-C4B6-404F-8028-60E867D8D24C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DPoP", "src\DPoP\DPoP.csproj", "{56EC3A58-33FE-4DCD-9D64-2A985DC58C2C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{927224F5-C4B6-404F-8028-60E867D8D24C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{927224F5-C4B6-404F-8028-60E867D8D24C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{927224F5-C4B6-404F-8028-60E867D8D24C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56EC3A58-33FE-4DCD-9D64-2A985DC58C2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56EC3A58-33FE-4DCD-9D64-2A985DC58C2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56EC3A58-33FE-4DCD-9D64-2A985DC58C2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56EC3A58-33FE-4DCD-9D64-2A985DC58C2C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -55,6 +61,7 @@ Global
 		{D8307A14-403E-48A4-870F-88CF9FE8CACA} = {A4154BEB-4B4A-4A48-B75D-B52432304F36}
 		{B5E03BAE-BDB8-4516-AE1A-F9F262C87DE8} = {0B7CC363-CF34-4B40-A769-7E928A6B25AF}
 		{927224F5-C4B6-404F-8028-60E867D8D24C} = {3DEB81D4-5B40-4D20-AC50-66D1CD6EA24A}
+		{56EC3A58-33FE-4DCD-9D64-2A985DC58C2C} = {0B7CC363-CF34-4B40-A769-7E928A6B25AF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {66951C2E-691F-408C-9283-F2455F390A9A}
