@@ -6,6 +6,7 @@
         <AssemblyName>IdentityModel.OidcClient.DPoP</AssemblyName>
 
         <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
 
         <PackageTags>OAuth2;OAuth 2.0;OpenID Connect;Security;Identity;IdentityServer</PackageTags>
         <Description>DPoP extensions for IdentityModel.OidcClient</Description>
@@ -37,8 +38,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="IdentityModel" Version="5.2.0" />
+        <PackageReference Include="IdentityModel" Version="6.1.0" />
         <PackageReference Include="minver" Version="3.0.0-alpha.1" PrivateAssets="All" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.30.0" />
 
         <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
