@@ -10,6 +10,9 @@ namespace DPoPTests;
 public class ApiHost : GenericHost
 {
     private readonly IdentityServerHost _identityServerHost;
+
+    public bool ValidateNonce { get; set; }
+
     public event Action<Microsoft.AspNetCore.Http.HttpContext> ApiInvoked = ctx => { };
         
     public ApiHost(IdentityServerHost identityServerHost, string baseAddress = "https://api") 
@@ -37,6 +40,7 @@ public class ApiHost : GenericHost
         services.ConfigureDPoPTokensForScheme("token", options =>
         {
             options.ClientClockSkew = TimeSpan.FromMinutes(1);
+            options.ValidateNonce = ValidateNonce;
         });
     }
 
