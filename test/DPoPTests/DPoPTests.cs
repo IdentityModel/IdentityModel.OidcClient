@@ -67,7 +67,7 @@ public class DPoPTest : IntegrationTestBase
     {
         _client.DPoPValidationMode = DPoPTokenExpirationValidationMode.Nonce;
 
-        var handler = new TokenEndpointMessageHandler(_jwkJson, IdentityServerHost.Server.CreateHandler());
+        var handler = new ProofTokenMessageHandler(_jwkJson, IdentityServerHost.Server.CreateHandler());
         var client = new HttpClient(handler);
 
         var tokenResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest

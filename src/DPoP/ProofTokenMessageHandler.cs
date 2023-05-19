@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 using System;
-using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,7 +15,6 @@ public class ProofTokenMessageHandler : DelegatingHandler
 {
     private readonly DPoPProofTokenFactory _proofTokenFactory;
     private string? _nonce;
-    private HttpStatusCode _retryStatusCode = HttpStatusCode.Unauthorized;
 
     /// <summary>
     /// Constructor
@@ -25,14 +23,6 @@ public class ProofTokenMessageHandler : DelegatingHandler
     {
         _proofTokenFactory = new DPoPProofTokenFactory(proofKey);
         InnerHandler = innerHandler ?? throw new ArgumentNullException(nameof(innerHandler));
-    }
-
-    /// <summary>
-    /// Constructor that allows controlling upon which HTTP status code to retry with the DPoP nonce.
-    /// </summary>
-    protected ProofTokenMessageHandler(string proofKey, HttpMessageHandler innerHandler, HttpStatusCode retryStatusCode) : this(proofKey, innerHandler)
-    {
-        _retryStatusCode = retryStatusCode;
     }
 
     /// <inheritdoc/>
@@ -44,16 +34,18 @@ public class ProofTokenMessageHandler : DelegatingHandler
 
         var dPoPNonce = response.GetDPoPNonce();
 
-        if (dPoPNonce != null)
+        if (dPoPNonce != _nonce)
         {
+            // nonce is different, so old onto it
             _nonce = dPoPNonce;
 
-            // retry?
-            if (response.StatusCode == _retryStatusCode)
+            // failure and nonce was differnet so we retry
+            if (!response.IsSuccessStatusCode)
             {
                 response.Dispose();
 
                 CreateProofToken(request);
+
                 response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
             }
         }
