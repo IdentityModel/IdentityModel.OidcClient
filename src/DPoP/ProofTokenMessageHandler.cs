@@ -63,7 +63,7 @@ public class ProofTokenMessageHandler : DelegatingHandler
         };
 
         if (request.Headers.Authorization != null &&
-            OidcConstants.AuthenticationSchemes.AuthorizationHeaderBearer.Equals(request.Headers.Authorization.Scheme, StringComparison.OrdinalIgnoreCase))
+            OidcConstants.AuthenticationSchemes.AuthorizationHeaderDPoP.Equals(request.Headers.Authorization.Scheme, StringComparison.OrdinalIgnoreCase))
         {
             proofRequest.AccessToken = request.Headers.Authorization.Parameter;
         }

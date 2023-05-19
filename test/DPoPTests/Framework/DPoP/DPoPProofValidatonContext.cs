@@ -25,7 +25,7 @@ public class DPoPProofValidatonContext
     public string ProofToken { get; set; }
 
     /// <summary>
-    /// The validated claims from the access token
+    /// The access token
     /// </summary>
-    public IEnumerable<Claim> AccessTokenClaims { get; set; }
+    public string AccessToken { get; set; }
 }
