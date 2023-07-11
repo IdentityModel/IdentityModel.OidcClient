@@ -4,14 +4,14 @@
     <PackageId>IdentityModel.OidcClient</PackageId>
     <RootNamespace>IdentityModel.OidcClient</RootNamespace>
     <AssemblyName>IdentityModel.OidcClient</AssemblyName>
-    
-    <TargetFramework>netstandard2.0</TargetFramework>
-    
+
+    <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
+
     <PackageTags>OAuth2;OAuth 2.0;OpenID Connect;Security;Identity;IdentityServer</PackageTags>
     <Description>RFC8252 compliant and certified OpenID Connect and OAuth 2.0 client library for native applications</Description>
     <Authors>Dominick Baier;Brock Allen</Authors>
     <PackageIcon>icon.jpg</PackageIcon>
-    
+
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
@@ -24,12 +24,14 @@
     <!-- Recommended: Embed symbols containing Source Link in the main file (exe/dll) -->
     <DebugType>embedded</DebugType>
 
+    <!-- Enable Trimming Warnings to allow consumers to publish as trimmed -->
+    <IsTrimmable>true</IsTrimmable>
+
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">True</ContinuousIntegrationBuild>
-    
+
     <AssemblyOriginatorKeyFile>../../key.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
-    
   </PropertyGroup>
 
    <ItemGroup>
