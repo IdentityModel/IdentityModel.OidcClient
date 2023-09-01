@@ -6,6 +6,7 @@
     <AssemblyName>IdentityModel.OidcClient</AssemblyName>
 
     <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
 
     <PackageTags>OAuth2;OAuth 2.0;OpenID Connect;Security;Identity;IdentityServer</PackageTags>
     <Description>RFC8252 compliant and certified OpenID Connect and OAuth 2.0 client library for native applications</Description>
@@ -41,9 +42,17 @@
   <ItemGroup>
     <PackageReference Include="IdentityModel" Version="5.2.0" />
     <PackageReference Include="minver" Version="3.0.0-alpha.1" PrivateAssets="All" />
-    
+
     <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
+
+  <!--Conditional Package references -->
+  <ItemGroup Condition="'$(TargetFramework)' != 'net6.0'">
+    <PackageReference Include="System.Text.Json" Version="6.0.8" />
+
+    <!--Force older version to prevent incompatible references -->
+    <PackageReference Include="System.Text.Encodings.Web" Version="6.0.0" /> 
+  </ItemGroup>   
 
 </Project>

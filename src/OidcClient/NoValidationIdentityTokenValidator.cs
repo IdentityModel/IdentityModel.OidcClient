@@ -27,12 +27,8 @@ namespace IdentityModel.OidcClient
             }
 
             var payload = Encoding.UTF8.GetString((Base64Url.Decode(parts[1])));
-#if NET5_0_OR_GREATER
-            var values = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(
+            var values = JsonSerializer.Deserialize(
                 payload, SourceGenerationContext.Default.DictionaryStringJsonElement);
-#else
-            var values = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(payload);
-#endif
 
             var claims = new List<Claim>();
             foreach (var element in values)

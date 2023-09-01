@@ -3,9 +3,7 @@
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
-#if NET5_0_OR_GREATER
 using System.Text.Json.Serialization.Metadata;
-#endif
 
 namespace IdentityModel.OidcClient.Infrastructure
 {
@@ -21,9 +19,11 @@ namespace IdentityModel.OidcClient.Infrastructure
         public static bool Enabled = true;
 
         static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions()
-        {
-            IgnoreNullValues = true,
-            WriteIndented = true
+		{
+#pragma warning disable SYSLIB0020 // Type or member is obsolete
+			IgnoreNullValues = true,
+#pragma warning restore SYSLIB0020 // Type or member is obsolete
+			WriteIndented = true
         };
 
         static LogSerializer()
@@ -38,11 +38,9 @@ namespace IdentityModel.OidcClient.Infrastructure
         /// <returns></returns>
         public static string Serialize<T>(T logObject)
         {
-#if NET5_0_OR_GREATER
-            return Enabled ? JsonSerializer.Serialize(logObject, (JsonTypeInfo<T>)SourceGenerationContext.Default.GetTypeInfo(typeof(T))) : "Logging has been disabled";
-#else
-            return Enabled ? JsonSerializer.Serialize(logObject, JsonOptions) : "Logging has been disabled";
-#endif
+            return Enabled ?
+                JsonSerializer.Serialize(logObject, (JsonTypeInfo<T>)SourceGenerationContext.Default.GetTypeInfo(typeof(T))) :
+                "Logging has been disabled";
 		}
     }
 }
