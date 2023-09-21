@@ -20,6 +20,7 @@ namespace DPoPTests;
 
 public class DPoPTest : IntegrationTestBase
 {
+    
     private static readonly string _jwkJson;
     private Client _client;
 
