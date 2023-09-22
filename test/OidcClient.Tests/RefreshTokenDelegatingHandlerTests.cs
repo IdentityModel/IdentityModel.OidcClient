@@ -36,7 +36,7 @@ namespace IdentityModel.OidcClient.Tests
                 new TestableOidcTokenRefreshClient(tokens, TimeSpan.Zero), 
                 tokens.InitialAccessToken, 
                 tokens.InitialRefreshToken,
-                new TestServer(tokens, TimeSpan.Zero));
+                innerHandler: new TestServer(tokens, TimeSpan.Zero));
 
             using (var client = new TestClient(handlerUnderTest))
             {
@@ -63,7 +63,7 @@ namespace IdentityModel.OidcClient.Tests
                 new TestableOidcTokenRefreshClient(tokens, 2.Milliseconds()),
                 tokens.InitialAccessToken,
                 tokens.InitialRefreshToken,
-                new TestServer(tokens, 0.Milliseconds()));
+                innerHandler: new TestServer(tokens, 0.Milliseconds()));
 
             using (var client = new TestClient(handlerUnderTest))
             {

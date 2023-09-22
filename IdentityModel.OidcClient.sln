@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29519.87
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{0B7CC363-CF34-4B40-A769-7E928A6B25AF}"
 EndProject
@@ -15,13 +15,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OidcClient.Tests", "test\Oi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleClientWithBrowser", "clients\ConsoleClientWithBrowser\ConsoleClientWithBrowser.csproj", "{D8307A14-403E-48A4-870F-88CF9FE8CACA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityTokenValidator", "src\IdentityTokenValidator\IdentityTokenValidator.csproj", "{B5E03BAE-BDB8-4516-AE1A-F9F262C87DE8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityTokenValidator", "src\IdentityTokenValidator\IdentityTokenValidator.csproj", "{B5E03BAE-BDB8-4516-AE1A-F9F262C87DE8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JwtValidationTests", "test\JwtValidationTests\JwtValidationTests.csproj", "{927224F5-C4B6-404F-8028-60E867D8D24C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JwtValidationTests", "test\JwtValidationTests\JwtValidationTests.csproj", "{927224F5-C4B6-404F-8028-60E867D8D24C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DPoP", "src\DPoP\DPoP.csproj", "{56EC3A58-33FE-4DCD-9D64-2A985DC58C2C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DPoP", "src\DPoP\DPoP.csproj", "{56EC3A58-33FE-4DCD-9D64-2A985DC58C2C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DPoPTests", "test\DPoPTests\DPoPTests.csproj", "{0E1807AF-4142-4A3D-925C-BBA019E4E777}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DPoPTests", "test\DPoPTests\DPoPTests.csproj", "{0E1807AF-4142-4A3D-925C-BBA019E4E777}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleClientWithBrowserAndDPoP", "clients\ConsoleClientWithBrowserAndDPoP\ConsoleClientWithBrowserAndDPoP.csproj", "{7DDDA872-49C0-43F0-8B88-2531BF828DDE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +59,10 @@ Global
 		{0E1807AF-4142-4A3D-925C-BBA019E4E777}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E1807AF-4142-4A3D-925C-BBA019E4E777}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E1807AF-4142-4A3D-925C-BBA019E4E777}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7DDDA872-49C0-43F0-8B88-2531BF828DDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DDDA872-49C0-43F0-8B88-2531BF828DDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DDDA872-49C0-43F0-8B88-2531BF828DDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DDDA872-49C0-43F0-8B88-2531BF828DDE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -69,6 +75,7 @@ Global
 		{927224F5-C4B6-404F-8028-60E867D8D24C} = {3DEB81D4-5B40-4D20-AC50-66D1CD6EA24A}
 		{56EC3A58-33FE-4DCD-9D64-2A985DC58C2C} = {0B7CC363-CF34-4B40-A769-7E928A6B25AF}
 		{0E1807AF-4142-4A3D-925C-BBA019E4E777} = {3DEB81D4-5B40-4D20-AC50-66D1CD6EA24A}
+		{7DDDA872-49C0-43F0-8B88-2531BF828DDE} = {A4154BEB-4B4A-4A48-B75D-B52432304F36}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {66951C2E-691F-408C-9283-F2455F390A9A}

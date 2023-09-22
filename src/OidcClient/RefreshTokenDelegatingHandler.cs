@@ -22,6 +22,7 @@ namespace IdentityModel.OidcClient
         private readonly ILogger _logger;
 
         private string _accessToken;
+        private string _accessTokenType;
         private string _refreshToken;
 
         private bool _disposed;
@@ -88,12 +89,14 @@ namespace IdentityModel.OidcClient
         /// <param name="oidcClient">The oidc client.</param>
         /// <param name="accessToken">The access token.</param>
         /// <param name="refreshToken">The refresh token.</param>
+        /// <param name="tokenType">The token type.</param>
         /// <param name="innerHandler">The inner handler.</param>
         /// <exception cref="ArgumentNullException">oidcClient</exception>
-        public RefreshTokenDelegatingHandler(OidcClient oidcClient, string accessToken, string refreshToken, HttpMessageHandler innerHandler = null)
+        public RefreshTokenDelegatingHandler(OidcClient oidcClient, string accessToken, string refreshToken, string tokenType = "Bearer", HttpMessageHandler innerHandler = null)
         {
             _oidcClient = oidcClient ?? throw new ArgumentNullException(nameof(oidcClient));
             _accessToken = accessToken;
+            _accessTokenType = tokenType;
 
             _logger = _oidcClient.Options.LoggerFactory.CreateLogger<RefreshTokenDelegatingHandler>();
 
@@ -122,7 +125,7 @@ namespace IdentityModel.OidcClient
                 }
             }
 
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+            request.Headers.Authorization = new AuthenticationHeaderValue(_accessTokenType, AccessToken);
             var response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
             if (response.StatusCode != HttpStatusCode.Unauthorized)
@@ -137,7 +140,7 @@ namespace IdentityModel.OidcClient
 
             response.Dispose(); // This 401 response will not be used for anything so is disposed to unblock the socket.
 
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+            request.Headers.Authorization = new AuthenticationHeaderValue(_accessTokenType, AccessToken);
             return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
         }
 
