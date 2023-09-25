@@ -6,20 +6,17 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Serilog.Sinks.SystemConsole.Themes;
-using Microsoft.IdentityModel.Tokens;
-using IdentityModel;
-using System.Security.Cryptography;
 using IdentityModel.DPoP;
 
 namespace ConsoleClientWithBrowserAndDPoP
 {
     public class Program
     {
-        //static string _api = "https://demo.duendesoftware.com/api/dpop/test";
-        static string _api = "https://localhost:5002/api/dpop/test";
+        static string _api = "https://demo.duendesoftware.com/api/dpop/test";
+        //static string _api = "https://localhost:5002/api/dpop/test";
         
-        //static string authority = "https://demo.duendesoftware.com";
-        static string authority = "https://localhost:5001";
+        static string authority = "https://demo.duendesoftware.com";
+        //static string authority = "https://localhost:5001";
 
         static OidcClient _oidcClient;
         static HttpClient _apiClient = new HttpClient { BaseAddress = new Uri(_api) };
@@ -43,27 +40,19 @@ namespace ConsoleClientWithBrowserAndDPoP
             var browser = new SystemBrowser();
             string redirectUri = string.Format($"http://127.0.0.1:{browser.Port}");
 
-            var key = new RsaSecurityKey(RSA.Create(2048))
-            {
-                KeyId = CryptoRandom.CreateUniqueId(16, CryptoRandom.OutputFormat.Hex)
-            };
-            var jwk = JsonWebKeyConverter.ConvertFromRSASecurityKey(key);
-            jwk.Alg = "RS256";
-            var jwkJson = JsonSerializer.Serialize(jwk);
-            var tokenDpopHandler = new ProofTokenMessageHandler(jwkJson, new SocketsHttpHandler());
-            var apiDpopHandler = new ProofTokenMessageHandler(jwkJson, new SocketsHttpHandler());
+            var proofKey = JsonWebKeys.CreateRsaJson();
+            var tokenDpopHandler = new ProofTokenMessageHandler(proofKey, new SocketsHttpHandler());
+            var apiDpopHandler = new ProofTokenMessageHandler(proofKey, new SocketsHttpHandler());
 
             var options = new OidcClientOptions
             {
                 Authority = authority,
-                //ClientId = "interactive.public.short",
-                ClientId = "dpop.native",
+                ClientId = "native.dpop",
                 RedirectUri = redirectUri,
                 Scope = "openid profile api offline_access",
                 FilterClaims = false,
-
                 Browser = browser,
-                IdentityTokenValidator = new JwtHandlerIdentityTokenValidator(),
+                
                 BackchannelHandler = tokenDpopHandler,
                 RefreshTokenInnerHttpHandler = apiDpopHandler
             };

@@ -3,6 +3,7 @@
 
 using System;
 using System.Security.Cryptography;
+using System.Text.Json;
 using Microsoft.IdentityModel.Tokens;
 
 namespace IdentityModel.DPoP;
@@ -26,6 +27,14 @@ public static class JsonWebKeys
     }
     
     /// <summary>
+    /// Creates a new RSA JWK string.
+    /// </summary>
+    public static string CreateRsaJson(string algorithm = OidcConstants.Algorithms.Asymmetric.PS256)
+    {
+        return JsonSerializer.Serialize(CreateRsa(algorithm));
+    }
+    
+    /// <summary>
     /// Creates a new ECDSA JWK.
     /// </summary>
     public static JsonWebKey CreateECDsa(string algorithm = OidcConstants.Algorithms.Asymmetric.ES256)
@@ -37,6 +46,14 @@ public static class JsonWebKeys
         jwk.Alg = algorithm;
     
         return jwk;
+    }
+    
+    /// <summary>
+    /// Creates a new ECDSA JWK string.
+    /// </summary>
+    public static string CreateECDsaJson(string algorithm = OidcConstants.Algorithms.Asymmetric.ES256)
+    {
+        return JsonSerializer.Serialize(CreateECDsa(algorithm));
     }
     
     internal static string GetCurveNameFromSigningAlgorithm(string alg)
