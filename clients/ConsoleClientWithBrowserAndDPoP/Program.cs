@@ -2,6 +2,7 @@
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -12,14 +13,11 @@ namespace ConsoleClientWithBrowserAndDPoP
 {
     public class Program
     {
-        static string _api = "https://demo.duendesoftware.com/api/dpop/test";
-        //static string _api = "https://localhost:5002/api/dpop/test";
-        
-        static string authority = "https://demo.duendesoftware.com";
-        //static string authority = "https://localhost:5001";
+        static readonly string Api = "https://demo.duendesoftware.com/api/dpop/test";
+        static readonly string Authority = "https://demo.duendesoftware.com";
 
-        static OidcClient _oidcClient;
-        static HttpClient _apiClient = new HttpClient { BaseAddress = new Uri(_api) };
+        private static OidcClient _oidcClient;
+        private static HttpClient _apiClient = new HttpClient { BaseAddress = new Uri(Api) };
 
         public static async Task Main()
         {
@@ -35,18 +33,17 @@ namespace ConsoleClientWithBrowserAndDPoP
 
         private static async Task SignIn()
         {
-            // create a redirect URI using an available port on the loopback address.
-            // requires the OP to allow random ports on 127.0.0.1 - otherwise set a static port
             var browser = new SystemBrowser();
             string redirectUri = string.Format($"http://127.0.0.1:{browser.Port}");
 
-            var proofKey = JsonWebKeys.CreateRsaJson();
+            var proofKey = GetProofKey();
+            
             var tokenDpopHandler = new ProofTokenMessageHandler(proofKey, new SocketsHttpHandler());
             var apiDpopHandler = new ProofTokenMessageHandler(proofKey, new SocketsHttpHandler());
 
             var options = new OidcClientOptions
             {
-                Authority = authority,
+                Authority = Authority,
                 ClientId = "native.dpop",
                 RedirectUri = redirectUri,
                 Scope = "openid profile api offline_access",
@@ -66,15 +63,53 @@ namespace ConsoleClientWithBrowserAndDPoP
             options.LoggerFactory.AddSerilog(serilog);
 
             _oidcClient = new OidcClient(options);
-            var result = await _oidcClient.LoginAsync(new LoginRequest());
 
-            _apiClient = new HttpClient(result.RefreshTokenHandler)
+            LoginResult result = null;
+            if (File.Exists("refresh_token"))
             {
-                BaseAddress = new Uri(_api)
-            };
+                var refreshToken = File.ReadAllText("refresh_token");
+
+                var handler = new RefreshTokenDelegatingHandler(
+                    _oidcClient, 
+                    null, 
+                    refreshToken, 
+                    "DPoP",
+                    apiDpopHandler);
+                
+                _apiClient = new HttpClient(handler)
+                {
+                    BaseAddress = new Uri(Api)
+                };
+                
+                await NextSteps();
+            }
+            else
+            {
+                 result = await _oidcClient.LoginAsync(new LoginRequest());
+                 File.WriteAllText("refresh_token", result.TokenResponse.RefreshToken);
+
+                _apiClient = new HttpClient(result.RefreshTokenHandler)
+                {
+                    BaseAddress = new Uri(Api)
+                };
+            }
+            
+            
 
             ShowResult(result);
-            await NextSteps(result);
+            await NextSteps();
+        }
+
+        private static string GetProofKey()
+        {
+            if (File.Exists("proofkey"))
+            {
+                return File.ReadAllText("proofkey");
+            }
+            
+            var proofKey = JsonWebKeys.CreateRsaJson();
+            File.WriteAllText("proofkey", proofKey);
+            return proofKey;
         }
 
         private static void ShowResult(LoginResult result)
@@ -100,7 +135,7 @@ namespace ConsoleClientWithBrowserAndDPoP
             }
         }
 
-        private static async Task NextSteps(LoginResult result)
+        private static async Task NextSteps()
         {
             var menu = "  x...exit  c...call api   ";
             
