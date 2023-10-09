@@ -7,7 +7,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Serilog.Sinks.SystemConsole.Themes;
-using IdentityModel.DPoP;
+using IdentityModel.OidcClient.DPoP;
 
 namespace ConsoleClientWithBrowserAndDPoP
 {

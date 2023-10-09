@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using Microsoft.IdentityModel.Tokens;
 
-namespace IdentityModel.DPoP;
+namespace IdentityModel.OidcClient.DPoP;
 
 /// <summary>
 /// Helper to create JSON web keys.

@@ -6,7 +6,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace IdentityModel.DPoP;
+namespace IdentityModel.OidcClient.DPoP;
 
 /// <summary>
 /// Message handler to create and send DPoP proof tokens.

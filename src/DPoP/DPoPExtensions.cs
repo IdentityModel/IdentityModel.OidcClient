@@ -4,7 +4,7 @@
 using System.Linq;
 using System.Net.Http;
 
-namespace IdentityModel.DPoP;
+namespace IdentityModel.OidcClient.DPoP;
 
 /// <summary>
 /// Extensions for HTTP request/response messages

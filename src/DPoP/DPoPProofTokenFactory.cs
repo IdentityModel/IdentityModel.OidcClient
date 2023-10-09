@@ -9,7 +9,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
-namespace IdentityModel.DPoP;
+namespace IdentityModel.OidcClient.DPoP;
 
 /// <summary>
 /// Used to create DPoP proof tokens.

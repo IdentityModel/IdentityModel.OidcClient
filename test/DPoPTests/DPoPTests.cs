@@ -4,7 +4,7 @@ using Duende.IdentityServer.Models;
 using FluentAssertions;
 using IdentityModel;
 using IdentityModel.Client;
-using IdentityModel.DPoP;
+using IdentityModel.OidcClient.DPoP;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
