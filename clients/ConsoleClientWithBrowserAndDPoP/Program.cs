@@ -38,9 +38,6 @@ namespace ConsoleClientWithBrowserAndDPoP
 
             var proofKey = GetProofKey();
             
-            var tokenDpopHandler = new ProofTokenMessageHandler(proofKey, new SocketsHttpHandler());
-            var apiDpopHandler = new ProofTokenMessageHandler(proofKey, new SocketsHttpHandler());
-
             var options = new OidcClientOptions
             {
                 Authority = Authority,
@@ -49,11 +46,10 @@ namespace ConsoleClientWithBrowserAndDPoP
                 Scope = "openid profile api offline_access",
                 FilterClaims = false,
                 Browser = browser,
-                
-                BackchannelHandler = tokenDpopHandler,
-                RefreshTokenInnerHttpHandler = apiDpopHandler
             };
 
+            options.ConfigureDPoP(proofKey); 
+            
             var serilog = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .Enrich.FromLogContext()
@@ -68,13 +64,7 @@ namespace ConsoleClientWithBrowserAndDPoP
             if (File.Exists("refresh_token"))
             {
                 var refreshToken = File.ReadAllText("refresh_token");
-
-                var handler = new RefreshTokenDelegatingHandler(
-                    _oidcClient, 
-                    null, 
-                    refreshToken, 
-                    "DPoP",
-                    apiDpopHandler);
+                var handler = _oidcClient.CreateDPoPHandler(proofKey, refreshToken);
                 
                 _apiClient = new HttpClient(handler)
                 {

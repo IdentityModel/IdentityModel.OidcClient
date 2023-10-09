@@ -47,4 +47,8 @@
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\OidcClient\OidcClient.csproj" />
+    </ItemGroup>
+
 </Project>
