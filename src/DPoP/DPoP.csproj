@@ -9,7 +9,7 @@
         <LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 
-        <PackageTags>OAuth2;OAuth 2.0;OpenID Connect;Security;Identity;IdentityServer</PackageTags>
+        <PackageTags>OAuth2;OAuth 2.0;OpenID Connect;Security;Identity;IdentityServer;DPoP</PackageTags>
         <Description>DPoP extensions for IdentityModel.OidcClient</Description>
         <Authors>Dominick Baier;Brock Allen</Authors>
         <PackageIcon>icon.jpg</PackageIcon>
