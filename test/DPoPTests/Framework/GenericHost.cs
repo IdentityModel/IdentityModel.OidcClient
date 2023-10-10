@@ -2,6 +2,8 @@
 // See LICENSE in the project root for license information.
 
 
+using System;
+using System.Net.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
@@ -9,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace DPoPTests;
 

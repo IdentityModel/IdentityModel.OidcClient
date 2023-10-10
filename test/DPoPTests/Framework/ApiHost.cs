@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Duende Software. All rights reserved.
 // See LICENSE in the project root for license information.
 
+using System;
+using System.Threading.Tasks;
 using ApiHost;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;

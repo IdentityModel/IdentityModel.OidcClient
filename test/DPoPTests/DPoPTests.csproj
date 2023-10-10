@@ -1,16 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <!--Conditional compilation-->
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
-		<ImplicitUsings>enable</ImplicitUsings>
-	</PropertyGroup>
+    </PropertyGroup>
 
     <PropertyGroup>
         <AssemblyOriginatorKeyFile>../../key.snk</AssemblyOriginatorKeyFile>
         <SignAssembly>true</SignAssembly>
         <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
-        <RootNamespace>IdentityModel.OidcClient.Tests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

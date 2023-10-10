@@ -1,4 +1,6 @@
-﻿namespace ApiHost;
+﻿using System;
+
+namespace ApiHost;
 
 public class DPoPOptions
 {

@@ -1,11 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <!--Conditional compilation-->
-    <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
-        <TargetFrameworks>net472;net6.0</TargetFrameworks>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
+    <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
     </PropertyGroup>
 

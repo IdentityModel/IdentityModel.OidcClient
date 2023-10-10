@@ -2,18 +2,14 @@
 using Duende.IdentityServer.Configuration;
 using Duende.IdentityServer.Models;
 using FluentAssertions;
-using IdentityModel;
 using IdentityModel.Client;
 using IdentityModel.OidcClient.DPoP;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace DPoPTests;
