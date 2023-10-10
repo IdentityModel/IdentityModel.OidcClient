@@ -20,7 +20,7 @@ namespace IdentityModel.OidcClient.Infrastructure
 
         static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions()
         {
-            IgnoreNullValues = true,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
             WriteIndented = true
         };
 

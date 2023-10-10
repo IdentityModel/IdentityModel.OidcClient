@@ -94,7 +94,7 @@ namespace IdentityModel.OidcClient
                     };
                 }
 
-                if (result.Exception is SecurityTokenUnableToValidateException)
+                if (result.Exception is SecurityTokenValidationException)
                 {
                     return new IdentityTokenValidationResult
                     {
