@@ -25,7 +25,7 @@ namespace ConsoleClientWithBrowserAndDPoP
             Console.WriteLine("|  Sign in with OIDC    |");
             Console.WriteLine("+-----------------------+");
             Console.WriteLine("");
-            Console.WriteLine("Press any key to sign in...");
+            Console.WriteLine("Press any key to start...");
             Console.ReadKey();
 
             await SignIn();
@@ -36,6 +36,7 @@ namespace ConsoleClientWithBrowserAndDPoP
             var browser = new SystemBrowser();
             string redirectUri = string.Format($"http://127.0.0.1:{browser.Port}");
 
+            // create or retrieve stored proof key
             var proofKey = GetProofKey();
             
             var options = new OidcClientOptions
@@ -63,6 +64,8 @@ namespace ConsoleClientWithBrowserAndDPoP
             LoginResult result = null;
             if (File.Exists("refresh_token"))
             {
+                Console.WriteLine("using stored refresh token");
+                
                 var refreshToken = File.ReadAllText("refresh_token");
                 var handler = _oidcClient.CreateDPoPHandler(proofKey, refreshToken);
                 
@@ -76,6 +79,8 @@ namespace ConsoleClientWithBrowserAndDPoP
             else
             {
                  result = await _oidcClient.LoginAsync(new LoginRequest());
+                 
+                 Console.WriteLine("store refresh token");
                  File.WriteAllText("refresh_token", result.TokenResponse.RefreshToken);
 
                 _apiClient = new HttpClient(result.RefreshTokenHandler)
@@ -94,9 +99,11 @@ namespace ConsoleClientWithBrowserAndDPoP
         {
             if (File.Exists("proofkey"))
             {
+                Console.WriteLine("using stored proof key");
                 return File.ReadAllText("proofkey");
             }
             
+            Console.WriteLine("creating and storing proof key");
             var proofKey = JsonWebKeys.CreateRsaJson();
             File.WriteAllText("proofkey", proofKey);
             return proofKey;
@@ -104,6 +111,8 @@ namespace ConsoleClientWithBrowserAndDPoP
 
         private static void ShowResult(LoginResult result)
         {
+            if (result == null) return;
+            
             if (result.IsError)
             {
                 Console.WriteLine("\n\nError:\n{0}", result.Error);
