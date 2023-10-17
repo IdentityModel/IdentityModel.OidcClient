@@ -24,6 +24,11 @@ public class DPoPProofTokenFactory
     public DPoPProofTokenFactory(string proofKey)
     {
         _jwk = new JsonWebKey(proofKey);
+
+        if (_jwk.Alg.IsNullOrEmpty())
+        {
+            throw new ArgumentException("alg must be set on proof key");
+        }
     }
 
     /// <summary>
@@ -31,7 +36,7 @@ public class DPoPProofTokenFactory
     /// </summary>
     public DPoPProof CreateProofToken(DPoPProofRequest request)
     {
-        var jsonWebKey = _jwk;// new JsonWebKey(request.DPoPJsonWebKey);
+        var jsonWebKey = _jwk;
 
         // jwk: representing the public key chosen by the client, in JSON Web Key (JWK) [RFC7517] format,
         // as defined in Section 4.1.3 of [RFC7515]. MUST NOT contain a private key.
@@ -62,7 +67,6 @@ public class DPoPProofTokenFactory
 
         var header = new Dictionary<string, object>()
         {
-            //{ "alg", "RS265" }, // JsonWebTokenHandler requires adding this itself
             { "typ", JwtClaimTypes.JwtTypes.DPoPProofToken },
             { JwtClaimTypes.JsonWebKey, jwk },
         };
