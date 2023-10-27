@@ -8,6 +8,8 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Serilog.Sinks.SystemConsole.Themes;
 using IdentityModel.OidcClient.DPoP;
+using Microsoft.Extensions.Logging;
+using Serilog.Extensions.Logging;
 
 namespace ConsoleClientWithBrowserAndDPoP
 {
@@ -57,7 +59,7 @@ namespace ConsoleClientWithBrowserAndDPoP
                 .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message}{NewLine}{Exception}{NewLine}", theme: AnsiConsoleTheme.Code)
                 .CreateLogger();
 
-            options.LoggerFactory.AddSerilog(serilog);
+            options.LoggerFactory = new LoggerFactory().AddSerilog(serilog);
 
             _oidcClient = new OidcClient(options);
 
