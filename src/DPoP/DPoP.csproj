@@ -1,15 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
     <PropertyGroup>
-        <PackageId>IdentityModel.OidcClient.IdentityTokenValidator</PackageId>
-        <RootNamespace>IdentityModel.OidcClient</RootNamespace>
-        <AssemblyName>IdentityModel.OidcClient.IdentityTokenValidator</AssemblyName>
-        
+        <PackageId>IdentityModel.OidcClient.DPoP</PackageId>
+        <RootNamespace>IdentityModel.OidcClient.DPoP</RootNamespace>
+        <AssemblyName>IdentityModel.OidcClient.DPoP</AssemblyName>
+
         <TargetFramework>netstandard2.0</TargetFramework>
-    
-        <PackageTags>OAuth2;OAuth 2.0;OpenID Connect;Security;Identity;IdentityServer</PackageTags>
-        <Description>Identity token validator for IdentityModeo.OidcClient based on the Microsoft JWT handler</Description>
+        <LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
+
+        <PackageTags>OAuth2;OAuth 2.0;OpenID Connect;Security;Identity;IdentityServer;DPoP</PackageTags>
+        <Description>DPoP extensions for IdentityModel.OidcClient</Description>
         <Authors>Dominick Baier;Brock Allen</Authors>
         <PackageIcon>icon.jpg</PackageIcon>
+
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
@@ -23,24 +27,26 @@
         <DebugType>embedded</DebugType>
 
         <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">True</ContinuousIntegrationBuild>
-        
+
         <AssemblyOriginatorKeyFile>../../key.snk</AssemblyOriginatorKeyFile>
         <SignAssembly>true</SignAssembly>
         <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
+
     </PropertyGroup>
 
     <ItemGroup>
         <None Include="../../icon.jpg" Pack="true" Visible="false" PackagePath="" />
     </ItemGroup>
-    
-    <ItemGroup>
-        <PackageReference Include="minver" Version="4.3.0" PrivateAssets="All" />
 
+    <ItemGroup>
+        <PackageReference Include="IdentityModel" Version="6.1.0" />
+        <PackageReference Include="minver" Version="4.3.0" PrivateAssets="All" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.30.0" />
+
         <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     </ItemGroup>
-    
+
     <ItemGroup>
       <ProjectReference Include="..\OidcClient\OidcClient.csproj" />
     </ItemGroup>

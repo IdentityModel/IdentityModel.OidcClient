@@ -19,11 +19,9 @@ namespace IdentityModel.OidcClient.Infrastructure
         public static bool Enabled = true;
 
         static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions()
-		{
-#pragma warning disable SYSLIB0020 // Type or member is obsolete
-			IgnoreNullValues = true,
-#pragma warning restore SYSLIB0020 // Type or member is obsolete
-			WriteIndented = true
+        {
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            WriteIndented = true
         };
 
         static LogSerializer()

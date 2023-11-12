@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
@@ -11,14 +11,19 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\IdentityTokenValidator\IdentityTokenValidator.csproj" />
+        <ProjectReference Include="..\..\src\DPoP\DPoP.csproj" />
         <ProjectReference Include="..\..\src\OidcClient\OidcClient.csproj" />
     </ItemGroup>
 
     <ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.0" />
+		<PackageReference Include="Duende.IdentityServer" Version="6.3.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0" />
+
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
         <PackageReference Include="xunit" Version="2.4.1" />
-        <PackageReference Include="FluentAssertions" Version="5.10.2" />
+        <PackageReference Include="FluentAssertions" Version="5.10.3" />
     </ItemGroup>
 </Project>

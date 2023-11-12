@@ -261,6 +261,7 @@ namespace IdentityModel.OidcClient
                     this,
                     loginResult.AccessToken,
                     loginResult.RefreshToken,
+                    loginResult.TokenResponse.TokenType,
                     Options.RefreshTokenInnerHttpHandler);
             }
 

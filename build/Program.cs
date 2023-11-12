@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using static Bullseye.Targets;
 using static SimpleExec.Command;
 
@@ -22,7 +23,7 @@ namespace build
             public const string SignPackage = "sign-package";
         }
 
-        internal static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             Target(Targets.RestoreTools, () =>
             {
@@ -56,6 +57,7 @@ namespace build
             {
                 Run("dotnet", $"pack ./src/OidcClient/OidcClient.csproj -c Release -o {Directory.CreateDirectory(packOutput).FullName} --no-build --nologo");
                 Run("dotnet", $"pack ./src/IdentityTokenValidator/IdentityTokenValidator.csproj -c Release -o {Directory.CreateDirectory(packOutput).FullName} --no-build --nologo");
+                Run("dotnet", $"pack ./src/DPoP/DPoP.csproj -c Release -o {Directory.CreateDirectory(packOutput).FullName} --no-build --nologo");
             });
 
             Target(Targets.SignPackage, DependsOn(Targets.Pack, Targets.RestoreTools), () =>
@@ -67,7 +69,7 @@ namespace build
 
             Target("sign", DependsOn(Targets.Test, Targets.SignPackage));
 
-            RunTargetsAndExit(args, ex => ex is SimpleExec.NonZeroExitCodeException || ex.Message.EndsWith(envVarMissing));
+            await RunTargetsAndExitAsync(args, ex => ex is SimpleExec.ExitCodeException || ex.Message.EndsWith(envVarMissing));
         }
 
         private static void SignNuGet()
