@@ -89,7 +89,8 @@ namespace IdentityModel.OidcClient.Tests
                 Browser = new TestBrowser(_ => Task.FromResult(new BrowserResult
                 {
                     ResultType = BrowserResultType.HttpError,
-                    Error = "Something terrible happened"
+                    Error = "Something terrible happened",
+                    ErrorDescription = "Explaining the terrible error..."
                 }))
             };
 
@@ -98,6 +99,7 @@ namespace IdentityModel.OidcClient.Tests
             var response = await client.AuthorizeAsync(new AuthorizeRequest());
 
             response.Error.Should().Be("Something terrible happened");
+            response.ErrorDescription.Should().Be("Explaining the terrible error...");
         }
     }
 }
