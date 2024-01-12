@@ -40,7 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="IdentityModel" Version="6.0.0" />
+    <PackageReference Include="IdentityModel" Version="6.2.0" />
     <PackageReference Include="minver" Version="4.3.0" PrivateAssets="All" />
     
     <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
