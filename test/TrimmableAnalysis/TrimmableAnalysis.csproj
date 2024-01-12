@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimmerSingleWarn>false</TrimmerSingleWarn> 
+  </PropertyGroup>
+
+  <ItemGroup>
+    <TrimmerRootAssembly Include="IdentityModel.OidcClient" />
+    <ProjectReference Include="..\..\src\OidcClient\OidcClient.csproj" /> 
+  </ItemGroup>
+
+</Project>
