@@ -21,10 +21,13 @@ jobs:
     steps:
     - uses: actions/checkout@af513c7a016048ae468971c52ed77d9562c7c819
 
-    - name: Setup net6
+    - name: Setup dotnet
       uses: actions/setup-dotnet@v1
       with:
-          dotnet-version: '6.0.x'
+        dotnet-version: |
+          6.0.x
+          7.0.x
+          8.0.x
 
     - run: dotnet --info
     
