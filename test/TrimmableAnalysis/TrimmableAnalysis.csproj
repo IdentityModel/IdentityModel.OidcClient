@@ -6,11 +6,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <PublishTrimmed>true</PublishTrimmed>
     <TrimmerSingleWarn>false</TrimmerSingleWarn> 
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors> 
   </PropertyGroup>
 
   <ItemGroup>
     <TrimmerRootAssembly Include="IdentityModel.OidcClient" />
-    <ProjectReference Include="..\..\src\OidcClient\OidcClient.csproj" /> 
-  </ItemGroup>
+    <ProjectReference Include="..\..\src\OidcClient\OidcClient.csproj" />
+   </ItemGroup>
 
 </Project>
