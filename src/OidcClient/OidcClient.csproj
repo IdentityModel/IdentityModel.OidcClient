@@ -26,7 +26,7 @@
     <DebugType>embedded</DebugType>
 
     <!-- Enable Trimming Warnings to allow consumers to publish as trimmed -->
-    <IsTrimmable>true</IsTrimmable>
+    <IsTrimmable Condition="'$(TargetFramework)' == 'net6.0'">true</IsTrimmable>
 
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">True</ContinuousIntegrationBuild>
 
