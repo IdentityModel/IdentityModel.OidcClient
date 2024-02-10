@@ -14,7 +14,7 @@ namespace IdentityModel.OidcClient.Infrastructure
     {
         /// <summary>
         /// Allows log serialization to be disabled, for example, for platforms
-        /// that don't support serialization of arbitarary objects to JSON.
+        /// that don't support serialization of arbitrary objects to JSON.
         /// </summary>
         public static bool Enabled = true;
 
