@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using IdentityModel.OidcClient.Results;
@@ -26,10 +27,9 @@ namespace IdentityModel.OidcClient
             }
 
             var payload = Encoding.UTF8.GetString((Base64Url.Decode(parts[1])));
+            var values = JsonSerializer.Deserialize(
+                payload, SourceGenerationContext.Default.DictionaryStringJsonElement);
 
-            var values =
-                JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(payload);
-            
             var claims = new List<Claim>();
             foreach (var element in values)
             {
@@ -43,7 +43,6 @@ namespace IdentityModel.OidcClient
                 else
                 {
                     claims.Add(new Claim(element.Key, element.Value.ToString()));
-                    
                 }
             }
 

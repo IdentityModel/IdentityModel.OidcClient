@@ -4,14 +4,15 @@
     <PackageId>IdentityModel.OidcClient</PackageId>
     <RootNamespace>IdentityModel.OidcClient</RootNamespace>
     <AssemblyName>IdentityModel.OidcClient</AssemblyName>
-    
-    <TargetFramework>netstandard2.0</TargetFramework>
-    
+
+    <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+
     <PackageTags>OAuth2;OAuth 2.0;OpenID Connect;Security;Identity;IdentityServer</PackageTags>
     <Description>RFC8252 compliant and certified OpenID Connect and OAuth 2.0 client library for native applications</Description>
     <Authors>Dominick Baier;Brock Allen</Authors>
     <PackageIcon>icon.jpg</PackageIcon>
-    
+
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
@@ -24,12 +25,14 @@
     <!-- Recommended: Embed symbols containing Source Link in the main file (exe/dll) -->
     <DebugType>embedded</DebugType>
 
+    <!-- Enable Trimming Warnings to allow consumers to publish as trimmed -->
+    <IsTrimmable Condition="'$(TargetFramework)' == 'net6.0'">true</IsTrimmable>
+
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">True</ContinuousIntegrationBuild>
-    
+
     <AssemblyOriginatorKeyFile>../../key.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
-    
   </PropertyGroup>
 
    <ItemGroup>
@@ -37,11 +40,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="IdentityModel" Version="6.0.0" />
+    <PackageReference Include="IdentityModel" Version="6.2.0" />
     <PackageReference Include="minver" Version="4.3.0" PrivateAssets="All" />
     
     <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
+
+  <!--Conditional Package references -->
+  <ItemGroup Condition="'$(TargetFramework)' != 'net6.0'">
+    <PackageReference Include="System.Text.Json" Version="6.0.8" />
+
+    <!--Force older version to prevent incompatible references -->
+    <PackageReference Include="System.Text.Encodings.Web" Version="6.0.0" /> 
+  </ItemGroup>   
 
 </Project>

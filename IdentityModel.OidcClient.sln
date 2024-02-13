@@ -25,6 +25,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DPoPTests", "test\DPoPTests
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleClientWithBrowserAndDPoP", "clients\ConsoleClientWithBrowserAndDPoP\ConsoleClientWithBrowserAndDPoP.csproj", "{7DDDA872-49C0-43F0-8B88-2531BF828DDE}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrimmableAnalysis", "test\TrimmableAnalysis\TrimmableAnalysis.csproj", "{672FE4E9-9071-4C59-95FC-F265DF6B2FF5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{7DDDA872-49C0-43F0-8B88-2531BF828DDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7DDDA872-49C0-43F0-8B88-2531BF828DDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7DDDA872-49C0-43F0-8B88-2531BF828DDE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{672FE4E9-9071-4C59-95FC-F265DF6B2FF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{672FE4E9-9071-4C59-95FC-F265DF6B2FF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{672FE4E9-9071-4C59-95FC-F265DF6B2FF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{672FE4E9-9071-4C59-95FC-F265DF6B2FF5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -76,6 +82,7 @@ Global
 		{56EC3A58-33FE-4DCD-9D64-2A985DC58C2C} = {0B7CC363-CF34-4B40-A769-7E928A6B25AF}
 		{0E1807AF-4142-4A3D-925C-BBA019E4E777} = {3DEB81D4-5B40-4D20-AC50-66D1CD6EA24A}
 		{7DDDA872-49C0-43F0-8B88-2531BF828DDE} = {A4154BEB-4B4A-4A48-B75D-B52432304F36}
+		{672FE4E9-9071-4C59-95FC-F265DF6B2FF5} = {3DEB81D4-5B40-4D20-AC50-66D1CD6EA24A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {66951C2E-691F-408C-9283-F2455F390A9A}
