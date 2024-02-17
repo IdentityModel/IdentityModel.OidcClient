@@ -43,21 +43,21 @@ public class DPoPProofTokenFactory
         object jwk;
         if (string.Equals(jsonWebKey.Kty, JsonWebAlgorithmsKeyTypes.EllipticCurve))
         {
-            jwk = new
+            jwk = new Dictionary<string, object>
             {
-                kty = jsonWebKey.Kty,
-                x = jsonWebKey.X,
-                y = jsonWebKey.Y,
-                crv = jsonWebKey.Crv
+                { "kty", jsonWebKey.Kty },
+                { "x", jsonWebKey.X },
+                { "y", jsonWebKey.Y },
+                { "crv", jsonWebKey.Crv }
             };
         }
         else if (string.Equals(jsonWebKey.Kty, JsonWebAlgorithmsKeyTypes.RSA))
         {
-            jwk = new
+            jwk = new Dictionary<string, object>
             {
-                kty = jsonWebKey.Kty,
-                e = jsonWebKey.E,
-                n = jsonWebKey.N
+                { "kty", jsonWebKey.Kty },
+                { "e", jsonWebKey.E },
+                { "n", jsonWebKey.N }
             };
         }
         else
