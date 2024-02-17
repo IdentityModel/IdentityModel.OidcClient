@@ -78,7 +78,7 @@ namespace JwtValidationTests.Infrastructure
         public static string CreateJwt(RsaSecurityKey key, string issuer, string audience, params Claim[] claims)
         {
             var jwtClaims = new List<Claim>(claims);
-            jwtClaims.Add(new Claim(JwtClaimTypes.IssuedAt, "now"));
+            jwtClaims.Add(new Claim(JwtClaimTypes.IssuedAt, DateTime.UtcNow.Ticks.ToString(), ClaimValueTypes.Integer64));
 
             SigningCredentials credentials = null;
             if (key != null)
