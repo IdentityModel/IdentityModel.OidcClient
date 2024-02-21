@@ -18,7 +18,7 @@ public class CryptoHelperTests
 
         var hash = algorithm.ComputeHash(Encoding.ASCII.GetBytes(data));
 
-        var bytesInLeftHalf = algorithm.HashSize / 16; // Divide by 8 for bytes and then 2 to get just half.
+        var bytesInLeftHalf = algorithm.HashSize / 16; // Divide by 8 for bytes and then 2 to get just half, as per spec for at_hash.
 
         var leftHalf = new byte[bytesInLeftHalf];
         Array.Copy(hash, leftHalf, bytesInLeftHalf);
