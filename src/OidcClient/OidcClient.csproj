@@ -1,19 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <PackageId>IdentityModel.OidcClient</PackageId>
     <RootNamespace>IdentityModel.OidcClient</RootNamespace>
     <AssemblyName>IdentityModel.OidcClient</AssemblyName>
 
     <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
 
+    <PackageId>IdentityModel.OidcClient</PackageId>
     <PackageTags>OAuth2;OAuth 2.0;OpenID Connect;Security;Identity;IdentityServer</PackageTags>
     <Description>RFC8252 compliant and certified OpenID Connect and OAuth 2.0 client library for native applications</Description>
     <Authors>Dominick Baier;Brock Allen</Authors>
     <PackageIcon>icon.jpg</PackageIcon>
-
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
     <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
@@ -37,7 +38,8 @@
 
    <ItemGroup>
     <None Include="../../icon.jpg" Pack="true" Visible="false" PackagePath="" />
-  </ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath=""/>
+</ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="IdentityModel" Version="6.2.0" />
