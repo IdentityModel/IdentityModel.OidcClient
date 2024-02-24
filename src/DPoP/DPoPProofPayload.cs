@@ -14,15 +14,15 @@ namespace IdentityModel.OidcClient.DPoP;
 internal class DPoPProofPayload
 {
     [JsonPropertyName(JwtClaimTypes.JwtId)]
-    internal string JwtId { get; set; } = default!;
+    public string JwtId { get; set; } = default!;
     [JsonPropertyName(JwtClaimTypes.DPoPHttpMethod)]
-    internal string DPoPHttpMethod { get; set; } = default!;
+    public string DPoPHttpMethod { get; set; } = default!;
     [JsonPropertyName(JwtClaimTypes.DPoPHttpUrl)]
-    internal string DPoPHttpUrl { get; set; } = default!;
+    public string DPoPHttpUrl { get; set; } = default!;
     [JsonPropertyName(JwtClaimTypes.IssuedAt)]
-    internal long IssuedAt { get; set; }
+    public long IssuedAt { get; set; }
     [JsonPropertyName(JwtClaimTypes. DPoPAccessTokenHash)]
-    internal string? DPoPAccessTokenHash { get; set; }
+    public string? DPoPAccessTokenHash { get; set; }
     [JsonPropertyName(JwtClaimTypes. Nonce)]
-    internal string? Nonce { get; set; }
+    public string? Nonce { get; set; }
 }
