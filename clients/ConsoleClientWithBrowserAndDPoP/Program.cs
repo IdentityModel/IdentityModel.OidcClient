@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Serilog.Sinks.SystemConsole.Themes;
 using IdentityModel.OidcClient.DPoP;
 using Microsoft.Extensions.Logging;
-using Serilog.Extensions.Logging;
 
 namespace ConsoleClientWithBrowserAndDPoP
 {
