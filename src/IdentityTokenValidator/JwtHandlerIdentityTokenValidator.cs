@@ -81,7 +81,7 @@ namespace IdentityModel.OidcClient
                 };
             }
 
-            var result = ValidateSignature(identityToken, handler, parameters, options, logger);
+            var result = await ValidateSignatureAsync(identityToken, handler, parameters, options, logger);
             if (result.IsValid == false)
             {
                 if (result.Exception is SecurityTokenSignatureKeyNotFoundException)
@@ -123,7 +123,7 @@ namespace IdentityModel.OidcClient
             };
         }
 
-        private TokenValidationResult ValidateSignature(string identityToken, JsonWebTokenHandler handler, TokenValidationParameters parameters, OidcClientOptions options, ILogger logger)
+        private async Task<TokenValidationResult> ValidateSignatureAsync(string identityToken, JsonWebTokenHandler handler, TokenValidationParameters parameters, OidcClientOptions options, ILogger logger)
         {
             if (parameters.RequireSignedTokens)
             {
@@ -174,7 +174,7 @@ namespace IdentityModel.OidcClient
                 parameters.IssuerSigningKeys = keys;
             }
             
-            return handler.ValidateToken(identityToken, parameters);
+            return await handler.ValidateTokenAsync(identityToken, parameters);
         }
 
         private static string CheckRequiredClaim(ClaimsPrincipal user)

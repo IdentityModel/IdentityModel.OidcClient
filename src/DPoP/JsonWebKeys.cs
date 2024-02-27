@@ -31,7 +31,7 @@ public static class JsonWebKeys
     /// </summary>
     public static string CreateRsaJson(string algorithm = OidcConstants.Algorithms.Asymmetric.PS256)
     {
-        return JsonSerializer.Serialize(CreateRsa(algorithm));
+        return JsonSerializer.Serialize(CreateRsa(algorithm), SourceGenerationContext.Default.JsonWebKey);
     }
     
     /// <summary>
@@ -53,7 +53,7 @@ public static class JsonWebKeys
     /// </summary>
     public static string CreateECDsaJson(string algorithm = OidcConstants.Algorithms.Asymmetric.ES256)
     {
-        return JsonSerializer.Serialize(CreateECDsa(algorithm));
+        return JsonSerializer.Serialize(CreateECDsa(algorithm), SourceGenerationContext.Default.JsonWebKey);
     }
     
     internal static string GetCurveNameFromSigningAlgorithm(string alg)

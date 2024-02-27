@@ -5,6 +5,7 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -86,11 +87,11 @@ namespace IdentityModel.OidcClient.Tests.Infrastructure
             {
                 if (_selector != null)
                 {
-                    response.Content = new StringContent(_selector(request));
+                    response.Content = new StringContent(_selector(request), Encoding.UTF8, "application/json");
                 }
                 else
                 {
-                    response.Content = new StringContent(_document);
+                    response.Content = new StringContent(_document, Encoding.UTF8, "application/json");
                 }
             }
 

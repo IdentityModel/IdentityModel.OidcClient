@@ -13,6 +13,15 @@
   <ItemGroup>
     <TrimmerRootAssembly Include="IdentityModel.OidcClient" />
     <ProjectReference Include="..\..\src\OidcClient\OidcClient.csproj" />
+
+    <TrimmerRootAssembly Include="IdentityModel.OidcClient.IdentityTokenValidator" />
+    <ProjectReference Include="..\..\src\IdentityTokenValidator\IdentityTokenValidator.csproj" />
+
+
+    <TrimmerRootAssembly Include="IdentityModel.OidcClient.DPoP" />
+    <ProjectReference Include="..\..\src\DPoP\DPoP.csproj" />
+
+
    </ItemGroup>
 
 </Project>

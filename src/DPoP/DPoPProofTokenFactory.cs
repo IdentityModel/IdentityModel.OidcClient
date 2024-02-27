@@ -40,24 +40,24 @@ public class DPoPProofTokenFactory
 
         // jwk: representing the public key chosen by the client, in JSON Web Key (JWK) [RFC7517] format,
         // as defined in Section 4.1.3 of [RFC7515]. MUST NOT contain a private key.
-        object jwk;
+        Dictionary<string, object> jwk;
         if (string.Equals(jsonWebKey.Kty, JsonWebAlgorithmsKeyTypes.EllipticCurve))
         {
-            jwk = new
+            jwk = new Dictionary<string, object>
             {
-                kty = jsonWebKey.Kty,
-                x = jsonWebKey.X,
-                y = jsonWebKey.Y,
-                crv = jsonWebKey.Crv
+                { "kty", jsonWebKey.Kty },
+                { "x", jsonWebKey.X },
+                { "y", jsonWebKey.Y },
+                { "crv", jsonWebKey.Crv }
             };
         }
         else if (string.Equals(jsonWebKey.Kty, JsonWebAlgorithmsKeyTypes.RSA))
         {
-            jwk = new
+            jwk = new Dictionary<string, object>
             {
-                kty = jsonWebKey.Kty,
-                e = jsonWebKey.E,
-                n = jsonWebKey.N
+                { "kty", jsonWebKey.Kty },
+                { "e", jsonWebKey.E },
+                { "n", jsonWebKey.N }
             };
         }
         else
@@ -71,12 +71,12 @@ public class DPoPProofTokenFactory
             { JwtClaimTypes.JsonWebKey, jwk },
         };
 
-        var payload = new Dictionary<string, object>
+        var payload = new DPoPProofPayload
         {
-            { JwtClaimTypes.JwtId, CryptoRandom.CreateUniqueId() },
-            { JwtClaimTypes.DPoPHttpMethod, request.Method },
-            { JwtClaimTypes.DPoPHttpUrl, request.Url },
-            { JwtClaimTypes.IssuedAt, DateTimeOffset.UtcNow.ToUnixTimeSeconds() },
+            JwtId = CryptoRandom.CreateUniqueId(),
+            DPoPHttpMethod = request.Method,
+            DPoPHttpUrl = request.Url,
+            IssuedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
         };
 
         if (!string.IsNullOrWhiteSpace(request.AccessToken))
@@ -87,17 +87,17 @@ public class DPoPProofTokenFactory
             var hash = sha256.ComputeHash(Encoding.ASCII.GetBytes(request.AccessToken));
             var ath = Base64Url.Encode(hash);
 
-            payload.Add(JwtClaimTypes.DPoPAccessTokenHash, ath);
+            payload.DPoPAccessTokenHash = ath;
         }
 
         if (!string.IsNullOrEmpty(request.DPoPNonce))
         {
-            payload.Add(JwtClaimTypes.Nonce, request.DPoPNonce!);
+            payload.Nonce = request.DPoPNonce!;
         }
 
         var handler = new JsonWebTokenHandler() { SetDefaultTimesOnTokenCreation = false };
         var key = new SigningCredentials(jsonWebKey, jsonWebKey.Alg);
-        var proofToken = handler.CreateToken(JsonSerializer.Serialize(payload), key, header);
+        var proofToken = handler.CreateToken(JsonSerializer.Serialize(payload, SourceGenerationContext.Default.DPoPProofPayload), key, header);
 
         return new DPoPProof { ProofToken = proofToken! };
     }
