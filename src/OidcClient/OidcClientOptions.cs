@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace IdentityModel.OidcClient
 {
@@ -212,7 +213,7 @@ namespace IdentityModel.OidcClient
         /// The logger factory.
         /// </value>
         [JsonIgnore]
-        public ILoggerFactory LoggerFactory { get; set; } = new LoggerFactory();
+        public ILoggerFactory LoggerFactory { get; set; } = new NullLoggerFactory();
 
         /// <summary>
         /// Gets or sets the identity token validator.

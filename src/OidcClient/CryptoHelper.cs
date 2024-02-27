@@ -56,10 +56,10 @@ namespace IdentityModel.OidcClient
             using (hashAlgorithm)
             {
                 var hash = hashAlgorithm.ComputeHash(Encoding.ASCII.GetBytes(data));
-                var size = (hashAlgorithm.HashSize / 8) / 2;
+                var size = hashAlgorithm.HashSize / 8 / 2; // Only take the left half of the data, as per spec for at_hash 
 
-                byte[] leftPart = new byte[hashAlgorithm.HashSize / size];
-                Array.Copy(hash, leftPart, hashAlgorithm.HashSize / size);
+                byte[] leftPart = new byte[size];
+                Array.Copy(hash, leftPart, size);
 
                 var leftPartB64 = Base64Url.Encode(leftPart);
                 var match = leftPartB64.Equals(hashedData);

@@ -11,6 +11,7 @@
         <Authors>Dominick Baier;Brock Allen</Authors>
         <PackageIcon>icon.jpg</PackageIcon>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
         <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
@@ -34,13 +35,14 @@
 
     <ItemGroup>
         <None Include="../../icon.jpg" Pack="true" Visible="false" PackagePath="" />
+        <None Include="README.md" Pack="true" PackagePath=""/>
     </ItemGroup>
     
     <ItemGroup>
         <PackageReference Include="minver" Version="4.3.0" PrivateAssets="All" />
 
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.3.1" />
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     </ItemGroup>
     
