@@ -30,7 +30,7 @@ public class ProofTokenMessageHandler : DelegatingHandler
     {
         CreateProofToken(request);
 
-        var response = await base.SendAsync(request, cancellationToken);
+        var response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
         var dPoPNonce = response.GetDPoPNonce();
 
@@ -39,7 +39,7 @@ public class ProofTokenMessageHandler : DelegatingHandler
             // nonce is different, so old onto it
             _nonce = dPoPNonce;
 
-            // failure and nonce was differnet so we retry
+            // failure and nonce was different so we retry
             if (!response.IsSuccessStatusCode)
             {
                 response.Dispose();
