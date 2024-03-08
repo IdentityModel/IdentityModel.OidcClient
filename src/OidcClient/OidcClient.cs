@@ -398,7 +398,7 @@ namespace IdentityModel.OidcClient
                 var discoveryClient = Options.CreateClient();
                 var disco = await discoveryClient.GetDiscoveryDocumentAsync(new DiscoveryDocumentRequest
                 {
-                    Address = Options.Authority,
+                    Address = Options.Policy.Discovery.Authority ?? Options.Authority,
                     Policy = Options.Policy.Discovery
                 }, cancellationToken).ConfigureAwait(false);
 
