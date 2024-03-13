@@ -43,7 +43,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="IdentityModel" Version="7.0.0-preview.3" />
+        <PackageReference Include="IdentityModel" Version="7.0.0-preview.4" />
         <PackageReference Include="minver" Version="4.3.0" PrivateAssets="All" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.3.1" />
 
