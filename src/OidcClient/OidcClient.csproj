@@ -42,7 +42,7 @@
 </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="IdentityModel" Version="7.0.0-preview.3" />
+    <PackageReference Include="IdentityModel" Version="7.0.0-preview.4" />
     <PackageReference Include="minver" Version="4.3.0" PrivateAssets="All" />
     
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
@@ -51,10 +51,7 @@
 
   <!--Conditional Package references -->
   <ItemGroup Condition="'$(TargetFramework)' != 'net6.0'">
-    <PackageReference Include="System.Text.Json" Version="6.0.8" />
-
-    <!--Force older version to prevent incompatible references -->
-    <PackageReference Include="System.Text.Encodings.Web" Version="6.0.0" /> 
+    <PackageReference Include="System.Text.Json" Version="8.0.0" />
   </ItemGroup>   
 
 </Project>

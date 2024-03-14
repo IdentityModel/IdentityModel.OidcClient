@@ -5,7 +5,7 @@
         <RootNamespace>IdentityModel.OidcClient.DPoP</RootNamespace>
         <AssemblyName>IdentityModel.OidcClient.DPoP</AssemblyName>
 
-        <TargetFramework>netstandard2.0</TargetFramework>
+        <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
         <LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 
@@ -43,7 +43,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="IdentityModel" Version="7.0.0-preview.3" />
+        <PackageReference Include="IdentityModel" Version="7.0.0-preview.4" />
         <PackageReference Include="minver" Version="4.3.0" PrivateAssets="All" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.3.1" />
 
