@@ -173,5 +173,29 @@ namespace IdentityModel.OidcClient.Tests
 
             act.Should().Throw<InvalidOperationException>().Where(e => e.Message.Equals("Error loading discovery document: Error connecting to https://authority/.well-known/openid-configuration: not found"));
         }
+
+        [Fact]
+        public void Error404_while_loading_discovery_policy_authority_document_should_throw()
+        {
+            var options = new OidcClientOptions
+            {
+                Authority = "https://authority",
+                Policy = new Policy
+                {
+                    Discovery = new Client.DiscoveryPolicy
+                    {
+                        Authority = "https://diffauthority",
+                        ValidateIssuerName = false
+                    }
+                },
+                BackchannelHandler = new NetworkHandler(HttpStatusCode.NotFound, "not found")
+            };
+
+            var client = new OidcClient(options);
+
+            Func<Task> act = async () => { await client.EnsureProviderInformationAsync(CancellationToken.None); };
+
+            act.Should().Throw<InvalidOperationException>().Where(e => e.Message.Equals("Error loading discovery document: Error connecting to https://diffauthority/.well-known/openid-configuration: not found"));
+        }
     }
 }
