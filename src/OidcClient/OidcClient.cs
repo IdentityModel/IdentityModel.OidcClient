@@ -109,7 +109,7 @@ namespace IdentityModel.OidcClient
             _logger.LogTrace("PrepareLoginAsync");
 
             await EnsureConfigurationAsync(cancellationToken);
-            return _authorizeClient.CreateAuthorizeState(frontChannelParameters);
+            return await _authorizeClient.CreateAuthorizeStateAsync(frontChannelParameters);
         }
 
         /// <summary>
@@ -428,6 +428,7 @@ namespace IdentityModel.OidcClient
                     KeySet = disco.KeySet,
 
                     AuthorizeEndpoint = disco.AuthorizeEndpoint,
+                    PushedAuthorizationRequestEndpoint = disco.PushedAuthorizationRequestEndpoint,
                     TokenEndpoint = disco.TokenEndpoint,
                     EndSessionEndpoint = disco.EndSessionEndpoint,
                     UserInfoEndpoint = disco.UserInfoEndpoint,

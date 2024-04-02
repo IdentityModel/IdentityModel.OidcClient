@@ -8,7 +8,6 @@ using IdentityModel.OidcClient.Infrastructure;
 using IdentityModel.OidcClient.Results;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -44,7 +43,7 @@ namespace IdentityModel.OidcClient
 
             AuthorizeResult result = new AuthorizeResult
             {
-                State = CreateAuthorizeState(request.ExtraParameters)
+                State = await CreateAuthorizeStateAsync(request.ExtraParameters)
             };
 
             var browserOptions = new BrowserOptions(result.State.StartUrl, _options.RedirectUri)
@@ -86,7 +85,8 @@ namespace IdentityModel.OidcClient
             return await _options.Browser.InvokeAsync(browserOptions, cancellationToken);
         }
 
-        public AuthorizeState CreateAuthorizeState(Parameters frontChannelParameters)
+        public async Task<AuthorizeState> CreateAuthorizeStateAsync(Parameters frontChannelParameters
+            )
         {
             _logger.LogTrace("CreateAuthorizeStateAsync");
 
@@ -99,11 +99,44 @@ namespace IdentityModel.OidcClient
                 CodeVerifier = pkce.CodeVerifier,
             };
 
-            state.StartUrl = CreateAuthorizeUrl(state.State, pkce.CodeChallenge, frontChannelParameters);
+            if(_options.UsePushedAuthorization)
+            {
+                var parResponse = await PushAuthorizationRequestAsync(state.State, pkce.CodeChallenge, frontChannelParameters);
+                if(parResponse.IsError)
+                {
+                    // TODO - Consider logging more information (but we would need to sanitize?)
+                    _logger.LogError("Failed to push authorization parameters");
+
+                    // TODO - Consider how to signal errors to the caller/which exception type to throw
+                    throw new InvalidOperationException(parResponse.Error);
+                }
+                state.StartUrl = CreateAuthorizeUrl(parResponse.RequestUri, _options.ClientId);
+            }
+            else
+            {
+                state.StartUrl = CreateAuthorizeUrl(state.State, pkce.CodeChallenge, frontChannelParameters);
+            }
 
             _logger.LogDebug(LogSerializer.Serialize(state));
 
             return state;
+        }
+
+        private async Task<PushedAuthorizationResponse> PushAuthorizationRequestAsync(string state, string codeChallenge, Parameters frontChannelParameters)
+        {
+            var http = _options.CreateClient();
+            var par = new PushedAuthorizationRequest
+            {
+                Address = _options.ProviderInformation.PushedAuthorizationRequestEndpoint,
+                ClientId = _options.ClientId,
+                
+                ClientSecret = _options.ClientSecret,
+                ClientAssertion = _options.ClientAssertion,
+                
+                Parameters = CreateAuthorizeParameters(state, codeChallenge, frontChannelParameters),
+            };
+
+            return await http.PushAuthorizationAsync(par);
         }
 
         internal string CreateAuthorizeUrl(string state, string codeChallenge,
@@ -112,6 +145,20 @@ namespace IdentityModel.OidcClient
             _logger.LogTrace("CreateAuthorizeUrl");
 
             var parameters = CreateAuthorizeParameters(state, codeChallenge, frontChannelParameters);
+            var request = new RequestUrl(_options.ProviderInformation.AuthorizeEndpoint);
+
+            return request.Create(parameters);
+        }
+
+        internal string CreateAuthorizeUrl(string requestUri, string clientId)
+        {
+            _logger.LogTrace("CreateAuthorizeUrl with requestUri from PAR");
+
+            var parameters = new Parameters
+            {
+                { OidcConstants.AuthorizeRequest.ClientId, clientId },
+                { OidcConstants.AuthorizeRequest.RequestUri, requestUri }
+            };
             var request = new RequestUrl(_options.ProviderInformation.AuthorizeEndpoint);
 
             return request.Create(parameters);

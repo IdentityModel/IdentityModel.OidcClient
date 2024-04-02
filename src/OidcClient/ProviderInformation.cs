@@ -45,6 +45,14 @@ namespace IdentityModel.OidcClient
         public string AuthorizeEndpoint { get; set; }
 
         /// <summary>
+        /// Gets or sets the pushed authorization request (PAR) endpoint.
+        /// </summary>
+        /// <value>
+        /// The PAR endpoint.
+        /// </value>
+        public string PushedAuthorizationRequestEndpoint { get; set; }
+
+        /// <summary>
         /// Gets or sets the end session endpoint.
         /// </summary>
         /// <value>
