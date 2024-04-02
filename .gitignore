@@ -205,4 +205,8 @@ tools/
 .idea
 
 # Visual Studio Code workspace options
-.vscode
+.vscode/settings.json
+
+# Tokens stored by sample clients
+clients/*/proofkey
+clients/*/refresh_token
