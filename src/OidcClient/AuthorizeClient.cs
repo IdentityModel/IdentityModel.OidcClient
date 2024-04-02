@@ -85,8 +85,7 @@ namespace IdentityModel.OidcClient
             return await _options.Browser.InvokeAsync(browserOptions, cancellationToken);
         }
 
-        public async Task<AuthorizeState> CreateAuthorizeStateAsync(Parameters frontChannelParameters
-            )
+        public async Task<AuthorizeState> CreateAuthorizeStateAsync(Parameters frontChannelParameters)
         {
             _logger.LogTrace("CreateAuthorizeStateAsync");
 
