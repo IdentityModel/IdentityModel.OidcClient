@@ -1,5 +1,5 @@
 ## About IdentityModel.OidcClient
-IdentityModel.OidcClient is an OpenID Connect (OIDC) client library that for native
+IdentityModel.OidcClient is an OpenID Connect (OIDC) client library for native
 applications. It provides
 - Types that describe OIDC requests and responses
 - Low level methods to construct protocol state and handle responses
@@ -15,11 +15,12 @@ Framework. It can be used to build OIDC native clients with a variety of .NET UI
 The [samples repository](https://github.com/IdentityModel/IdentityModel.OidcClient.Samples)
 shows how to use it in 
 - .NET MAUI
-- Console Applications
-- WPF
-- WinForms
-- Xamarin iOS & Android
-- UWP
+- WPF with the system browser
+- WPF with an embedded browser
+- WinForms with an embedded browser
+- Cross Platform Console Applications (relies on kestrel for processing the callback)
+- Windows Console Applications (relies on an HttpListener - a wrapper around the windows HTTP.sys driver)
+- Windows Console Applications using custom uri schemes
 
 ## Documentation 
 
