@@ -184,7 +184,7 @@ namespace IdentityModel.OidcClient
 
                 ClientId = _options.ClientId,
                 ClientSecret = _options.ClientSecret,
-                ClientAssertion = _options.ClientAssertion,
+                ClientAssertion = await _options.GetClientAssertionAsync(),
                 ClientCredentialStyle = _options.TokenClientCredentialStyle,
 
                 Code = code,
