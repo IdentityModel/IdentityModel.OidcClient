@@ -37,6 +37,23 @@
                 "ASPNETCORE_ENVIRONMENT": "Development"
             },
             "console": "externalTerminal"
-          }
+          },
+          {
+            "name": "ManualModeConsoleClient",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-ManualModeConsoleClient",
+            "program": "${workspaceFolder}/clients/ManualModeConsoleClient/bin/Debug/net8.0-windows/ManualModeConsoleClient.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/clients/ManualModeConsoleClient",
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "console": "externalTerminal"
+          },
     ]
 }
