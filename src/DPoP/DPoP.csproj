@@ -7,7 +7,7 @@
 
         <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
         <LangVersion>latest</LangVersion>
-		<Nullable>enable</Nullable>
+        <Nullable>enable</Nullable>
 
         <PackageTags>OAuth2;OAuth 2.0;OpenID Connect;Security;Identity;IdentityServer;DPoP</PackageTags>
         <Description>DPoP extensions for IdentityModel.OidcClient</Description>
@@ -39,7 +39,7 @@
 
     <ItemGroup>
         <None Include="../../icon.jpg" Pack="true" Visible="false" PackagePath="" />
-        <None Include="README.md" Pack="true" PackagePath=""/>
+        <None Include="README.md" Pack="true" PackagePath="" />
     </ItemGroup>
 
     <ItemGroup>
@@ -52,7 +52,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\OidcClient\OidcClient.csproj" />
+        <ProjectReference Include="..\OidcClient\OidcClient.csproj" />
     </ItemGroup>
 
 </Project>
