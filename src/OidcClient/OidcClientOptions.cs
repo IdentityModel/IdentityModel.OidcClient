@@ -245,8 +245,10 @@ namespace IdentityModel.OidcClient
         };
 
         /// <summary>
-        /// Gets or sets a flag to enable Pushed Authorization Requests (PAR).
+        /// Gets or sets a flag to disable Pushed Authorization Requests (PAR).
+        /// By default, we use PAR when there is a configured PAR endpoint or
+        /// when the discovery endpoint indicates that it supports PAR.
         /// </summary>
-        public bool UsePushedAuthorization { get; set; }
+        public bool DisablePushedAuthorization { get; set; } = false;
     }
 }

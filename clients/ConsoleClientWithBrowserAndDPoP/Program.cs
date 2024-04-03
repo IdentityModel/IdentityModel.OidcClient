@@ -47,8 +47,7 @@ namespace ConsoleClientWithBrowserAndDPoP
                 RedirectUri = redirectUri,
                 Scope = "openid profile api offline_access",
                 FilterClaims = false,
-                Browser = browser,
-                UsePushedAuthorization = true
+                Browser = browser
             };
 
             options.ConfigureDPoP(proofKey); 

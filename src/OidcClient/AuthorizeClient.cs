@@ -105,8 +105,10 @@ namespace IdentityModel.OidcClient
                 CodeVerifier = pkce.CodeVerifier,
             };
 
-            if(_options.UsePushedAuthorization)
+            if(_options.ProviderInformation.PushedAuthorizationRequestEndpoint.IsPresent() &&
+                !_options.DisablePushedAuthorization)
             {
+                _logger.LogDebug("The IdentityProvider contains a pushed authorization request endpoint. Automatically pushing authorization parameters. Use DisablePushedAuthorization to opt out.");
                 var parResponse = await PushAuthorizationRequestAsync(state.State, pkce.CodeChallenge, frontChannelParameters);
                 if(parResponse.IsError)
                 {

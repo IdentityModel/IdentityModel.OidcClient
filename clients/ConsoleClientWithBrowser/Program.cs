@@ -47,8 +47,6 @@ namespace ConsoleClientWithBrowser
                 Browser = browser,
                 IdentityTokenValidator = new JwtHandlerIdentityTokenValidator(),
                 RefreshTokenInnerHttpHandler = new SocketsHttpHandler(),
-
-                UsePushedAuthorization = true
             };
 
             var serilog = new LoggerConfiguration()
