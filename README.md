@@ -9,18 +9,18 @@ and is distributed as a separate package in order to prevent certain dependency 
 Finally, IdentityModel.OidcClient.DPoP adds [DPoP](https://datatracker.ietf.org/doc/html/rfc9449) 
 extensions to IdentityModel.OidcClient for sender-constraining tokens.
 
-
 ## Samples
 OidcClient targets .NET Standard, making it suitable for .NET and .NET
 Framework. It can be used to build OIDC native clients with a variety of .NET UI tools.
 The [samples repository](https://github.com/IdentityModel/IdentityModel.OidcClient.Samples)
 shows how to use it in 
 - .NET MAUI
-- Console Applications
-- WPF
-- WinForms
-- Xamarin iOS & Android
-- UWP
+- WPF with the system browser
+- WPF with an embedded browser
+- WinForms with an embedded browser
+- Cross Platform Console Applications (relies on kestrel for processing the callback)
+- Windows Console Applications (relies on an HttpListener - a wrapper around the windows HTTP.sys driver)
+- Windows Console Applications using custom uri schemes
 
 ## Documentation 
 
@@ -31,9 +31,6 @@ More documentation is available
 ## Certification
 OidcClient is a [certified](http://openid.net/certification/) OpenID Connect
 relying party implementation.
-
-![openid_certified](https://cloud.githubusercontent.com/assets/1454075/7611268/4d19de32-f97b-11e4-895b-31b2455a7ca6.png)
-
 
 ## Feedback
 

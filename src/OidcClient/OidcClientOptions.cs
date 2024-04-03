@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging.Abstractions;
+using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace IdentityModel.OidcClient
 {
@@ -18,6 +20,14 @@ namespace IdentityModel.OidcClient
     /// </summary>
     public class OidcClientOptions
     {
+        /// <summary>
+        /// Creates an instance of the OidcClientOptions class.
+        /// </summary>
+        public OidcClientOptions()
+        {
+            GetClientAssertionAsync ??= () => Task.FromResult(ClientAssertion);
+        }
+
         /// <summary>
         /// Gets or sets the authority.
         /// </summary>
@@ -57,6 +67,12 @@ namespace IdentityModel.OidcClient
         /// The client assertion.
         /// </value>
         public ClientAssertion ClientAssertion { get; set; } = new ClientAssertion();
+
+        /// <summary>
+        /// Gets or sets a callback that computes the client assertion. By default, this returns the statically configured ClientAssertion
+        /// </summary>
+        [JsonIgnore]
+        public Func<Task<ClientAssertion>> GetClientAssertionAsync { get; set; }
 
         /// <summary>
         /// Gets or sets the scopes (required).
