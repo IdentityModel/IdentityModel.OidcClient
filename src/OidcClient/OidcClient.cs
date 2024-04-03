@@ -336,7 +336,7 @@ namespace IdentityModel.OidcClient
                 Address = Options.ProviderInformation.TokenEndpoint,
                 ClientId = Options.ClientId,
                 ClientSecret = Options.ClientSecret,
-                ClientAssertion = Options.ClientAssertion,
+                ClientAssertion = await Options.GetClientAssertionAsync(),
                 ClientCredentialStyle = Options.TokenClientCredentialStyle,
                 RefreshToken = refreshToken,
                 Parameters = backChannelParameters,

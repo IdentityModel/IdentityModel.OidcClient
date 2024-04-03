@@ -3,6 +3,7 @@
 
 
 using FluentAssertions;
+using IdentityModel.Client;
 using IdentityModel.Jwk;
 using IdentityModel.OidcClient.Tests.Infrastructure;
 using System;
@@ -172,6 +173,19 @@ namespace IdentityModel.OidcClient.Tests
             Func<Task> act = async () => { await client.EnsureProviderInformationAsync(CancellationToken.None); };
 
             act.Should().Throw<InvalidOperationException>().Where(e => e.Message.Equals("Error loading discovery document: Error connecting to https://authority/.well-known/openid-configuration: not found"));
+        }
+
+        [Fact]
+        public async Task GetClientAssertionAsync_should_return_statically_configured_client_assertion_by_default()
+        {
+            var options = new OidcClientOptions
+            {
+                ClientAssertion = new ClientAssertion { Type = "test", Value = "expected" }
+            };
+
+            var result = await options.GetClientAssertionAsync();
+            result.Type.Should().Be("test");
+            result.Value.Should().Be("expected");
         }
     }
 }
