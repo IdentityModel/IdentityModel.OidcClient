@@ -10,6 +10,10 @@
         <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <NoWarn>CS8002</NoWarn>
+    </PropertyGroup>
+
     <ItemGroup>
         <ProjectReference Include="..\..\src\DPoP\DPoP.csproj" />
         <ProjectReference Include="..\..\src\OidcClient\OidcClient.csproj" />
