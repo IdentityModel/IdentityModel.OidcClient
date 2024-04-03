@@ -46,6 +46,13 @@ namespace IdentityModel.OidcClient
                 State = await CreateAuthorizeStateAsync(request.ExtraParameters)
             };
 
+            if(result.State.IsError)
+            {
+                result.Error = result.State.Error;
+                result.ErrorDescription = result.State.ErrorDescription;
+                return result;
+            }
+
             var browserOptions = new BrowserOptions(result.State.StartUrl, _options.RedirectUri)
             {
                 Timeout = TimeSpan.FromSeconds(request.Timeout),
@@ -103,11 +110,11 @@ namespace IdentityModel.OidcClient
                 var parResponse = await PushAuthorizationRequestAsync(state.State, pkce.CodeChallenge, frontChannelParameters);
                 if(parResponse.IsError)
                 {
-                    // TODO - Consider logging more information (but we would need to sanitize?)
                     _logger.LogError("Failed to push authorization parameters");
 
-                    // TODO - Consider how to signal errors to the caller/which exception type to throw
-                    throw new InvalidOperationException(parResponse.Error);
+                    state.Error = "Failed to push authorization parameters";
+                    state.ErrorDescription = parResponse.Error;
+                    return state;
                 }
                 state.StartUrl = CreateAuthorizeUrl(parResponse.RequestUri, _options.ClientId);
             }
