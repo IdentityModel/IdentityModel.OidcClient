@@ -114,8 +114,8 @@ namespace IdentityModel.OidcClient
                 {
                     _logger.LogError("Failed to push authorization parameters");
 
-                    state.Error = "Failed to push authorization parameters";
-                    state.ErrorDescription = parResponse.Error;
+                    state.Error = parResponse.Error;
+                    state.ErrorDescription = "Failed to push authorization parameters";
                     return state;
                 }
                 state.StartUrl = CreateAuthorizeUrl(parResponse.RequestUri, _options.ClientId);
