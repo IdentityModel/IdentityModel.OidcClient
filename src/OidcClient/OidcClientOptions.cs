@@ -181,7 +181,7 @@ namespace IdentityModel.OidcClient
         public HttpMessageHandler RefreshTokenInnerHttpHandler { get; set; }
 
         /// <summary>
-        /// Gets or sets the HTTP handler used for back-channel communication (token and userinfo endpoint).
+        /// Gets or sets the HTTP handler used for back-channel communication (token, pushed authorization, and userinfo endpoints).
         /// </summary>
         /// <value>
         /// The backchannel handler.
@@ -259,5 +259,12 @@ namespace IdentityModel.OidcClient
             JwtClaimTypes.AccessTokenHash,
             JwtClaimTypes.StateHash
         };
+
+        /// <summary>
+        /// Gets or sets a flag to disable Pushed Authorization Requests (PAR).
+        /// By default, we use PAR when there is a configured PAR endpoint or
+        /// when the discovery endpoint indicates that it supports PAR.
+        /// </summary>
+        public bool DisablePushedAuthorization { get; set; } = false;
     }
 }

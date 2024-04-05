@@ -7,7 +7,7 @@ namespace IdentityModel.OidcClient
     /// <summary>
     /// Represents the state the needs to be hold between starting the authorize request and the response
     /// </summary>
-    public class AuthorizeState
+    public class AuthorizeState : Result
     {
         /// <summary>
         /// Gets or sets the start URL.
