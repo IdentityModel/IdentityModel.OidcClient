@@ -16,6 +16,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using IdentityModel.Client;
 using Xunit;
+using System.Web;
 
 namespace IdentityModel.OidcClient.Tests
 {
@@ -485,6 +486,83 @@ namespace IdentityModel.OidcClient.Tests
 
             result.IsError.Should().BeTrue();
             result.Error.Should().Contain("invalid_jwt");
+        }
+
+        [Fact]
+        public async Task Authorize_should_push_parameters_when_PAR_is_enabled()
+        {
+            // Configure the client for PAR, authenticating with a client secret
+            _options.ClientSecret = "secret";
+            _options.ProviderInformation.PushedAuthorizationRequestEndpoint = "https://this-is-set-so-par-will-be-used";
+            var client = new OidcClient(_options);
+
+            // Mock the response from the par endpoint
+            var requestUri = "mocked_request_uri";
+            var parResponse = new Dictionary<string, string>
+            {
+                { "request_uri", requestUri }
+            };
+            var backChannelHandler = new NetworkHandler(JsonSerializer.Serialize(parResponse), HttpStatusCode.OK);
+            _options.BackchannelHandler = backChannelHandler;
+
+            // Prepare the login to cause the backchannel PAR request
+            var state = await client.PrepareLoginAsync();
+
+            // Validate that the resulting PAR state is correct
+            var startUrl = new Uri(state.StartUrl);
+            var startUrlQueryParams = HttpUtility.ParseQueryString(startUrl.Query);
+            startUrlQueryParams.Should().HaveCount(2);
+            startUrlQueryParams.GetValues("client_id").Single().Should().Be("client");
+            startUrlQueryParams.GetValues("request_uri").Single().Should().Be(requestUri);
+
+            // Validate that the client authentication during the PAR request was correct
+            var request = backChannelHandler.Request;
+            request.Headers.Authorization.Should().NotBeNull();
+            request.Headers.Authorization.Scheme.Should().Be("Basic");
+            request.Headers.Authorization.Parameter.Should()
+                .Be(BasicAuthenticationOAuthHeaderValue.EncodeCredential("client", "secret"));
+        }
+        
+        [Fact]
+        public async Task Par_request_should_include_client_assertion_in_body()
+        {
+            // Configure the client for PAR, authenticating with a client assertion
+            var clientAssertion = "mocked_client_assertion";
+            var clientAssertionType = "mocked_assertion_type";
+            _options.ClientAssertion = new ClientAssertion
+            {
+                Type = clientAssertionType,
+                Value = clientAssertion
+            };
+            _options.ProviderInformation.PushedAuthorizationRequestEndpoint = "https://this-is-set-so-par-will-be-used";
+            var client = new OidcClient(_options);
+
+            // Mock the response from the par endpoint
+            var requestUri = "mocked_request_uri";
+            var parResponse = new Dictionary<string, string>
+            {
+                { "request_uri", requestUri }
+            };
+            var backChannelHandler = new NetworkHandler(JsonSerializer.Serialize(parResponse), HttpStatusCode.OK);
+            _options.BackchannelHandler = backChannelHandler;
+
+            // Prepare the login to cause the backchannel PAR request
+            var state = await client.PrepareLoginAsync();
+
+            // Validate that the resulting PAR state is correct
+            var startUrl = new Uri(state.StartUrl);
+            var startUrlQueryParams = HttpUtility.ParseQueryString(startUrl.Query);
+            startUrlQueryParams.Should().HaveCount(2);
+            startUrlQueryParams.GetValues("client_id").Single().Should().Be("client");
+            startUrlQueryParams.GetValues("request_uri").Single().Should().Be(requestUri);
+
+            // Validate that the client authentication during the PAR request was correct
+            var parRequest = backChannelHandler.Request;
+            var parContent = await parRequest.Content.ReadAsStringAsync();
+            var parParams = HttpUtility.ParseQueryString(parContent);
+            parParams.GetValues("client_assertion").Single().Should().Be(clientAssertion);
+            parParams.GetValues("client_assertion_type").Single().Should().Be(clientAssertionType);
+            parRequest.Headers.Authorization.Should().BeNull();
         }
     }
 }
