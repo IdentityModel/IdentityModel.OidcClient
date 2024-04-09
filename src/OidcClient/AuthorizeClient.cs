@@ -140,7 +140,9 @@ namespace IdentityModel.OidcClient
                 
                 ClientSecret = _options.ClientSecret,
                 ClientAssertion = await _options.GetClientAssertionAsync(),
-                
+
+                ClientCredentialStyle = ClientCredentialStyle.PostBody,
+
                 Parameters = CreateAuthorizeParameters(state, codeChallenge, frontChannelParameters),
             };
 
