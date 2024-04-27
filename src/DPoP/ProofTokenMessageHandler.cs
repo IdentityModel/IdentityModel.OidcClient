@@ -36,7 +36,7 @@ public class ProofTokenMessageHandler : DelegatingHandler
 
         if (dPoPNonce != _nonce)
         {
-            // nonce is different, so old onto it
+            // nonce is different, so hold onto it
             _nonce = dPoPNonce;
 
             // failure and nonce was differnet so we retry
