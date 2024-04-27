@@ -39,7 +39,7 @@ public class ProofTokenMessageHandler : DelegatingHandler
             // nonce is different, so hold onto it
             _nonce = dPoPNonce;
 
-            // failure and nonce was differnet so we retry
+            // failure and nonce was different so we retry
             if (!response.IsSuccessStatusCode)
             {
                 response.Dispose();
