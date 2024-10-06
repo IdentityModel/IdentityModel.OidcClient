@@ -22,7 +22,7 @@
     <ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="8.0.2" />
-		<PackageReference Include="Duende.IdentityServer" Version="7.0.1" />
+		<PackageReference Include="Duende.IdentityServer" Version="7.0.6" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.2" />
 
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
