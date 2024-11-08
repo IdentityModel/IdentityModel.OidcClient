@@ -25,7 +25,7 @@ public class DPoPProofTokenFactory
     {
         _jwk = new JsonWebKey(proofKey);
 
-        if (_jwk.Alg.IsNullOrEmpty())
+        if (string.IsNullOrEmpty(_jwk.Alg))
         {
             throw new ArgumentException("alg must be set on proof key");
         }
