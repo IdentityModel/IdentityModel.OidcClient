@@ -1,4 +1,11 @@
 ## About IdentityModel.OidcClient
+
+> [!IMPORTANT]  
+> `IdentityModel` is being rebranded to `Duende.IdentityModel.OidcClient` and henceforth will be managed 
+> in our [FOSS repository](https://github.com/DuendeSoftware/foss) under the same Apache2 licence.
+>  - Please update your nuget package references to the [new package](https://www.nuget.org/packages/Duende.IdentityModel).
+>  - Outstanding pull requests and issues will be ported or closed.
+
 This repository contains several libraries for building OpenID Connect (OIDC) native
 clients. The core IdentityModel.OidcClient library is a certified OIDC relying party and
 implements [RFC 8252](https://tools.ietf.org/html/rfc8252/), "OAuth 2.0 for native
