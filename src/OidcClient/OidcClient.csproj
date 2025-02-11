@@ -4,7 +4,7 @@
     <RootNamespace>IdentityModel.OidcClient</RootNamespace>
     <AssemblyName>IdentityModel.OidcClient</AssemblyName>
 
-    <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net6.0;net8.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
 
     <PackageId>IdentityModel.OidcClient</PackageId>
@@ -27,8 +27,9 @@
     <DebugType>embedded</DebugType>
 
     <!-- Enable Trimming Warnings to allow consumers to publish as trimmed -->
-    <IsTrimmable Condition="'$(TargetFramework)' == 'net6.0'">true</IsTrimmable>
-
+    <IsTrimmable Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">true</IsTrimmable>
+    <IsAotCompatible Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net7.0'))">true</IsAotCompatible>
+    
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">True</ContinuousIntegrationBuild>
 
     <AssemblyOriginatorKeyFile>../../key.snk</AssemblyOriginatorKeyFile>
@@ -50,7 +51,7 @@
   </ItemGroup>
 
   <!--Conditional Package references -->
-  <ItemGroup Condition="'$(TargetFramework)' != 'net6.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="System.Text.Json" Version="8.0.0" />
   </ItemGroup>   
 

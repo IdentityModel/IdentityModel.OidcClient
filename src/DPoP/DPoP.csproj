@@ -27,8 +27,9 @@
         <DebugType>embedded</DebugType>
 
         <!-- Enable Trimming Warnings to allow consumers to publish as trimmed -->
-        <IsTrimmable Condition="'$(TargetFramework)' == 'net6.0'">true</IsTrimmable>
-
+        <IsTrimmable Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">true</IsTrimmable>
+        <IsAotCompatible Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net7.0'))">true</IsAotCompatible>
+        
         <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">True</ContinuousIntegrationBuild>
 
         <AssemblyOriginatorKeyFile>../../key.snk</AssemblyOriginatorKeyFile>
